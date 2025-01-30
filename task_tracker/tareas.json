@@ -1,1 +1,30 @@
-[{"id": 1, "descripcion": "lavar", "estatus": "pendiente", "fecha_creacion": "2025-01-30 15:21:11", "fecha_actualizacion": "2025-01-30 15:28:20"}, {"id": 2, "descripcion": "lavar cocina", "estatus": "pendiente", "fecha_creacion": "2025-01-30 15:21:13", "fecha_actualizacion": "2025-01-30 15:21:13"}]
+[
+    {
+        "id": 1,
+        "descripcion": "limpiar patio",
+        "estatus": "pendiente",
+        "fecha_creacion": "2025-01-30 16:48:04",
+        "fecha_actualizacion": "2025-01-30 16:50:13"
+    },
+    {
+        "id": 2,
+        "descripcion": "sacar a pasear al perro",
+        "estatus": "pendiente",
+        "fecha_creacion": "2025-01-30 16:48:10",
+        "fecha_actualizacion": "2025-01-30 16:48:10"
+    },
+    {
+        "id": 3,
+        "descripcion": "lavar los platos",
+        "estatus": "pendiente",
+        "fecha_creacion": "2025-01-30 16:48:20",
+        "fecha_actualizacion": "2025-01-30 16:48:20"
+    },
+    {
+        "id": 4,
+        "descripcion": "lavar cocina",
+        "estatus": "pendiente",
+        "fecha_creacion": "2025-01-30 16:48:29",
+        "fecha_actualizacion": "2025-01-30 16:48:29"
+    }
+]
