@@ -1,66 +1,56 @@
 import sys
 import tareas
 from datetime import datetime
+print("--lista de comandos--\n")
+print(f"- add: añadir tarea\n- update: actualizar la descripcion de una tarea\n- delete: eliminar tarea\n- list: listar todas las tareas")
+print(f"- mark-done: actualiza una tarea como completada\n- mark-in-progress: actualiza una tarea como en progreso")
+print(f"- list done: muestra las tareas completadas\n- list todo: muestra las tareas pendiente\n- list in-progress: muestra las tareas en progreso\n")
 if __name__ == '__main__':
     if len(sys.argv)==2:
         if sys.argv[1]=='list':
-            datos = tareas.leer_json()
-            for dato in datos:
-                print(f"\ntarea: {dato['id']}, descripcion: {dato['descripcion']}, estatus: {dato['estatus']}, fecha de creacion: {dato['fecha_creacion']}, fecha de actualizacion: {dato['fecha_actualizacion']}\n")
+            tareas.listar()
         elif sys.argv[1]=='add':
             print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
         elif sys.argv[1]=='delete':
             print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
         elif sys.argv[1]=='update':
             print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='mark-done':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='mark-in-progress':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
         
 
     elif len(sys.argv)==3:
         if sys.argv[1]=='add':
-            datos = tareas.leer_json()
-            if len(datos)==0:
-                identificador=0
-            if len(datos)!=0:
-                for dato in datos:
-                    identificador = dato['id'] 
-            tarea = tareas.Tareas(identificador+1,sys.argv[2])
-            nueva_tarea={
-                'id': tarea.id,
-                'descripcion':tarea.descripcion,
-                'estatus':tarea.estatus,
-                'fecha_creacion':tarea.fecha_creacion,
-                'fecha_actualizacion':tarea.fecha_actualizacion
-            }
-            print(f"tarea agregada exitosamente! (ID: {identificador+1})")
-            datos.append(nueva_tarea)
-            tareas.escribir_json(datos)
+            tareas.add()
         
         elif sys.argv[1]=='delete':
-            tarea_encontrada=None
-            datos = tareas.leer_json()
-            for dato in datos:
-                if str(dato['id']) == sys.argv[2]:
-                    tarea_encontrada=dato
-            if tarea_encontrada is None:
-                print("tarea no encontrada")
-            else:
-                print(f"tarea con id: '{tarea_encontrada['id']}' eliminada exitosamete!")
-                datos.remove(tarea_encontrada)
-                tareas.escribir_json(datos)
+            tareas.delete()
+        
+        elif sys.argv[1]=='mark-done':
+            tareas.update_status("completada")
 
+        elif sys.argv[1]=='mark-in-progress':
+            tareas.update_status("en progreso")
+
+        elif sys.argv[1]=='list':
+            if sys.argv[2]=='done':
+                tareas.listar_completadas()
+            elif sys.argv[2]=='in-progress':
+                tareas.listar_en_progreso()
+            elif  sys.argv[2]=='todo':
+                tareas.listar_pendientes()
+            else:
+                print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
         else:
             print(f"error: el comando '{sys.argv[1]}' es desconocido")
     
     elif len(sys.argv)==4:
-        if sys.argv[1]=='update':
-            datos = tareas.leer_json()
-            for dato in datos:
-                if str(dato['id']) == sys.argv[2]:
-                    print(f"tarea con id: '{dato['id']}' y descripcion: '{dato['descripcion']}' actualizada correctamente!")
-                    dato['descripcion']=sys.argv[3]
-                    dato['fecha_actualizacion']=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    break
-            tareas.escribir_json(datos)
+        tareas.update()
+    
+    else:
+        print("error: demasiados argumentos")
             
             
 
