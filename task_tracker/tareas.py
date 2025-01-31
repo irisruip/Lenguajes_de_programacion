@@ -24,6 +24,7 @@ def listar_completadas():
     if len(lista_tareas)==0:
         print("no hay tareas completadas")
     else:
+        print("--tareas completadas--")
         for dato in lista_tareas:
             print(f"\ntarea: {dato['id']}, descripcion: {dato['descripcion']}, estatus: {dato['estatus']}, fecha de creacion: {dato['fecha_creacion']}, fecha de actualizacion: {dato['fecha_actualizacion']}\n")
 
@@ -36,7 +37,9 @@ def listar_en_progreso():
     if len(lista_tareas)==0:
         print("no hay tareas en progreso")
     else:
+        print("--tareas en progreso--")
         for dato in lista_tareas:
+            
             print(f"\ntarea: {dato['id']}, descripcion: {dato['descripcion']}, estatus: {dato['estatus']}, fecha de creacion: {dato['fecha_creacion']}, fecha de actualizacion: {dato['fecha_actualizacion']}\n")
 
 def listar_pendientes():
@@ -48,8 +51,9 @@ def listar_pendientes():
     if len(lista_tareas)==0:
         print("no hay tareas pendientes")
     else:
+        print("--tareas pendientes--")
         for dato in lista_tareas:
-            print("--tareas pendientes--")
+            
             print(f"\ntarea: {dato['id']}, descripcion: {dato['descripcion']}, estatus: {dato['estatus']}, fecha de creacion: {dato['fecha_creacion']}, fecha de actualizacion: {dato['fecha_actualizacion']}\n")
 
 def add():
