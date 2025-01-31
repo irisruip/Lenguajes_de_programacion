@@ -47,9 +47,22 @@ if __name__ == '__main__':
             print(f"error: el comando '{sys.argv[1]}' es desconocido")
     
     elif len(sys.argv)==4:
-        tareas.update()
-    
-    else:
+        if sys.argv[1]=='update':
+            tareas.update()
+        elif sys.argv[1]=='add':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='delete':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='update':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='mark-done':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='mark-in-progress':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+        elif sys.argv[1]=='list':
+            print(f"el comando '{sys.argv[1]}' necesita un argumento valido")
+            
+    elif len(sys.argv)>=5:
         print("error: demasiados argumentos")
             
             
