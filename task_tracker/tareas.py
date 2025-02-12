@@ -12,6 +12,7 @@ class Tareas:
 
 def listar():
     datos = leer_json()
+    print("--tareas totales--")
     for dato in datos:
         print(f"\ntarea: {dato['id']}, descripcion: {dato['descripcion']}, estatus: {dato['estatus']}, fecha de creacion: {dato['fecha_creacion']}, fecha de actualizacion: {dato['fecha_actualizacion']}\n")
 
