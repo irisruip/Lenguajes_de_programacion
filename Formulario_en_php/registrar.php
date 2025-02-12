@@ -1,9 +1,13 @@
 <?php
 include("conexion.php");
+echo "Conexión exitosa";
+
 
 // Inicializar variables para mensajes
 $message = "";
 $messageClass = "";
+
+var_dump($_POST);
 
 if (isset($_POST['register'])) {
     // Validación de campos obligatorios
@@ -35,7 +39,7 @@ if (isset($_POST['register'])) {
         $job = trim($_POST['job']);
         $social = isset($_POST['social']) ? trim($_POST['social']) : '';
         $comments = isset($_POST['comments']) ? trim($_POST['comments']) : '';
-        
+
         // Validar email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $message = "El correo electrónico no es válido.";
@@ -77,4 +81,3 @@ if (isset($_POST['register'])) {
         }
     }
 }
-?>

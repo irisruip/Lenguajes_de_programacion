@@ -1,23 +1,30 @@
 [
     {
         "id": 1,
-        "descripcion": "ir a la bodega",
-        "estatus": "en progreso",
-        "fecha_creacion": "2025-01-31 13:45:48",
-        "fecha_actualizacion": "2025-01-31 13:49:05"
+        "descripcion": "comprar huevos",
+        "estatus": "completada",
+        "fecha_creacion": "2025-02-01 08:28:20",
+        "fecha_actualizacion": "2025-02-01 08:28:43"
     },
     {
         "id": 2,
-        "descripcion": "salir a correr",
+        "descripcion": "comprar tomates",
         "estatus": "pendiente",
-        "fecha_creacion": "2025-01-31 13:46:19",
-        "fecha_actualizacion": "2025-01-31 13:48:31"
+        "fecha_creacion": "2025-02-01 08:28:59",
+        "fecha_actualizacion": "2025-02-01 08:28:59"
     },
     {
         "id": 3,
-        "descripcion": "limpiar patio",
+        "descripcion": "comprar pasta",
+        "estatus": "en progreso",
+        "fecha_creacion": "2025-02-01 08:29:07",
+        "fecha_actualizacion": "2025-02-01 08:30:12"
+    },
+    {
+        "id": 4,
+        "descripcion": "limpiar cocina",
         "estatus": "pendiente",
-        "fecha_creacion": "2025-01-31 13:46:43",
-        "fecha_actualizacion": "2025-01-31 13:46:43"
+        "fecha_creacion": "2025-02-01 08:29:16",
+        "fecha_actualizacion": "2025-02-01 08:29:16"
     }
 ]

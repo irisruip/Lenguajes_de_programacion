@@ -1,11 +1,14 @@
 <?php
-// Establecer conexión con la base de datos
-$conex = mysqli_connect("localhost", "root", "", "registro");
 
-// Verificar si la conexión fue exitosa
-if (!$conex) {
-    die("Error de conexión: " . mysqli_connect_error());
+$server = "localhost";
+$user = "root";
+$pass = "";
+$bd = "registro";
+
+$conexion = new mysqli($server, $user, $pass, $bd);
+
+if ($conexion->connect_error) {
+    die("Error en la conexion: " . $conexion->connect_error);
 } else {
-    echo "Conexión exitosa a la base de datos.";
+    echo "Conexion exitosa";
 }
-?>
