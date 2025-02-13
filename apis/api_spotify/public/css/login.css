@@ -1,0 +1,165 @@
+@font-face {
+    font-family: 'Circular';
+
+    src:
+        url('/assets/fonts/circular-std-medium-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+.opciones {
+    display: flex;
+    gap: 1rem;
+    /* Espacio entre los botones */
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.opciones .op {
+    padding: 1rem;
+    border-radius: 3rem;
+    /* Borde ovalado igual al botón "Buscar" */
+    border: none;
+    background-color: #707070;
+    /* Mismo color de fondo */
+    color: #efefef;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    width: 100%;
+    max-width: 300px;
+    /* Mismo ancho máximo que el botón "Buscar" */
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.opciones .op:hover {
+    background-color: #1db954;
+    /* Verde al pasar el mouse */
+    color: #fff;
+}
+
+
+
+.form h1 {
+    font-family: 'Circular', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #efefef;
+    margin-bottom: 10px;
+    /* Mantener el margen inferior si lo deseas */
+    position: relative;
+    top: -40px;
+    /* Mueve el texto hacia arriba sin afectar a los elementos debajo */
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.main-container h2 {
+    color: #1ED160;
+    margin-bottom: 20px;
+}
+
+.form {
+    --bg-light: #efefef;
+    --bg-dark: #707070;
+    --clr: #1db954;
+    --clr-alpha: #9c9c9c60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    margin-top: 20%;
+    color: #efefef;
+}
+
+.form .input-span {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form input[type="email"],
+.form input[type="password"],
+.form input[type="text"],
+.form input[type="date"] {
+    border-radius: 0.5rem;
+    padding: 1rem 0.75rem;
+    width: 100%;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--clr-alpha);
+    outline: 2px solid var(--bg-dark);
+    color: var(--bg-light);
+}
+
+.form input[type="email"]:focus,
+.form input[type="password"]:focus,
+.form input[type="text"]:focus,
+.form input[type="date"]:focus {
+    outline: 2px solid var(--clr);
+}
+
+.label {
+    align-self: flex-start;
+    color: var(--clr);
+    font-weight: 600;
+}
+
+.form .submit {
+    font-family: 'Circular', sans-serif;
+    padding: 1rem 0.75rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 3rem;
+    background-color: var(--bg-dark);
+    color: var(--bg-light);
+    border: none;
+    cursor: pointer;
+    transition: all 300ms;
+    font-weight: 550;
+    font-size: 1rem;
+    position: relative;
+    top: 15px;
+}
+
+.form .submit:hover {
+    background-color: var(--clr);
+    color: var(--bg-light);
+}
+
+.span {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: var(--bg-dark);
+    position: relative;
+    margin-top: 25px;
+    margin-bottom: 50px;
+}
+
+.span a {
+    color: #efefef;
+}
+
+.span a:hover {
+    color: var(--clr);
+}
+
+body {
+    background-color: #212121;
+}
