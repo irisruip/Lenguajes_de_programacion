@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apitify</title>
+
+    <link rel="stylesheet" href="/css/generales.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <style>
+        @font-face {
+            font-family: 'Circular';
+            src: url('/assets/fonts/circular-std-medium-500.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        body {
+            background-color: #212121;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 18% auto 0;
+            color: #efefef;
+        }
+
+        .form h1 {
+            font-family: 'Circular', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #efefef;
+            margin-bottom: 10px;
+        }
+
+        /* Contenedor del input y el botón */
+        .form-group {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .input-span {
+            flex-grow: 1;
+        }
+
+        .input-span label {
+            display: block;
+            color: #1db954;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #707070;
+            background-color: #2a2a2a;
+            color: #efefef;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .form input[type="text"]:focus {
+            border-color: #1db954;
+        }
+
+        .submit {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            background-color: #1db954;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 30%;
+            font-size: 1rem;
+        }
+
+        .submit:hover {
+            background-color: #14833b;
+        }
+
+        /* Estilos para mostrar el JSON */
+        .json-container {
+            display: none;
+            background-color: #2a2a2a;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 500px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #1db954;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <img src="/img/pngwing.com (1).png" alt="logo de spotify" class="logo-img">
+                    <h1>Apitify</h1>
+                </a>
+            </div>
+            <nav class="menu">
+                <a href="/">Inicio</a>
+                <a href="https://www.spotify.com/" target="_blank">Spotify</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <form class="form" id="songForm" method="POST" action="/intermediate">
+            <h1>La Api de los melómanos</h1>
+            <div class="form-group">
+                <span class="input-span">
+                    <label for="ruta">Ruta</label>
+                    <input type="text" name="ruta" id="ruta" required />
+
+                </span>
+                <input class="submit" type="submit" value="Buscar" />
+            </div>
+            <span class="span">¿Ni idea de que colocar? prueba estos ejemplos: <a
+                    href="/cancion/Lover">/cancion/Lover</a>, <a href="/artista/Magdalena Bay">/artista/Magdalena
+                    Bay</a>, <a href="/album/debi tirar mas fotos">/album/debi tirar mas fotos</a>. Si quieres crear tus
+                propias canciones ve a <a href="/crear">/crear</a>
+            </span>
+        </form>
+        <% if (artist && artist.length> 0) { %> <!-- Si 'artist' tiene datos -->
+            <div class="main-container">
+                <h2>Canciones de: <%- artist[0].artist %></h2>
+            </div>
+
+            <div class="json-container" id="jsonOutput">
+                <pre><%= JSON.stringify(artist, null, 2) %></pre>
+            </div>
+            <% } else if (song) { %> <!-- Si no hay artista pero sí hay canción -->
+                <div class="main-container">
+                    <h2>Canción "<%- song.title %>" de: <%- song.artist %> encontrada </h2>
+                </div>
+
+                <div class="json-container" id="jsonOutput">
+                    <pre><%= JSON.stringify(song, null, 2) %></pre>
+                </div>
+
+
+                <% } else if (album && album.length> 0) { %>
+
+                    <div class="main-container">
+                        <h2>Álbum "<%- album[0].album %>" de: <%- album[0].artist %> encontrado </h2>
+                    </div>
+
+                    <div class="json-container" id="jsonOutput">
+                        <pre><%= JSON.stringify(album, null, 2) %></pre>
+                    </div>
+
+
+
+
+
+                    <% } else { %>
+
+                        <div class="main-container">
+                            <h2>No se encontró el recurso</h2>
+                        </div>
+                        <div class="json-container" id="jsonOutput">
+                            <pre><%= JSON.stringify(song, null, 2) %></pre>
+                            <div class="form-group">
+
+
+                            </div>
+                        </div>
+
+
+                        <% } %>
+
+
+
+
+
+
+    </main>
+
+    <script>
+
+
+
+        const songForm = document.getElementById("songForm");
+        songForm.addEventListener("submit", (event) => {
+            const ruta = document.getElementById("ruta");
+
+            if (!ruta.value) {
+
+                event.preventDefault();
+                //muestra un mensaje de error
+                alert("Debes ingresar una ruta");
+            }
+
+            else if (!ruta.value.startsWith("cancion/") && !ruta.value.startsWith("artista/") && !ruta.value.startsWith("album/") && !ruta.value.startsWith("eliminar/")) {
+                event.preventDefault();
+                alert("se ingreso una ruta incorrecta");
+            }
+        });
+
+        const jsonContainer = document.getElementById("jsonOutput");
+        jsonContainer.style.margin = "0 auto";
+        jsonContainer.style.marginBottom = "20px";
+        jsonContainer.style.display = "flex";
+        jsonContainer.style.overflow = "auto";
+        jsonContainer.style.height = "300px";
+
+        function scrollactivado(jsonContainer) {
+            console.log(jsonContainer.scrollHeight)
+            console.log(jsonContainer.clientHeight)
+            return jsonContainer.scrollHeight > jsonContainer.clientHeight
+        }
+
+
+        if (scrollactivado(jsonContainer)) {
+
+            jsonContainer.style.margin = "0 auto";
+            jsonContainer.style.marginBottom = "20px";
+            jsonContainer.style.display = "flex";
+            jsonContainer.style.overflow = "auto";
+            jsonContainer.style.height = "300px";
+
+        }
+        else {
+            jsonContainer.style.margin = "0 auto";
+            jsonContainer.style.marginBottom = "20px";
+            jsonContainer.style.display = "flex";
+            jsonContainer.style.overflow = "auto";
+            jsonContainer.style.alignItems = "center";
+            jsonContainer.style.height = "300px";
+        }
+        console.log(jsonContainer.scrollHeight)
+
+
+
+        const pre = jsonContainer.querySelector("pre");
+        if (pre) {
+            pre.style.whiteSpace = "pre-wrap";
+        }
+    </script>
+</body>
+
+</html>
