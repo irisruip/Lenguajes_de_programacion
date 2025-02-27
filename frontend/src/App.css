@@ -1,0 +1,109 @@
+/* Estilos generales */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #121212;
+  color: white;
+}
+
+/* Sección principal */
+.main {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Sección de categorías */
+.categorias {
+  background-color: #1DB954;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.categorias h2 {
+  font-size: 32px;
+  color: #191414;
+}
+
+.categorias ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.categorias li {
+  background-color: #191414;
+  color: white;
+  border-radius: 8px;
+  padding: 15px 30px;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s;
+}
+
+.categorias li:hover {
+  transform: scale(1.1);
+  background-color: #1ed760;
+}
+
+/* Estilo de los productos */
+.rectangle {
+  background-color: #282828;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.rectangle h3 {
+  color: #1DB954;
+  margin-bottom: 15px;
+}
+
+/* Grid de productos */
+.products-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.product-card {
+  background-color: #3c3c3c;
+  padding: 15px;
+  border-radius: 10px;
+  width: 180px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.product-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.product-card h4 {
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+.product-card p {
+  font-size: 14px;
+  color: #1DB954;
+  margin-top: 5px;
+}
+
+/* Diseño de la página */
+footer {
+  text-align: center;
+  padding: 15px;
+  background-color: #191414;
+  color: white;
+}
