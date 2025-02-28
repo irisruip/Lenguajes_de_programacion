@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "cds",
+    "name": "CDs",
+    "url": "https://mi-ecommerce.com/categorias/cds"
+  },
+  {
+    "slug": "vinilos",
+    "name": "Vinilos",
+    "url": "https://mi-ecommerce.com/categorias/vinilos"
+  },
+  {
+    "slug": "cassettes",
+    "name": "Cassettes",
+    "url": "https://mi-ecommerce.com/categorias/cassettes"
+  },
+  {
+    "slug": "instrumentos",
+    "name": "Instrumentos Musicales",
+    "url": "https://mi-ecommerce.com/categorias/instrumentos"
+  },
+  {
+    "slug": "accesorios-musicales",
+    "name": "Accesorios Musicales",
+    "url": "https://mi-ecommerce.com/categorias/accesorios-musicales"
+  }
+]

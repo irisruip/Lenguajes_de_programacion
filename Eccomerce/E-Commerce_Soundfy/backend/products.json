@@ -1,0 +1,148 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Abbey Road - The Beatles (Vinilo)",
+      "description": "Edición remasterizada en vinilo del icónico álbum Abbey Road de The Beatles.",
+      "category": "vinilos",
+      "price": 29.99,
+      "discountPercentage": 10,
+      "rating": 4.9,
+      "stock": 15,
+      "tags": ["rock", "vinilo", "The Beatles"],
+      "brand": "Apple Records",
+      "sku": "VIN001",
+      "releaseYear": 1969,
+      "format": "Vinilo",
+      "dimensions": {
+        "width": 31.5,
+        "height": 31.5,
+        "depth": 0.5
+      },
+      "availabilityStatus": "In Stock",
+      "returnPolicy": "30 días de devolución",
+      "images": ["https://example.com/images/abbey-road.jpg"],
+      "thumbnail": "https://example.com/images/abbey-road-thumb.jpg"
+    },
+    {
+      "id": 2,
+      "title": "Nevermind - Nirvana (CD)",
+      "description": "Uno de los álbumes más influyentes del grunge, con clásicos como 'Smells Like Teen Spirit'.",
+      "category": "cds",
+      "price": 14.99,
+      "discountPercentage": 5,
+      "rating": 4.8,
+      "stock": 30,
+      "tags": ["grunge", "rock", "CD", "Nirvana"],
+      "brand": "DGC Records",
+      "sku": "CD002",
+      "releaseYear": 1991,
+      "format": "CD",
+      "dimensions": {
+        "width": 14,
+        "height": 12.5,
+        "depth": 1
+      },
+      "availabilityStatus": "In Stock",
+      "returnPolicy": "15 días de devolución",
+      "images": ["https://example.com/images/nevermind.jpg"],
+      "thumbnail": "https://example.com/images/nevermind-thumb.jpg"
+    },
+    {
+      "id": 3,
+      "title": "Walkman Sony Retro + Cassette de Queen",
+      "description": "Walkman Sony con cassette de Queen 'Greatest Hits'. Ideal para los nostálgicos del formato analógico.",
+      "category": "cassettes",
+      "price": 49.99,
+      "discountPercentage": 8,
+      "rating": 4.7,
+      "stock": 10,
+      "tags": ["retro", "cassette", "Queen"],
+      "brand": "Sony",
+      "sku": "CAS003",
+      "releaseYear": 1981,
+      "format": "Cassette",
+      "dimensions": {
+        "width": 10,
+        "height": 6,
+        "depth": 2
+      },
+      "availabilityStatus": "Limited Stock",
+      "returnPolicy": "No se aceptan devoluciones",
+      "images": ["https://example.com/images/walkman-queen.jpg"],
+      "thumbnail": "https://example.com/images/walkman-queen-thumb.jpg"
+    },
+    {
+      "id": 4,
+      "title": "Guitarra Fender Stratocaster",
+      "description": "Guitarra eléctrica Fender Stratocaster, ideal para músicos de todos los niveles.",
+      "category": "instrumentos",
+      "price": 899.99,
+      "discountPercentage": 12,
+      "rating": 5,
+      "stock": 5,
+      "tags": ["instrumento", "guitarra", "Fender"],
+      "brand": "Fender",
+      "sku": "GUIT004",
+      "releaseYear": 2023,
+      "format": "Instrumento",
+      "dimensions": {
+        "width": 35,
+        "height": 110,
+        "depth": 10
+      },
+      "availabilityStatus": "In Stock",
+      "returnPolicy": "Garantía de 1 año",
+      "images": ["https://example.com/images/fender-strat.jpg"],
+      "thumbnail": "https://example.com/images/fender-strat-thumb.jpg"
+    },
+    {
+      "id": 5,
+      "title": "Piano Yamaha P-45",
+      "description": "Piano digital Yamaha P-45 con teclas contrapesadas y sonido realista.",
+      "category": "instrumentos",
+      "price": 599.99,
+      "discountPercentage": 10,
+      "rating": 4.9,
+      "stock": 7,
+      "tags": ["instrumento", "piano", "Yamaha"],
+      "brand": "Yamaha",
+      "sku": "PIANO005",
+      "releaseYear": 2022,
+      "format": "Instrumento",
+      "dimensions": {
+        "width": 132,
+        "height": 15,
+        "depth": 29
+      },
+      "availabilityStatus": "In Stock",
+      "returnPolicy": "Garantía de 2 años",
+      "images": ["https://example.com/images/yamaha-p45.jpg"],
+      "thumbnail": "https://example.com/images/yamaha-p45-thumb.jpg"
+    },
+    {
+      "id": 6,
+      "title": "Púas para guitarra Fender",
+      "description": "Set de 12 púas Fender para guitarra eléctrica y acústica.",
+      "category": "accesorios-musicales",
+      "price": 9.99,
+      "discountPercentage": 5,
+      "rating": 4.5,
+      "stock": 50,
+      "tags": ["accesorios", "guitarra", "Fender"],
+      "brand": "Fender",
+      "sku": "PICK006",
+      "releaseYear": 2024,
+      "format": "Accesorio",
+      "dimensions": {
+        "width": 2,
+        "height": 3,
+        "depth": 0.1
+      },
+      "availabilityStatus": "In Stock",
+      "returnPolicy": "Devolución en 7 días",
+      "images": ["https://example.com/images/fender-picks.jpg"],
+      "thumbnail": "https://example.com/images/fender-picks-thumb.jpg"
+    }
+  ]
+}
