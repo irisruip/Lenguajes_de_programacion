@@ -1,9 +1,59 @@
-node_modules/
-env/
+# 📁 Archivos y carpetas de Python (Django)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+db.sqlite3
+instance/
+media/  # Si subes archivos de usuarios, puedes excluir esta carpeta
+
+# 📁 Entornos virtuales
 venv/
-frontend/venv
-.venv/
-__pycache__
-.vscode/*
-!.vscode/extensions.json
-*.kate-swp
+.env
+*.env  # Archivos de configuración sensibles
+
+# 📁 Archivos de logs y caché
+*.log
+logs/
+*.pid
+*.seed
+*.bak
+*.backup
+
+# 📁 Archivos de migraciones innecesarios
+migrations/*  # Excepto el __init__.py
+!migrations/__init__.py
+
+# 📁 Configuración de IDEs y editores
+.vscode/
+.idea/
+*.iml
+
+# 📁 Dependencias de Django y Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# 📁 Archivos generados por Webpack, Babel o Parcel
+*.cache/
+dist/
+build/
+public/
+
+# 📁 Archivos de Docker (si usas Docker en el proyecto)
+docker-compose.override.yml
+.dockerignore
+
+# 📁 Archivos estáticos y compilados
+staticfiles/
+static/
+*.tar.gz
+*.zip
+
+# 📁 Configuración de cobertura de tests
+coverage/
+*.cover
+htmlcov/
+
