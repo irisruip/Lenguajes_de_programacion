@@ -23,6 +23,7 @@ function App() {
   };
 
   const handleCategoryClick = (categoryId) => {
+    console.log("hola")
     navigate(`/categoria/${categoryId}`);
   };
 
