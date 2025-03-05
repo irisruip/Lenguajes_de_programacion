@@ -8,7 +8,7 @@ import json
 
 @csrf_exempt
 def registro(request):
-    return JsonResponse({'status': 'exito al acceder a la ruta de registro'})
+    return JsonResponse({'status': 'exitooo al acceder a la ruta de registro'})
 
 @csrf_exempt
 def login(request):
