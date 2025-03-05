@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend/src:/app/src # Monta el directorio src local al contenedor
+      - /app/node_modules # Evita sobrescribir los node_modules en el contenedor
+      - ../frontend:/app
+    networks:
+      - ecommerce-network
+
   user-service:
     build:
       context: ./user-service
@@ -26,7 +39,6 @@ services:
     networks:
       - ecommerce-network
   order-service:
-
     build:
       context: ./order-service
       dockerfile: Dockerfile
@@ -65,14 +77,23 @@ services:
     networks:
       - ecommerce-network
 
-  postgres:
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - ecommerce-network
 
+  postgres:
     image: postgres:13
     ports:
-      - "5432:5432"
+      - "5434:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: clavemuysegura
       POSTGRES_DB: ecommerce
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -80,17 +101,18 @@ services:
       - ecommerce-network
 
   nginx:
-    image: nginx:1.19
-    ports:
-      - "8080:80"
+    image: reverse-proxy
+    restart: always
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
     depends_on:
-      - user-service
       - product-service
       - order-service
       - payment-service
       - shopping-cart-service
+      - user-service
     networks:
       - ecommerce-network
 
