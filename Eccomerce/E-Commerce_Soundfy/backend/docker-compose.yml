@@ -26,6 +26,8 @@ services:
       - postgres
     networks:
       - ecommerce-network
+    volumes:
+      - ./user-service:/app
   product-service:
     build:
       context: ./product-service
@@ -38,6 +40,8 @@ services:
       - postgres
     networks:
       - ecommerce-network
+    volumes:
+      - ./product-service:/app
   order-service:
     build:
       context: ./order-service
@@ -50,6 +54,8 @@ services:
       - postgres
     networks:
       - ecommerce-network
+    volumes:
+      - ./order-service:/app
 
   payment-service:
     build:
@@ -63,6 +69,8 @@ services:
       - postgres
     networks:
       - ecommerce-network
+    volumes:
+      - ./payment-service:/app
 
   shopping-cart-service:
     build:
@@ -76,6 +84,8 @@ services:
       - postgres
     networks:
       - ecommerce-network
+    volumes:
+      - ./shopping-cart-service:/app
 
   notification-service:
     build:
@@ -87,6 +97,8 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
     networks:
       - ecommerce-network
+    volumes:
+      - ./notification-service:/app
 
   postgres:
     image: postgres:13
