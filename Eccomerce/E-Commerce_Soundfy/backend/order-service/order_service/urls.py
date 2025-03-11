@@ -16,6 +16,4 @@ urlpatterns = [
     path('<int:user_id>/<int:order_id>/', views.get_order, name='get_order'),
     #actualizar una orden
     path('<int:order_id>/status/', views.update_order, name='update_order'),
-
-
 ]

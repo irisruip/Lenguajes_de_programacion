@@ -29,8 +29,8 @@ const RegistroUsuario = () => {
     e.preventDefault();
 
     if (!formData.first_name || !formData.last_name || !formData.username ||
-        !formData.email || !formData.telefono || !formData.direccion ||
-        !formData.fecha_nacimiento || !formData.password || !formData.confirmPassword) {
+      !formData.email || !formData.telefono || !formData.direccion ||
+      !formData.fecha_nacimiento || !formData.password || !formData.confirmPassword) {
       alert('Por favor, completa todos los campos.');
       return;
     }
@@ -52,11 +52,11 @@ const RegistroUsuario = () => {
     };
 
     try {
-      const response = await axios.post('/api/usuarios/', payload);
+      const response = await axios.post('/api/users/registro/', payload);
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert('Usuario registrado con éxito.');
-        navigate('/'); 
+        navigate('/');
       }
     } catch (error) {
       console.error('Error al registrar el usuario:', error.response?.data || error.message);

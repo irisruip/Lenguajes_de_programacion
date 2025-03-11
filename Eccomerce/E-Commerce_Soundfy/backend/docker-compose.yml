@@ -8,9 +8,8 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ../frontend/src:/app/src # Monta el directorio src local al contenedor
+      - ../frontend/:/app # Monta el directorio src local al contenedor
       - /app/node_modules # Evita sobrescribir los node_modules en el contenedor
-      - ../frontend:/app
     networks:
       - ecommerce-network
 

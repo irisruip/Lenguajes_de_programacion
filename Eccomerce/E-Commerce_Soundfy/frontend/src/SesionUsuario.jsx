@@ -21,36 +21,19 @@ const SesionUsuario = () => {
       return;
     }
 
-    // Verificación de usuario para prueba con datos locales
-    if (email === 'juan@correo.com' && password === '1234') {
-      const userData = {
-        username: 'Juan',
-        email: 'juan@correo.com',
-        id: 1,
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
-      navigate('/'); // Redirige a la página principal o donde sea necesario
-    } else {
-      alert('Credenciales incorrectas.');
-    }
-
     // Descomenta este bloque para mantener la autenticación por API cuando se requiere
 
-    /*
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/usuarios/');
-      const usuario = response.data.find(
-        (user) => user.email === email && user.password === password
-      );
+      const response = await axios.post('/api/users/login/', {
+        email: email,
+        password: password
+      });
 
-      if (usuario) {
-        const userData = {
-          username: usuario.username,
-          email: usuario.email,
-          id: usuario.id,
-        };
+      if (response.data.status === 'success') {
+        const userData = response.data.user;
         localStorage.setItem('user', JSON.stringify(userData));
-        navigate('/'); // Redirige a la página principal o donde sea necesario
+        alert('Inicio de sesión exitoso.');
+        navigate('/'); // Redirige a la página principal
       } else {
         alert('Credenciales incorrectas.');
       }
@@ -58,7 +41,7 @@ const SesionUsuario = () => {
       console.error('Error al iniciar sesión:', error);
       alert('Ocurrió un error. Por favor, intenta nuevamente.');
     }
-    */
+
   };
 
   const handleRegisterClick = (e) => {
