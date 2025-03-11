@@ -15,29 +15,26 @@ def registro(request):
             data = json.loads(request.body)
 
             # Validar que todos los campos estén presentes
-            required_fields = ['username', 'email', 'password', 'telefono', 'direccion', 'fecha_nacimiento']
+            required_fields = ['nombre', 'email', 'password', 'telefono', 'direccion']
             if not all(field in data for field in required_fields):
                 return JsonResponse({'status': 'Error', 'error': 'Faltan campos obligatorios'}, status=400)
 
-            # Validar el formato de la fecha de nacimiento
-            try:
-                fecha_nacimiento = datetime.strptime(data['fecha_nacimiento'], "%Y-%m-%d").date()
-            except ValueError:
-                return JsonResponse({'status': 'Error', 'error': 'Formato de fecha inválido (debe ser YYYY-MM-DD)'}, status=400)
 
             # Hashear la contraseña
             hashed_password = make_password(data['password'])
 
             # Crear usuario
             user = Usuario.objects.create(
-                username=data['username'],
+                username=data['nombre'],
                 email=data['email'],
                 password=hashed_password,
                 telefono=data['telefono'],
                 direccion=data['direccion'],
-                fecha_nacimiento=fecha_nacimiento
             )
+            #
+
             return JsonResponse({'status': 'Usuario registrado con éxito'}, status=200)
+        
 
 
         except Exception as e:
@@ -77,4 +74,23 @@ def login(request):
             return JsonResponse({'status': 'Error', 'error': str(e)}, status=500)
 
     return JsonResponse({'status': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def obtener_usuario(request, id):
+    if request.method == 'GET':
+        try:
+            user = Usuario.objects.get(id=id)
+            return JsonResponse({
+                'id': user.id,
+                'nombre': user.username,
+                'email': user.email,
+                'telefono': user.telefono,
+                'direccion': user.direccion,
+            })
+        except Usuario.DoesNotExist:
+            return JsonResponse({'status': 'Error', 'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'Error', 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'status': 'Error', 'error': 'Método no permitido'}, status=405)
  

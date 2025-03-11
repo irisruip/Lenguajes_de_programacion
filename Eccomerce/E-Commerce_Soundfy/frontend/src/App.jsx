@@ -1,96 +1,43 @@
-import './App.css';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import Footer from './Footer';
-import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import "./App.css"
+import Header from "./Header"
+import Footer from "./Footer"
+import Inicio from "./Inicio"
+import Explorar from "./Explorar"
+import DetalleAlbum from "./DetalleAlbum"
+import Carrito from "./Carrito"
+import { CarritoProvider } from "./CarritoContext"
+import Login from "./Login"
+import Registro from "./Registro"
+import Perfil from "./Perfil"
+import Pedidos from "./Pedidos"
+import DetallePedido from "./DetallePedido"
 
 function App() {
-  const navigate = useNavigate();
-  const [productos, setProductos] = useState([]);
-  const [error, setError] = useState(null);
-
-  // Reemplazar con tu propia API en caso de tenerla
-  const fetchProductos = async () => {
-    try {
-      // Usamos una API pública de ejemplo para productos musicales
-      const response = await axios.get('https://fakestoreapi.com/products');
-      setProductos(response.data);
-    } catch (err) {
-      setError('Error al obtener los productos');
-      console.error('Error fetching productos:', err);
-    }
-  };
-
-  const handleCategoryClick = (categoryId) => {
-    console.log("hola")
-    navigate(`/categoria/${categoryId}`);
-  };
-
-  useEffect(() => {
-    fetchProductos();
-  }, []);
-
-  // Dividimos los productos en categorías simuladas (deberás adaptarlo a tus datos reales)
-  const categorias = {
-    vinilos: productos.filter(producto => producto.category === "vinyl"),
-    cds: productos.filter(producto => producto.category === "cd"),
-    discos: productos.filter(producto => producto.category === "disco"),
-    cassettes: productos.filter(producto => producto.category === "cassette")
-  };
-
   return (
-    <div>
-      <Navbar />
-      <div className="main">
-        <main>
-          <div className="categorias">
-            <h2>Categorías</h2>
-            <ul>
-              <li onClick={() => handleCategoryClick(1)}>Vinilos</li>
-              <li onClick={() => handleCategoryClick(2)}>CDs</li>
-              <li onClick={() => handleCategoryClick(3)}>Discos</li>
-              <li onClick={() => handleCategoryClick(4)}>Cassetes</li>
-            </ul>
-          </div>
-
-          <div className="productos-container">
-            {Object.keys(categorias).map((categoria) => (
-              <Rectangle key={categoria} title={categoria} productos={categorias[categoria]} />
-            ))}
-          </div>
-        </main>
-      </div>
-      <Footer />
-    </div>
-  );
-}
-
-function Rectangle({ title, productos = [] }) {
-  const navigate = useNavigate();
-
-  const handleProductClick = (productoId) => {
-    navigate(`/producto/${productoId}`);
-  };
-
-  return (
-    <div className="rectangle">
-      <h3>{title}</h3>
-      {productos.length > 0 ? (
-        <div className="products-grid">
-          {productos.map((producto) => (
-            <div key={producto.id} className="product-card" onClick={() => handleProductClick(producto.id)}>
-              <img src={producto.image || 'https://via.placeholder.com/150'} alt={producto.title} />
-              <h4>{producto.title}</h4>
-              <p>${producto.price}</p>
-            </div>
-          ))}
+    <CarritoProvider>
+      <Router>
+        <div className="app">
+          <Header />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<Inicio />} />
+              <Route path="/explorar" element={<Explorar />} />
+              <Route path="/album/:id" element={<DetalleAlbum />} />
+              <Route path="/carrito" element={<Carrito />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Registro />} />
+              <Route path="/perfil/:id" element={<Perfil />} />
+              <Route path="/pedidos" element={<Pedidos />} />
+              <Route path="/pedidos/:id" element={<DetallePedido />} />
+            </Routes>
+          </main>
+          <Footer />
         </div>
-      ) : (
-        <p>No hay productos disponibles.</p>
-      )}
-    </div>
-  );
+      </Router>
+    </CarritoProvider>
+  )
 }
 
-export default App;
+export default App
+
