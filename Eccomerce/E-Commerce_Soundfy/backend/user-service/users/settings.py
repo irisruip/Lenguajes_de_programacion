@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-ec_exa+k-z5%ucbl%++_n4ys-t$9h_70(bl8bp4r^$!b_$q1p(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    #añade nginx al host
+    'nginx',
+    'localhost',
+]
 
 
 # Application definition
@@ -37,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'user_service',
+    #añade cors
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +54,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #añade cors
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'users.urls'
 
@@ -74,7 +85,7 @@ WSGI_APPLICATION = 'users.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 #crea base de datos postgresql
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -84,7 +95,7 @@ DATABASES = {
         'HOST': 'postgres',
         'PORT': '5432',
     }
-}'''
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -18,6 +18,9 @@ const CategoriaPage = () => {
                 setLoading(true);
                 const productosResponse = await axios.get('/api/productos/');
                 const categoriaResponse = await axios.get(`/api/categorias/${id}`);
+                console.log("hola vista");
+                console.log(productosResponse.data);
+                console.log(categoriaResponse.data);
 
                 const productosFiltrados = productosResponse.data.filter(
                     (producto) => producto.categoria_id === parseInt(id)
@@ -72,5 +75,4 @@ const CategoriaPage = () => {
         </div>
     );
 };
-
 export default CategoriaPage;
