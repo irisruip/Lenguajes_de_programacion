@@ -98,6 +98,99 @@ button {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Auth container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.auth-card {
+  background-color: #282828;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.auth-card h1 {
+  font-size: 26px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.auth-error {
+  background-color: #ff4c4c;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #b3b3b3;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #181818;
+  color: #fff;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-group input:focus {
+  border-color: #1db954;
+  outline: none;
+}
+
+.auth-form .btn {
+  margin-top: 10px;
+}
+
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-links a {
+  color: #1db954;
+  text-decoration: none;
+  transition: text-decoration 0.2s ease-in-out;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-links p {
+  margin-top: 10px;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
@@ -118,4 +211,3 @@ button {
     opacity: 1;
   }
 }
-
