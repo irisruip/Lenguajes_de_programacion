@@ -7,7 +7,11 @@ class Usuario(AbstractUser):
     AbstractUser._meta.get_field('email')._unique = True
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=255, blank=True, null=True)
+    pais=models.CharField(max_length=255,blank=True,null=True)
+    ciudad=models.CharField(max_length=255,blank=True,null=True)
+    codigo_postal = models.CharField(max_length=20, blank=True, null=True)
     fecha_nacimiento = models.DateField(blank=True, null=True)
+
     # Agregar related_name a los campos de grupos y permisos
     groups = models.ManyToManyField(
         'auth.Group',

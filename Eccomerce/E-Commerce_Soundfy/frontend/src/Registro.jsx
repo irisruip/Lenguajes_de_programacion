@@ -12,6 +12,9 @@ function Registro() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [direccion, setDireccion] = useState("")
+  const [pais, setPais] = useState("")
+  const [ciudad, setCiudad] = useState("")
+  const [codigoPostal, setCodigoPostal] = useState("")
   const [telefono, setTelefono] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -33,6 +36,9 @@ function Registro() {
       password,
       direccion,
       telefono,
+      pais,
+      ciudad,
+      codigoPostal
     }
 
     try {
@@ -75,6 +81,21 @@ function Registro() {
           <div className="form-group">
             <label htmlFor="direccion">Dirección</label>
             <input type="text" id="direccion" value={direccion} onChange={(e) => setDireccion(e.target.value)} required />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pais">Pais</label>
+            <input type="text" id="pais" value={pais} onChange={(e) => setPais(e.target.value)} required />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="ciudad">Ciudad</label>
+            <input type="text" id="ciudad" value={ciudad} onChange={(e) => setCiudad(e.target.value)} required />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="codigopostal">Codigo Postal</label>
+            <input type="text" id="codigopostal" value={codigoPostal} onChange={(e) => setCodigoPostal(e.target.value)} required />
           </div>
 
           <div className="form-group">

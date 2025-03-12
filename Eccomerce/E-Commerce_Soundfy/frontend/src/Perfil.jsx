@@ -40,6 +40,9 @@ function Perfil() {
         setEmail(response.data.email || "")
         setTelefono(response.data.telefono || "")
         setDireccion(response.data.direccion || "")
+        setCiudad(response.data.ciudad || "")
+        setCodigoPostal(response.data.codigo_postal || "")
+        setPais(response.data.pais || "")
 
       } catch (err) {
         setError("No se pudo cargar la información del perfil")
@@ -57,15 +60,19 @@ function Perfil() {
     setError("")
 
     try {
-      await usuarioServicio.actualizarPerfil({
+      const update = await axios.post(`/api/users/actualizar/${id}/`, {
         nombre,
         email,
         telefono,
         direccion,
+        ciudad,
+        codigo_postal: codigoPostal,
+        pais,
       })
-
-      setMensaje("Perfil actualizado correctamente")
+      alert("Perfil actualizado con éxito")
+      setMensaje("Perfil actualizado con éxito")
     } catch (err) {
+      console.error(err.response?.data || err.message)
       setError("Error al actualizar el perfil")
     }
   }
