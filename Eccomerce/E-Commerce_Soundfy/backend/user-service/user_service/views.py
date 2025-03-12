@@ -15,7 +15,7 @@ def registro(request):
             data = json.loads(request.body)
 
             # Validar que todos los campos estén presentes
-            required_fields = ['nombre', 'email', 'password', 'telefono', 'direccion']
+            required_fields = ['nombre', 'email', 'password', 'telefono', 'direccion', 'pais', 'ciudad', 'codigoPostal']
             if not all(field in data for field in required_fields):
                 return JsonResponse({'status': 'Error', 'error': 'Faltan campos obligatorios'}, status=400)
 
@@ -30,6 +30,9 @@ def registro(request):
                 password=hashed_password,
                 telefono=data['telefono'],
                 direccion=data['direccion'],
+                pais=data['pais'],
+                ciudad=data['ciudad'],
+                codigo_postal=data['codigoPostal'],
             )
             #
 
@@ -86,7 +89,32 @@ def obtener_usuario(request, id):
                 'email': user.email,
                 'telefono': user.telefono,
                 'direccion': user.direccion,
+                'ciudad': user.ciudad,
+                'pais': user.pais,
+                'codigo_postal': user.codigo_postal,
+
             })
+        except Usuario.DoesNotExist:
+            return JsonResponse({'status': 'Error', 'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'Error', 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'status': 'Error', 'error': 'Método no permitido'}, status=405)
+@csrf_exempt 
+def actualizar_usuario(request,id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user = Usuario.objects.get(id=id)
+            user.username = data.get('nombre', user.username)
+            user.email = data.get('email', user.email)
+            user.telefono = data.get('telefono', user.telefono)
+            user.direccion = data.get('direccion', user.direccion)
+            user.ciudad = data.get('ciudad', user.ciudad)
+            user.pais = data.get('pais', user.pais)
+            user.codigo_postal = data.get('codigoPostal', user.codigo_postal)
+            user.save()
+            return JsonResponse({'status': 'Usuario actualizado con éxito'})
         except Usuario.DoesNotExist:
             return JsonResponse({'status': 'Error', 'error': 'Usuario no encontrado'}, status=404)
         except Exception as e:
