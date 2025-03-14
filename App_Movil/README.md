@@ -28,18 +28,18 @@ VibeScreens es una aplicación móvil que utiliza la API de [TheMovieDB](https:/
 2. **Abrir Vscode**
     Abren la carpeta clonada en VSCode. La estructura de carpetas debería verse similar a la siguiente:
 
-    Lenguajes_de_programacion/
-    └── App_Movil/
-        └── VibeScreens/
-            ├── app/
-            ├── assets/
-            ├── context/
-            ├── navigation/
-            ├── screens/
-            ├── .gitignore
-            ├── app.json
-            ├── App.jsx
-            └── ... (otros archivos)
+    Lenguajes_de_programacion/ <br>
+    └── App_Movil/ <br>
+        └── VibeScreens/ <br>
+            ├── app/ <br>
+            ├── assets/ <br>
+            ├── context/ <br>
+            ├── navigation/ <br>
+            ├── screens/ <br>
+            ├── .gitignore <br>
+            ├── app.json <br>
+            ├── App.jsx <br>
+            └── ... (otros archivos) 
 
 3. **Navegar a la App**
     Se dirigen a la carpeta de la aplicación:
@@ -60,13 +60,15 @@ VibeScreens es una aplicación móvil que utiliza la API de [TheMovieDB](https:/
 2. **Alternativa en caso de errores**
     Si encuentran problemas al utilizar el archivo .env, pueden comentar la importación en MovieContext.jsx (ubicado en la carpeta context) y declarar la API Key directamente:
 
-    `// import { API_KEY } from '@env';`
+    `// import { API_KEY } from '@env';` <br>
     `const API_KEY = 'tu_api_key_de_TheMovieDB';`
 
 ## Ejecución de la Aplicación
     
 1. **Descargar Expo Go**
     Descarguen e instalen la aplicación Expo Go en sus teléfonos desde este link en Drive debido a temas de compatibilidad esta versión es la que funciona
+
+    link de descarga: https://drive.google.com/file/d/12yREu_-KUpYn0MCKLqqmoLz9ZHRwvmUU/view?usp=drive_link 
 
 2. **Iniciar el Servidor**
     Dentro de la carpeta VibeScreen, inician el servidor de Expo con:
