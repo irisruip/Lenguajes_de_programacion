@@ -36,11 +36,6 @@ const SignInScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.logoContainer}>
-          <View style={styles.logoCirclesContainer}>
-            <View style={[styles.logoCircle, { backgroundColor: '#ff6b6b' }]} />
-            <View style={[styles.logoCircle, { backgroundColor: '#1dd1a1' }]} />
-            <View style={[styles.logoCircle, { backgroundColor: '#54a0ff' }]} />
-          </View>
           <Text style={styles.logoText}>VibeScreens</Text>
         </View>
 
@@ -133,7 +128,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#ff6b6b',
   },
   title: {
     fontSize: 28,
