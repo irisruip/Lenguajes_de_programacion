@@ -12,6 +12,7 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import ExploreScreen from './screens/ExploreScreen';
+import MovieDetailScreen from './screens/MovieDetailScreen';
 
 // Context
 import { MovieProvider } from './context/MovieContext';
@@ -19,6 +20,44 @@ import { MovieProvider } from './context/MovieContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const HomeStack = createStackNavigator();
+const ExploreStack = createStackNavigator();
+const NotificationsStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
+      <HomeStack.Screen name="MovieDetail" component={MovieDetailScreen} />
+    </HomeStack.Navigator>
+  );
+}
+
+function ExploreStackScreen() {
+  return (
+    <ExploreStack.Navigator screenOptions={{ headerShown: false }}>
+      <ExploreStack.Screen name="ExploreScreen" component={ExploreScreen} />
+      <ExploreStack.Screen name="MovieDetail" component={MovieDetailScreen} />
+    </ExploreStack.Navigator>
+  );
+}
+
+function NotificationsStackScreen() {
+  return (
+    <NotificationsStack.Navigator screenOptions={{ headerShown: false }}>
+      <NotificationsStack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+    </NotificationsStack.Navigator>
+  );
+}
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
+    </ProfileStack.Navigator>
+  );
+}
 
 function MainTabs() {
   return (
@@ -48,10 +87,10 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Explore" component={ExploreScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Home" component={HomeStackScreen} />
+      <Tab.Screen name="Explore" component={ExploreStackScreen} />
+      <Tab.Screen name="Notifications" component={NotificationsStackScreen} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }

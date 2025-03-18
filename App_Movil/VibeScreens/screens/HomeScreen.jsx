@@ -131,6 +131,7 @@ const HomeScreen = () => {
   const handleMoviePress = (movie) => {
     //Aquí iría la navegación a la pantalla de detalles de la película
     console.log('Movie selected:', movie.title);
+    navigation.navigate('MovieDetail', { movieId: movie.id });
   };
 
   if (isLoading && !refreshing) {
