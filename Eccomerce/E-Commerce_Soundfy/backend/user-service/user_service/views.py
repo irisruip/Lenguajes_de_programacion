@@ -47,6 +47,7 @@ def registro(request):
 
 @csrf_exempt
 def login(request):
+    print("entro")
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
