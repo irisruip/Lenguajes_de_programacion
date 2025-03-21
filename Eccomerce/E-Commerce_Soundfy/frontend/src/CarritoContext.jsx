@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react"
+import axios from "axios"
 
 const CarritoContext = createContext()
 
@@ -9,38 +10,40 @@ export function useCart() {
 }
 
 export function CarritoProvider({ children }) {
-  // Inicializar carrito desde localStorage si está disponible
-  const [cart, setCart] = useState(() => {
-    const carritoGuardado = localStorage.getItem("soudfy-cart")
-    return carritoGuardado ? JSON.parse(carritoGuardado) : []
-  })
+  const [cart, setCart] = useState([])
+  const usuario = JSON.parse(localStorage.getItem("user"))
 
-  // Guardar carrito en localStorage cuando cambia
   useEffect(() => {
-    localStorage.setItem("soudfy-cart", JSON.stringify(cart))
-  }, [cart])
+    if (!usuario || !usuario.id) {
+      console.error("No hay un usuario válido en localStorage")
+      return
+    }
 
-  // Añadir artículo al carrito
-  const addToCart = (item) => {
-    setCart((prevCart) => {
-      // Verificar si el artículo ya existe en el carrito (con el mismo formato)
-      const existingItemIndex = prevCart.findIndex(
-        (cartItem) => cartItem.id === item.id && cartItem.format === item.format,
-      )
-
-      if (existingItemIndex >= 0) {
-        // Actualizar cantidad si el artículo existe
-        const updatedCart = [...prevCart]
-        updatedCart[existingItemIndex].quantity += item.quantity
-        return updatedCart
-      } else {
-        // Añadir nuevo artículo si no existe
-        return [...prevCart, item]
+    const fetchCart = async () => {
+      try {
+        const response = await axios.get(`/api/cart/ver_carrito/${usuario.id}`)
+        const data = await response.data
+        setCart(data.cart.items || [])
+      } catch (error) {
+        console.error("Error al obtener carrito:", error)
       }
-    })
+    }
+    fetchCart()
+  }, [usuario?.id])
+
+  const addToCart = (item) => {
+    if (!usuario || !usuario.id) {
+      console.error("No hay un usuario válido en localStorage")
+      return
+    }
+
+    try {
+      axios.post(`/api/cart/agregar_item/`, item)
+    } catch (error) {
+      console.error("Error al añadir al carrito:", error)
+    }
   }
 
-  // Actualizar cantidad de artículo
   const updateQuantity = (item, newQuantity) => {
     setCart((prevCart) =>
       prevCart.map((cartItem) =>
@@ -49,14 +52,32 @@ export function CarritoProvider({ children }) {
     )
   }
 
-  // Eliminar artículo del carrito
-  const removeFromCart = (item) => {
-    setCart((prevCart) => prevCart.filter((cartItem) => !(cartItem.id === item.id && cartItem.format === item.format)))
+  const removeFromCart = async (item) => {
+    if (!usuario || !usuario.id) {
+      console.error("No hay un usuario válido en localStorage")
+      return
+    }
+
+    try {
+      await axios.delete(`/api/cart/eliminar_item/${usuario.id}/${item.product_id}/`)
+      setCart((prevCart) => prevCart.filter((cartItem) => cartItem.product_id !== item.product_id || cartItem.format !== item.format))
+    } catch (error) {
+      console.error("Error al eliminar del carrito:", error)
+    }
   }
 
-  // Vaciar carrito
-  const clearCart = () => {
-    setCart([])
+  const clearCart = async () => {
+    if (!usuario || !usuario.id) {
+      console.error("No hay un usuario válido en localStorage")
+      return
+    }
+
+    try {
+      await axios.delete(`/api/cart/eliminar_carrito/${usuario.id}/`)
+      setCart([])
+    } catch (error) {
+      console.error("Error al vaciar carrito:", error)
+    }
   }
 
   const value = {

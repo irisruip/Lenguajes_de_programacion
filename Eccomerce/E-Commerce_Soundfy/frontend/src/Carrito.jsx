@@ -5,12 +5,25 @@ import "./Cart.css"
 
 function Carrito() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart()
+  const usuario = JSON.parse(localStorage.getItem("user"))
 
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
   const envio = cart.length > 0 ? 5.99 : 0
   const impuestos = subtotal * 0.08 // 8% de impuestos
   const total = subtotal + envio + impuestos
+
+  if (!usuario || !usuario.id) {
+    return (
+      <div className="empty-cart">
+        <h1>Usuario no encontrado</h1>
+        <p>Por favor, inicia sesión para ver tu carrito.</p>
+        <Link to="/login" className="btn">
+          Iniciar Sesión
+        </Link>
+      </div>
+    )
+  }
 
   if (cart.length === 0) {
     return (
@@ -53,7 +66,7 @@ function Carrito() {
                 </div>
               </div>
 
-              <div className="item-price">${item.price.toFixed(2)}</div>
+              <div className="item-price">${Number(item.price).toFixed(2)}</div>
 
               <div className="item-quantity">
                 <div className="quantity-controls">

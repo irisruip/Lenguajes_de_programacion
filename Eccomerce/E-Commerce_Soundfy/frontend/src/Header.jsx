@@ -49,6 +49,7 @@ function Header() {
             <li><Link to="/">Inicio</Link></li>
             <li><Link to="/explorar">Explorar</Link></li>
             <li>
+
               <Link to="/carrito" className="cart-link">
                 Carrito {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
               </Link>

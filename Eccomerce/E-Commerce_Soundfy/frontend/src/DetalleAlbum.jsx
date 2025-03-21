@@ -8,6 +8,7 @@ import { musicData } from "./data"
 
 function DetalleAlbum() {
   const { id } = useParams()
+  const usuario = JSON.parse(localStorage.getItem("user"))
   const { addToCart } = useCart()
   const [cantidad, setCantidad] = useState(1)
   const [formato, setFormato] = useState("digital")
@@ -35,8 +36,10 @@ function DetalleAlbum() {
 
   // Manejar añadir al carrito
   const handleAddToCart = () => {
+    alert("Álbum añadido al carrito")
     addToCart({
-      id: album.id,
+      user_id: usuario.id,
+      id_album: album.id,
       title: album.title,
       artist: album.artist,
       cover: album.cover,
