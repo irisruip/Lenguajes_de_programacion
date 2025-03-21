@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom"
 import { useCart } from "./CarritoContext"
 import "./Cart.css"
+import { useEffect } from "react"
 
 function Carrito() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart()
@@ -12,6 +13,35 @@ function Carrito() {
   const envio = cart.length > 0 ? 5.99 : 0
   const impuestos = subtotal * 0.08 // 8% de impuestos
   const total = subtotal + envio + impuestos
+
+  // Agregar script de PayPal
+  useEffect(() => {
+    const script = document.createElement("script")
+    script.src = "https://www.paypal.com/sdk/js?client-id=AX0tP_PZ9TwJdkF7R-Q1Fg9tfrj5kfOCPRyzsJWcMCaY9BhkwC4mDXrWZ3zGW5ZiIZJ64STTWFsWQfv-&currency=USD"
+    script.async = true
+    script.onload = () => {
+      window.paypal.Buttons({
+        createOrder: (data, actions) => {
+          return actions.order.create({
+            purchase_units: [
+              {
+                amount: {
+                  value: total.toFixed(2),
+                },
+              },
+            ],
+          })
+        },
+        onApprove: (data, actions) => {
+          return actions.order.capture().then((details) => {
+            alert(`Pago completado por ${details.payer.name.given_name}`)
+            clearCart()
+          })
+        },
+      }).render("#paypal-button-container")
+    }
+    document.body.appendChild(script)
+  }, [total, clearCart])
 
   if (!usuario || !usuario.id) {
     return (
@@ -130,8 +160,7 @@ function Carrito() {
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
           </div>
-
-          <button className="btn checkout-button">Proceder al Pago</button>
+          <div id="paypal-button-container"></div>
 
           <div className="payment-methods">
             <p>Aceptamos:</p>
