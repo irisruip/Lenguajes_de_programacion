@@ -204,6 +204,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  color: #666;
 }
 
 .review-item {
@@ -291,4 +292,3 @@
     font-size: 14px;
   }
 }
-

@@ -19,7 +19,16 @@ class Pedido(models.Model):
     numero = models.CharField(max_length=20, unique=True)
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=EstadoPedido.choices, default=EstadoPedido.PENDIENTE)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    impuestos = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    fecha_envio = models.DateTimeField(blank=True, null=True)
+    direccion_envio = models.TextField(blank=True, null=True)
+    ciudad_envio = models.CharField(max_length=50, blank=True, null=True)
+    pais_envio = models.CharField(max_length=50, blank=True, null=True)
+    codigo_postal_envio = models.CharField(max_length=10, blank=True, null=True)
+    metodo_pago = "Paypal"
 
     class Meta:
         db_table = 'pedidos'

@@ -1,0 +1,42 @@
+[
+    {
+        "id": 101,
+        "title": "Imaginal Disk",
+        "artist": "Magdalena Bay",
+        "format": "cd",
+        "cover": "https://f4.bcbits.com/img/a3108453833_16.jpg",
+        "price": 15.99
+    },
+    {
+        "id": 102,
+        "title": "Mercurial World",
+        "artist": "Magdalena Bay",
+        "format": "vinyl",
+        "cover": "https://upload.wikimedia.org/wikipedia/en/b/b9/Mercurial_World.jpeg",
+        "price": 25.99
+    },
+    {
+        "id": 3,
+        "title": "Single Digital",
+        "artist": "Artista C",
+        "format": "digital",
+        "cover": "/covers/album3.jpg",
+        "price": 9.99
+    },
+    {
+        "id": 4,
+        "title": "Vinilo Moderno",
+        "artist": "Artista D",
+        "format": "vinyl",
+        "cover": "/covers/album4.jpg",
+        "price": 18.99
+    },
+    {
+        "id": 5,
+        "title": "Álbum de Colección",
+        "artist": "Artista E",
+        "format": "cd",
+        "cover": "/covers/album5.jpg",
+        "price": 22.99
+    }
+]

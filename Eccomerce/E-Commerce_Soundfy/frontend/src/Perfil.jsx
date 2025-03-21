@@ -19,12 +19,14 @@ function Perfil() {
   const [ciudad, setCiudad] = useState("")
   const [codigoPostal, setCodigoPostal] = useState("")
   const [pais, setPais] = useState("")
+  const [password, setPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
 
   // Estado para mensajes
   const [mensaje, setMensaje] = useState("")
   const [error, setError] = useState("")
   const { id } = useParams()
-  console.log(id)
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -35,7 +37,7 @@ function Perfil() {
 
         setUsuario(response.data)
         // Inicializar formulario con datos del usuario
-        console.log(response.data)
+        console.log(response.data.password)
         setNombre(response.data.nombre || "")
         setEmail(response.data.email || "")
         setTelefono(response.data.telefono || "")
@@ -53,6 +55,34 @@ function Perfil() {
 
     cargarUsuario()
   }, [id])
+
+  const handleSubmitPassword = async (e) => {
+    e.preventDefault();
+    setMensaje("");
+    setError("");
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?.id;
+
+    if (newPassword !== confirmNewPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/api/users/change_password/${userId}/`, {
+        currentPassword: password,
+        newPassword: newPassword,
+        confirmNewPassword: confirmNewPassword,
+      });
+
+      alert("Contraseña actualizada con éxito");
+      setMensaje("Contraseña actualizada con éxito");
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      setError("Error al actualizar la contraseña");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -82,7 +112,7 @@ function Perfil() {
   }
 
   return (
-    <div className="profile-container">
+    <div className="profile-container" >
       <div className="profile-header">
         <h1>Mi Cuenta</h1>
       </div>
@@ -143,7 +173,7 @@ function Perfil() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      disabled
+
                     />
                   </div>
                 </div>
@@ -212,20 +242,20 @@ function Perfil() {
           {activeTab === "password" && (
             <div className="profile-section">
               <h2>Cambiar Contraseña</h2>
-              <form className="profile-form">
+              <form className="profile-form" onSubmit={handleSubmitPassword}>
                 <div className="form-group">
                   <label htmlFor="currentPassword">Contraseña Actual</label>
-                  <input type="password" id="currentPassword" />
+                  <input type="password" id="currentPassword" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="newPassword">Nueva Contraseña</label>
-                  <input type="password" id="newPassword" />
+                  <input type="password" id="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="confirmNewPassword">Confirmar Nueva Contraseña</label>
-                  <input type="password" id="confirmNewPassword" />
+                  <input type="password" id="confirmNewPassword" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} />
                 </div>
 
                 <button type="submit" className="btn">
@@ -236,7 +266,7 @@ function Perfil() {
           )}
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

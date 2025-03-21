@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import "./DetallePedido.css"
 import { pedidoServicio } from "./servicios/PedidoServicio"
+import productos from "./productos.json"
+import axios from "axios"
 
 function DetallePedido() {
   const { id } = useParams()
@@ -14,11 +16,34 @@ function DetallePedido() {
   useEffect(() => {
     const cargarPedido = async () => {
       try {
-        const data = await pedidoServicio.obtenerPedidoPorId(id)
-        setPedido(data)
-      } catch (err) {
-        setError("No se pudo cargar el detalle del pedido")
-      } finally {
+        const response = await axios.get(`/api/orders/get_order/${id}/`)
+        const pedidosData = response.data
+
+        const pedidosConItems = await Promise.all(
+          pedidosData.map(async (pedido) => {
+            try {
+              const itemsResponse = await axios.get(`/api/orders/get_order_items/${pedido.id}/`)
+
+              const itemsConProductos = itemsResponse.data.map((item) => {
+
+                const producto = productos.find((p) => p.id === item.producto_id)
+                return { ...item, ...producto }
+              })
+              return { ...pedido, items: itemsConProductos }
+            } catch (error) {
+              console.error(`Error al obtener los items del pedido ${pedido.id}:`, error)
+              return { ...pedido, items: [] }
+            }
+          })
+        )
+
+        setPedido(pedidosConItems)
+      }
+      catch (err) {
+        console.log(err)
+        setError("No se pudo cargar la información del pedido")
+      }
+      finally {
         setLoading(false)
       }
     }
@@ -33,7 +58,6 @@ function DetallePedido() {
   if (error) {
     return <div className="error-message">{error}</div>
   }
-
   if (!pedido) {
     return (
       <div className="not-found">
@@ -46,13 +70,31 @@ function DetallePedido() {
     )
   }
 
+  const {
+    numero,
+    estado,
+    fecha,
+    total,
+    subtotal,
+    impuestos,
+    costo_envio,
+    direccion_envio,
+    metodo_pago,
+    pais_envio,
+    codigo_postal_envio,
+    ciudad_envio,
+    fecha_envio,
+    items,
+  } = pedido[0]
+  console.log(pedido)
+
   return (
     <div className="order-detail-container">
       <div className="order-detail-header">
         <Link to="/pedidos" className="back-link">
           &larr; Volver a Mis Pedidos
         </Link>
-        <h1>Detalles del Pedido #{pedido.numero}</h1>
+        <h1>Detalles del Pedido #{numero}</h1>
       </div>
 
       <div className="order-detail-grid">
@@ -61,7 +103,7 @@ function DetallePedido() {
             <div className="order-detail-section">
               <h2>Artículos</h2>
               <div className="order-items-list">
-                {pedido.items.map((item) => (
+                {items.map((item) => (
                   <div key={item.id} className="order-detail-item">
                     <div className="item-image">
                       <img src={item.cover || "/placeholder.svg"} alt={item.title} />
@@ -74,8 +116,8 @@ function DetallePedido() {
                       </div>
                     </div>
                     <div className="item-price">${item.price.toFixed(2)}</div>
-                    <div className="item-quantity">x{item.quantity}</div>
-                    <div className="item-total">${(item.price * item.quantity).toFixed(2)}</div>
+                    <div className="item-quantity">x{item.cantidad}</div>
+                    <div className="item-total">${(item.price * item.cantidad).toFixed(2)}</div>
                   </div>
                 ))}
               </div>
@@ -85,45 +127,45 @@ function DetallePedido() {
               <h2>Seguimiento</h2>
               <div className="order-timeline">
                 <div
-                  className={`timeline-step ${pedido.estado === "Pendiente" || pedido.estado === "Pagado" || pedido.estado === "Enviado" || pedido.estado === "Entregado" ? "active" : ""}`}
+                  className={`timeline-step ${estado === "Pendiente" || estado === "Enviado" || estado === "Entregado" ? "active" : ""}`}
                 >
                   <div className="step-icon">1</div>
                   <div className="step-content">
                     <div className="step-title">Pedido Recibido</div>
-                    <div className="step-date">{new Date(pedido.fecha).toLocaleDateString()}</div>
+                    <div className="step-date">{new Date(fecha).toLocaleDateString()}</div>
                   </div>
                 </div>
 
                 <div
-                  className={`timeline-step ${pedido.estado === "Pagado" || pedido.estado === "Enviado" || pedido.estado === "Entregado" ? "active" : ""}`}
+                  className={`timeline-step ${estado === "Enviado" || estado === "Entregado" ? "active" : ""}`}
                 >
                   <div className="step-icon">2</div>
                   <div className="step-content">
                     <div className="step-title">Pago Confirmado</div>
                     <div className="step-date">
-                      {pedido.fechaPago ? new Date(pedido.fechaPago).toLocaleDateString() : "Pendiente"}
+                      {fecha ? new Date(fecha).toLocaleDateString() : "Pendiente"}
                     </div>
                   </div>
                 </div>
 
                 <div
-                  className={`timeline-step ${pedido.estado === "Enviado" || pedido.estado === "Entregado" ? "active" : ""}`}
+                  className={`timeline-step ${estado === "Enviado" || estado === "Entregado" ? "active" : ""}`}
                 >
                   <div className="step-icon">3</div>
                   <div className="step-content">
                     <div className="step-title">Pedido Enviado</div>
                     <div className="step-date">
-                      {pedido.fechaEnvio ? new Date(pedido.fechaEnvio).toLocaleDateString() : "Pendiente"}
+                      {fecha_envio ? new Date(fecha_envio).toLocaleDateString() : "Pendiente"}
                     </div>
                   </div>
                 </div>
 
-                <div className={`timeline-step ${pedido.estado === "Entregado" ? "active" : ""}`}>
+                <div className={`timeline-step ${estado === "Entregado" ? "active" : ""}`}>
                   <div className="step-icon">4</div>
                   <div className="step-content">
                     <div className="step-title">Pedido Entregado</div>
                     <div className="step-date">
-                      {pedido.fechaEntrega ? new Date(pedido.fechaEntrega).toLocaleDateString() : "Pendiente"}
+                      {fecha ? new Date(fecha).toLocaleDateString() : "Pendiente"}
                     </div>
                   </div>
                 </div>
@@ -139,19 +181,19 @@ function DetallePedido() {
               <div className="order-summary">
                 <div className="summary-row">
                   <span>Estado:</span>
-                  <span className={`status-badge status-${pedido.estado.toLowerCase()}`}>{pedido.estado}</span>
+                  <span className={`status-badge status-${estado.toLowerCase()}`}>{estado}</span>
                 </div>
                 <div className="summary-row">
                   <span>Fecha del Pedido:</span>
-                  <span>{new Date(pedido.fecha).toLocaleDateString()}</span>
+                  <span>{new Date(fecha).toLocaleDateString()}</span>
                 </div>
                 <div className="summary-row">
                   <span>Número de Pedido:</span>
-                  <span>#{pedido.numero}</span>
+                  <span>#{numero}</span>
                 </div>
                 <div className="summary-row">
                   <span>Método de Pago:</span>
-                  <span>{pedido.metodoPago}</span>
+                  <span>{metodo_pago}</span>
                 </div>
               </div>
             </div>
@@ -159,12 +201,12 @@ function DetallePedido() {
             <div className="order-detail-section">
               <h2>Dirección de Envío</h2>
               <div className="shipping-address">
-                <p>{pedido.direccionEnvio.nombre}</p>
-                <p>{pedido.direccionEnvio.direccion}</p>
+                <p>{direccion_envio}</p>
+
                 <p>
-                  {pedido.direccionEnvio.ciudad}, {pedido.direccionEnvio.codigoPostal}
+                  {ciudad_envio}, {codigo_postal_envio}
                 </p>
-                <p>{pedido.direccionEnvio.pais}</p>
+                <p>{pais_envio}</p>
               </div>
             </div>
 
@@ -173,26 +215,21 @@ function DetallePedido() {
               <div className="payment-summary">
                 <div className="summary-row">
                   <span>Subtotal:</span>
-                  <span>${pedido.subtotal.toFixed(2)}</span>
+                  <span>${Number(subtotal).toFixed(2)}</span>
                 </div>
                 <div className="summary-row">
                   <span>Envío:</span>
-                  <span>${pedido.costoEnvio.toFixed(2)}</span>
+                  <span>${Number(costo_envio).toFixed(2)}</span>
                 </div>
                 <div className="summary-row">
                   <span>Impuestos:</span>
-                  <span>${pedido.impuestos.toFixed(2)}</span>
+                  <span>${Number(impuestos).toFixed(2)}</span>
                 </div>
                 <div className="summary-row total">
                   <span>Total:</span>
-                  <span>${pedido.total.toFixed(2)}</span>
+                  <span>${Number(total).toFixed(2)}</span>
                 </div>
               </div>
-            </div>
-
-            <div className="order-actions">
-              {pedido.estado === "Pendiente" && <button className="btn btn-secondary">Cancelar Pedido</button>}
-              <button className="btn">Contactar Soporte</button>
             </div>
           </div>
         </div>

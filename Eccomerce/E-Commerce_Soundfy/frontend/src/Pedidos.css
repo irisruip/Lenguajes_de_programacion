@@ -34,6 +34,7 @@
 .order-number {
   font-weight: 600;
   font-size: 16px;
+  color: #666;
 }
 
 .order-date {
@@ -111,6 +112,7 @@
 .item-title {
   font-weight: 600;
   font-size: 14px;
+  color: #666;
 }
 
 .item-artist {
@@ -152,6 +154,7 @@
 
 .order-total {
   font-size: 16px;
+  color: #666;
 }
 
 .order-total span {
@@ -211,4 +214,3 @@
     width: 100%;
   }
 }
-

@@ -5,7 +5,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section">
-          <h3>Soudfy</h3>
+          <h3>Soundfy</h3>
           <p>Tu tienda de música favorita.</p>
         </div>
 
@@ -45,6 +45,9 @@ function Footer() {
             <a href="#" aria-label="YouTube">
               YouTube
             </a>
+            <a href="https://letterboxd.com/lechuga_hervida/" aria-label="YouTube" target="_blank" rel="noreferrer">
+              Letterboxd
+            </a>
           </div>
         </div>
 
@@ -59,7 +62,7 @@ function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} Soudfy. Todos los derechos reservados.</p>
+        <p>&copy; {new Date().getFullYear()} Soundfy. Todos los derechos reservados.</p>
       </div>
     </footer>
   )

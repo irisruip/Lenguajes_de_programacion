@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import "./Pedidos.css"
-import { pedidoServicio } from "./servicios/PedidoServicio"
+import productos from "./productos.json"
 import axios from "axios"
+import "./Pedidos.css"
 
 function Pedidos() {
-  //obten el id del usuario desde el local storage basado en localStorage.setItem("user", JSON.stringify(userData))
   const user = JSON.parse(localStorage.getItem("user"))
-  //obten el id del usuario
-  const userId = user.id
+  const userId = user?.id
+
   const [pedidos, setPedidos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -20,14 +19,16 @@ function Pedidos() {
       try {
         const response = await axios.get(`/api/orders/get_orders/${userId}/`)
         const pedidosData = response.data
-        console.log(pedidosData)
-
-        // Obtener los items de cada pedido en paralelo
+        console.log(typeof pedidosData)
         const pedidosConItems = await Promise.all(
           pedidosData.map(async (pedido) => {
             try {
               const itemsResponse = await axios.get(`/api/orders/get_order_items/${pedido.id}/`)
-              return { ...pedido, items: itemsResponse.data }
+              const itemsConProductos = itemsResponse.data.map((item) => {
+                const producto = productos.find((p) => p.id === item.producto_id)
+                return { ...item, ...producto }
+              })
+              return { ...pedido, items: itemsConProductos }
             } catch (error) {
               console.error(`Error al obtener los items del pedido ${pedido.id}:`, error)
               return { ...pedido, items: [] }
@@ -37,32 +38,26 @@ function Pedidos() {
 
         setPedidos(pedidosConItems)
       } catch (err) {
-        setError("No se pudieron cargar los pedidos")
+
+        setError("No se pudieron cargar los pedidos. Por favor, intenta nuevamente.")
       } finally {
         setLoading(false)
       }
     }
 
-    cargarPedidos()
+    if (userId) cargarPedidos()
   }, [userId])
 
+  if (loading) return <div className="loading">Cargando pedidos...</div>
 
-  if (loading) {
-    return <div className="loading">Cargando pedidos...</div>
-  }
-
-  if (error) {
-    return <div className="error-message">{error}</div>
-  }
-  console.log(pedidos)
+  if (error) return <div className="error-message">{error}</div>
+  console.log(pedidos.id)
   if (pedidos.length === 0) {
     return (
       <div className="orders-empty">
         <h1>Mis Pedidos</h1>
         <p>Aún no has realizado ningún pedido.</p>
-        <Link to="/explorar" className="btn">
-          Explorar Música
-        </Link>
+        <Link to="/explorar" className="btn">Explorar Música</Link>
       </div>
     )
   }
@@ -100,17 +95,12 @@ function Pedidos() {
                   <div className="item-quantity">x{item.cantidad}</div>
                 </div>
               ))}
-
               {pedido.items.length > 3 && <div className="more-items">+ {pedido.items.length - 3} más</div>}
             </div>
 
             <div className="order-footer">
-              <div className="order-total">
-                Total: <span>${Number(pedido.total).toFixed(2)}</span>
-              </div>
-              <Link to={`/pedidos/${pedido.id}`} className="btn btn-secondary">
-                Ver Detalles
-              </Link>
+              <div className="order-total">Total: <span>${Number(pedido.total).toFixed(2)}</span></div>
+              <Link to={`/pedidos/${pedido.id}`} className="btn btn-secondary">Ver Detalles</Link>
             </div>
           </div>
         ))}
@@ -120,4 +110,3 @@ function Pedidos() {
 }
 
 export default Pedidos
-
