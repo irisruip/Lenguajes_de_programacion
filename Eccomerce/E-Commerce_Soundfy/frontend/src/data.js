@@ -1389,6 +1389,784 @@ export const musicData = {
           comment: "'Hey Bulldog' y 'It's All Too Much' son gemas ocultas en el catálogo de los Beatles."
         }
       ]
+    },
+    {
+      id: 38,
+      title: "In Rainbows",
+      artist: "Radiohead",
+      genre: "Alternative Rock",
+      price: 12.99,
+      releaseDate: "2007-10-10",
+      cover: "https://i.scdn.co/image/ab67616d0000b273de3c04b5fc750b68899b20a9",
+      description: "El séptimo álbum de estudio de Radiohead, lanzado inicialmente como descarga digital de pago voluntario. Es aclamado por su innovación y profundidad emocional.",
+      tracks: [
+        { "title": "15 Step", "duration": "3:57" },
+        { "title": "Bodysnatchers", "duration": "4:02" },
+        { "title": "Nude", "duration": "4:15" },
+        { "title": "Weird Fishes/Arpeggi", "duration": "5:18" },
+        { "title": "All I Need", "duration": "3:48" },
+        { "title": "Faust Arp", "duration": "2:09" },
+        { "title": "Reckoner", "duration": "4:50" },
+        { "title": "House of Cards", "duration": "5:28" },
+        { "title": "Jigsaw Falling into Place", "duration": "4:08" },
+        { "title": "Videotape", "duration": "4:39" }
+      ],
+      reviews: [
+        {
+          user: "RadioheadFan",
+          rating: 5,
+          date: "2007-10-15",
+          comment: "Una obra maestra moderna. 'Weird Fishes' es simplemente hipnótica."
+        },
+        {
+          user: "MusicLover",
+          rating: 4,
+          date: "2007-10-20",
+          comment: "Innovador y emocional, aunque algunos tracks pueden ser demasiado experimentales para algunos."
+        }
+      ]
+    },
+    {
+      id: 39,
+      title: "OK Computer",
+      artist: "Radiohead",
+      genre: "Alternative Rock",
+      price: 14.99,
+      releaseDate: "1997-05-21",
+      cover: "https://i.scdn.co/image/ab67616d0000b273c8b444df094279e70d0ed856",
+      description: "El tercer álbum de estudio de Radiohead, considerado uno de los mejores álbumes de todos los tiempos. Explora temas de alienación y tecnología en la sociedad moderna.",
+      tracks: [
+        { "title": "Airbag", "duration": "4:44" },
+        { "title": "Paranoid Android", "duration": "6:23" },
+        { "title": "Subterranean Homesick Alien", "duration": "4:27" },
+        { "title": "Exit Music (For a Film)", "duration": "4:24" },
+        { "title": "Let Down", "duration": "4:59" },
+        { "title": "Karma Police", "duration": "4:21" },
+        { "title": "Fitter Happier", "duration": "1:57" },
+        { "title": "Electioneering", "duration": "3:50" },
+        { "title": "Climbing Up the Walls", "duration": "4:45" },
+        { "title": "No Surprises", "duration": "3:48" },
+        { "title": "Lucky", "duration": "4:19" },
+        { "title": "The Tourist", "duration": "5:24" }
+      ],
+      reviews: [
+        {
+          user: "AltRockFan",
+          rating: 5,
+          date: "1997-06-01",
+          comment: "Un álbum revolucionario. 'Paranoid Android' es una de las mejores canciones jamás escritas."
+        },
+        {
+          user: "MusicCritic",
+          rating: 5,
+          date: "1997-06-10",
+          comment: "Una obra maestra que redefine lo que el rock puede ser. Absolutamente esencial."
+        }
+      ]
+    },
+    {
+      id: 40,
+      title: "Paramore",
+      artist: "Paramore",
+      genre: "Pop Rock",
+      price: 11.99,
+      releaseDate: "2013-04-05",
+      cover: "https://i.scdn.co/image/ab67616d0000b273532033d0d90736f661c13d35",
+      description: "El cuarto álbum de estudio de Paramore, que marca un cambio hacia un sonido más maduro y diverso, combinando pop, rock y elementos experimentales.",
+      tracks: [
+        { "title": "Fast in My Car", "duration": "3:42" },
+        { "title": "Now", "duration": "4:10" },
+        { "title": "Grow Up", "duration": "3:50" },
+        { "title": "Daydreaming", "duration": "3:31" },
+        { "title": "Interlude: Moving On", "duration": "1:30" },
+        { "title": "Ain't It Fun", "duration": "4:56" },
+        { "title": "Part II", "duration": "4:41" },
+        { "title": "Last Hope", "duration": "5:09" },
+        { "title": "Still Into You", "duration": "3:36" },
+        { "title": "Anklebiters", "duration": "2:17" },
+        { "title": "Interlude: Holiday", "duration": "1:09" },
+        { "title": "Proof", "duration": "3:15" },
+        { "title": "Hate to See Your Heart Break", "duration": "5:09" },
+        { "title": "(One of Those) Crazy Girls", "duration": "3:32" },
+        { "title": "Interlude: I'm Not Angry Anymore", "duration": "0:52" },
+        { "title": "Be Alone", "duration": "3:40" },
+        { "title": "Future", "duration": "7:52" }
+      ],
+      reviews: [
+        {
+          user: "ParamoreFan",
+          rating: 4,
+          date: "2013-04-10",
+          comment: "Un álbum valiente que muestra el crecimiento de la banda. 'Ain't It Fun' es un himno."
+        },
+        {
+          user: "PopRockLover",
+          rating: 4,
+          date: "2013-04-15",
+          comment: "Un sonido fresco y emocionalmente cargado. 'Still Into You' es increíblemente pegajosa."
+        }
+      ]
+    },
+    {
+      id: 41,
+      title: "54+1",
+      artist: "Danny Ocean",
+      genre: "Pop",
+      price: 9.99,
+      releaseDate: "2019-05-10",
+      cover: "https://i.scdn.co/image/ab67616d0000b273d8243a13e6f41310a5fa7b96",
+      description: "El álbum debut de Danny Ocean, que combina pop, reggae y ritmos latinos. Incluye su éxito viral 'Me Rehúso'.",
+      tracks: [
+        { "title": "Me Rehúso", "duration": "3:25" },
+        { "title": "Vuelve", "duration": "3:15" },
+        { "title": "Dembow", "duration": "2:35" },
+        { "title": "Epa Wei", "duration": "3:04" },
+        { "title": "Swing", "duration": "2:35" },
+        { "title": "Baby I Won't", "duration": "2:51" },
+        { "title": "54+1", "duration": "3:17" },
+        { "title": "Cuando Estemos Juntos", "duration": "3:03" },
+        { "title": "Película", "duration": "3:28" },
+        { "title": "Veneno", "duration": "3:18" },
+        { "title": "Tú No Lo Amas", "duration": "3:17" },
+        { "title": "Vuelve (Remix)", "duration": "3:39" }
+      ],
+      reviews: [
+        {
+          user: "DannyFan",
+          rating: 4,
+          date: "2019-05-15",
+          comment: "Un álbum fresco y lleno de energía. 'Me Rehúso' es un himno generacional."
+        },
+        {
+          user: "PopLover",
+          rating: 3,
+          date: "2019-05-20",
+          comment: "Buen álbum, aunque algunos tracks se sienten repetitivos."
+        },
+        {
+          user: "Rodrigo",
+          rating: 5,
+          date: "2025-03-21",
+          comment: "Me siento demasiado identificado con me rehus, pero bueno ya que"
+        }
+      ]
+    },
+    {
+      id: 42,
+      title: "@dannocean",
+      artist: "Danny Ocean",
+      genre: "Pop",
+      price: 10.99,
+      releaseDate: "2022-03-25",
+      cover: "https://i.scdn.co/image/ab67616d0000b273f84d8b4142fc8c2bbb262368",
+      description: "El segundo álbum de estudio de Danny Ocean, que profundiza en su estilo único de pop con influencias latinas y urbanas.",
+      tracks: [
+        { "title": "Fuera del Mercado", "duration": "2:39" },
+        { "title": "Mónaco", "duration": "3:12" },
+        { "title": "Dos Mil Dieciséis", "duration": "3:22" },
+        { "title": "Cama Vacia", "duration": "2:58" },
+        { "title": "Te Olvidaste", "duration": "3:17" },
+        { "title": "Luna Llena", "duration": "3:08" },
+        { "title": "Brisa", "duration": "3:35" },
+        { "title": "Vuelve a Casa", "duration": "3:39" },
+        { "title": "Amor de Verano", "duration": "3:03" },
+        { "title": "Otra Noche", "duration": "3:18" }
+      ],
+      reviews: [
+        {
+          user: "OceanLover",
+          rating: 5,
+          date: "2022-04-01",
+          comment: "Un álbum increíble. 'Fuera del Mercado' y 'Mónaco' son canciones que no puedes dejar de escuchar."
+        },
+        {
+          user: "MusicFan",
+          rating: 4,
+          date: "2022-04-05",
+          comment: "Danny Ocean sigue innovando. Un disco sólido con grandes momentos."
+        }
+      ]
+    },
+    {
+      id: 43,
+      title: "Pangea",
+      artist: "Los Mesoneros",
+      genre: "Rock",
+      price: 11.99,
+      releaseDate: "2018-09-21",
+      cover: "https://i.scdn.co/image/ab67616d0000b27334a6667345a767cb2fa549c4",
+      description: "El segundo álbum de estudio de Los Mesoneros, que combina rock alternativo con letras introspectivas y melodías pegajosas.",
+      tracks: [
+        { "title": "Prefiero No Saber", "duration": "2:46" },
+        { "title": "Te Lo Advertí", "duration": "3:34" },
+        { "title": "Dudo Que Lo Encuentres", "duration": "3:17" },
+        { "title": "Pangea", "duration": "3:42" },
+        { "title": "Dime Como Tú Quieras", "duration": "3:08" },
+        { "title": "Lo Peor de Mí", "duration": "2:44" },
+        { "title": "Exprópiese", "duration": "2:48" },
+        { "title": "Últimas Palabras", "duration": "4:18" }
+      ],
+      reviews: [
+        {
+          user: "RockFan",
+          rating: 4,
+          date: "2018-09-25",
+          comment: "Un álbum sólido con grandes canciones. 'Caiga la Noche' es una obra maestra."
+        },
+        {
+          user: "MusicLover",
+          rating: 4,
+          date: "2018-10-01",
+          comment: "Los Mesoneros siguen demostrando por qué son una de las mejores bandas de rock en español."
+        }
+      ]
+    },
+    {
+      id: 44,
+      title: "Caiga la Noche",
+      artist: "Los Mesoneros",
+      genre: "Rock",
+      price: 10.99,
+      releaseDate: "2020-11-20",
+      cover: "https://i.scdn.co/image/ab67616d0000b27315c868099035d7df199eeaa2",
+      description: "El tercer álbum de estudio de Los Mesoneros, que explora temas de amor, desamor y superación personal con un sonido más maduro.",
+      tracks: [
+        { "title": "Caiga la Noche", "duration": "3:43" },
+        { "title": "Algo Bueno", "duration": "2:53" },
+        { "title": "El Paraiso", "duration": "3:02" },
+        { "title": "Caballo Nuevo", "duration": "3:09" },
+        { "title": "Solo", "duration": "3:33" },
+        { "title": "Juntos", "duration": "3:34" },
+        { "title": "Luna", "duration": "3:02" },
+        { "title": "Riesgo", "duration": "2:52" },
+        { "title": "Mientras", "duration": "3:53" },
+        { "title": "Sr. Prudencia", "duration": "2:28" },
+        { "title": "Sabana", "duration": "2:40" }
+      ],
+      reviews: [
+        {
+          user: "MesonerosFan",
+          rating: 5,
+          date: "2020-11-25",
+          comment: "Un álbum increíble. 'Caiga la Noche' es una de las mejores canciones de la banda."
+        },
+        {
+          user: "RockLover",
+          rating: 4,
+          date: "2020-12-01",
+          comment: "Los Mesoneros siguen creciendo. Un disco lleno de emociones y grandes melodías."
+        }
+      ]
+    },
+    {
+      id: 45,
+      title: "Indeleble",
+      artist: "Los Mesoneros",
+      genre: "Rock",
+      price: 9.99,
+      releaseDate: "2016-05-20",
+      cover: "https://i.scdn.co/image/ab67616d0000b273966ab0ef7f0f717613f4d8a7",
+      description: "El álbum debut de Los Mesoneros, que los consolidó como una de las bandas más prometedoras del rock en español.",
+      tracks: [
+        { "title": "Un Segundo", "duration": "2:45" },
+        { "title": "Tokio", "duration": "2:46" },
+        { "title": "Sol Rojo", "duration": "3:36" },
+        { "title": "Aquí sigo", "duration": "3:50" },
+        { "title": "Ya No Estoy", "duration": "3:46" },
+        { "title": "Cicatriz", "duration": "4:49" },
+        { "title": "La Máscara", "duration": "3:50" },
+        { "title": "Malos Tiempos", "duration": "4:09" },
+        { "title": "Cuando Llega El Momento", "duration": "3:24" },
+        { "title": "Retroceder", "duration": "3:13" },
+        { "title": "Indeleble", "duration": "4:28" }
+      ],
+      reviews: [
+        {
+          user: "RockFan",
+          rating: 4,
+          date: "2016-05-25",
+          comment: "Un gran debut. 'Indeleble' es una canción que no puedes dejar de escuchar."
+        },
+        {
+          user: "MusicLover",
+          rating: 4,
+          date: "2016-06-01",
+          comment: "Los Mesoneros llegaron para quedarse. Un álbum lleno de energía y buenas melodías."
+        }
+      ]
+    },
+    {
+      id: 46,
+      title: "Nuestro Año",
+      artist: "Los Mesoneros",
+      genre: "Rock",
+      price: 10.99,
+      releaseDate: "2024-04-11",
+      cover: "https://i.scdn.co/image/ab67616d0000b27389c85c437bc3298dfee53705",
+      description: "El cuarto álbum de estudio de Los Mesoneros, que combina rock alternativo con letras introspectivas y melodías pegajosas.",
+      tracks: [
+        { "title": "Nuestro Año", "duration": "3:55" },
+        { "title": "Dos", "duration": "2:54" },
+        { "title": "¿Qué Hora Es Allá?", "duration": "2:51" },
+        { "title": "Cumpleaños", "duration": "3:08" },
+        { "title": "El Puesto Es Mío", "duration": "2:58" },
+        { "title": "No Terminamos de Terminar", "duration": "2:56" },
+        { "title": "Su Lado De La Cama", "duration": "3:10" },
+        { "title": "Más Tuyo", "duration": "3:00" },
+        { "title": "Ingenuo", "duration": "3:14" },
+        { "title": "Tu Canción", "duration": "3:12" },
+        { "title": "Despídete Bien", "duration": "3:12" },
+        { "title": "Diciembre", "duration": "3:47" }
+      ],
+      reviews: [
+        {
+          user: "MesonerosFan",
+          rating: 5,
+          date: "2024-11-25",
+          comment: "Un álbum increíble. 'Nuestro Año' es una de las mejores canciones de la banda."
+        },
+        {
+          user: "RockLover",
+          rating: 4,
+          date: "2024-12-01",
+          comment: "Los Mesoneros siguen creciendo. Un disco lleno de emociones y grandes melodías."
+        },
+        {
+          user: "Rodrigo",
+          rating: 4,
+          date: "2025-03-21",
+          comment: "Me acuerdo el año pasado llorar con ¿Qué Hora Es Allá?, gran album de los Waitress"
+        }
+      ]
+    },
+    {
+      id: 47,
+      title: "Baby I'm The Wolf",
+      artist: "Ha Vay",
+      genre: "Indie Pop",
+      price: 8.99,
+      releaseDate: "2023-03-10",
+      cover: "https://i.scdn.co/image/ab67616d0000b273a7475dac3cb9bdd402ae71b8",
+      description: "Un EP atmosférico que mezcla dream pop y electrónica, con letras introspectivas y melodías envolventes.",
+      tracks: [
+        { "title": "Wolf", "duration": "3:15" },
+        { "title": "Ghost Town", "duration": "2:50" },
+        { "title": "Moonchild", "duration": "3:30" },
+        { "title": "Echoes", "duration": "4:02" }
+      ],
+      reviews: [
+        {
+          user: "IndieLover",
+          rating: 4,
+          date: "2023-03-15",
+          comment: "Ha Vay crea un mundo sonoro único. 'Moonchild' es hipnótica."
+        }
+      ]
+    },
+    {
+      id: 48,
+      title: "Charm",
+      artist: "Clairo",
+      genre: "Indie Pop",
+      price: 9.99,
+      releaseDate: "2024-09-20",
+      cover: "https://i.scdn.co/image/ab67616d0000b273193c2fafdce8f116b5ca0a78",
+      description: "El tercer álbum de Clairo, explorando sonidos lo-fi y letras íntimas con un toque de nostalgia.",
+      tracks: [
+        { "title": "Charm", "duration": "2:58" },
+        { "title": "Soft Spot", "duration": "3:10" },
+        { "title": "Polaroid", "duration": "3:25" },
+        { "title": "Velvet", "duration": "3:45" }
+      ],
+      reviews: [
+        {
+          user: "ClairoFan",
+          rating: 5,
+          date: "2024-09-25",
+          comment: "Clairo nunca decepciona. 'Velvet' es una joya."
+        }
+      ]
+    },
+    {
+      id: 49,
+      title: "Immunity",
+      artist: "Clairo",
+      genre: "Indie Pop",
+      price: 11.99,
+      releaseDate: "2019-08-02",
+      cover: "https://i.scdn.co/image/ab67616d0000b27333ccb60f9b2785ef691b2fbc",
+      description: "Álbum debut de Clairo, mezclando pop bedroom con arreglos elegantes y letras personales.",
+      tracks: [
+        { "title": "Alewife", "duration": "3:33" },
+        { "title": "Impossible", "duration": "3:50" },
+        { "title": "Closer to You", "duration": "3:04" },
+        { "title": "Bags", "duration": "4:20" }
+      ],
+      reviews: [
+        {
+          user: "IndieFanatic",
+          rating: 5,
+          date: "2019-08-10",
+          comment: "'Bags' es un himno generacional. Clairo es pura magia."
+        }
+      ]
+    },
+    {
+      id: 50,
+      title: "Mini mix vol.3",
+      artist: "Magdalena Bay",
+      genre: "Synthpop",
+      price: 6.99,
+      releaseDate: "2022-05-13",
+      cover: "https://i.scdn.co/image/ab67616d0000b27339a755b54f6dfe08b1e9821a",
+      description: "Una colección de canciones experimentales que fusionan synthwave, pop y electrónica retro.",
+      tracks: [
+        { "title": "Dreamcatching", "duration": "2:40" },
+        { "title": "Chaeri", "duration": "3:15" },
+        { "title": "Secrets", "duration": "3:08" }
+      ],
+      reviews: [
+        {
+          user: "SynthLover",
+          rating: 4,
+          date: "2022-05-20",
+          comment: "Magdalena Bay redefine el pop futurista. ¡Brillante!"
+        }
+      ]
+    },
+    {
+      id: 51,
+      title: "Submarine",
+      artist: "The Marías",
+      genre: "Dream Pop",
+      price: 10.99,
+      releaseDate: "2021-06-25",
+      cover: "https://i.scdn.co/image/ab67616d0000b2734d070fdf58fad8c54c5beb85",
+      description: "EP que combina jazz suave, dream pop y letras en español e inglés, creando una atmósfera íntima.",
+      tracks: [
+        { "title": "Submarine", "duration": "2:35" },
+        { "title": "Hush", "duration": "3:14" },
+        { "title": "I Don't Know You", "duration": "3:29" }
+      ],
+      reviews: [
+        {
+          user: "DreamPopFan",
+          rating: 5,
+          date: "2021-07-01",
+          comment: "The Marías son la banda más subestimada del dream pop. Sublime."
+        }
+      ]
+    },
+    {
+      id: 52,
+      title: "CINEMA",
+      artist: "The Marías",
+      genre: "Psychedelic Soul",
+      price: 12.99,
+      releaseDate: "2021-06-25",
+      cover: "https://i.scdn.co/image/ab67616d0000b273ec93734d42345154b422c8d5",
+      description: "Álbum debut que fusiona soul psicodélico con influencias cinematográficas, ideal para escuchar de noche.",
+      tracks: [
+        { "title": "Hush", "duration": "3:14" },
+        { "title": "All I Really Want Is You", "duration": "3:04" },
+        { "title": "Little by Little", "duration": "4:08" }
+      ],
+      reviews: [
+        {
+          user: "CinemaLover",
+          rating: 5,
+          date: "2021-07-05",
+          comment: "Una experiencia auditiva que te transporta a otra dimensión."
+        }
+      ]
+    },
+    {
+      id: 53,
+      title: "Norman Fucking Rockwell!",
+      artist: "Lana Del Rey",
+      genre: "Art Pop",
+      price: 14.99,
+      releaseDate: "2019-08-30",
+      cover: "https://i.scdn.co/image/ab67616d0000b273879e9318cb9f4e05ee552ac9",
+      description: "Un viaje lírico y musical por el sueño americano, con arreglos orquestales y letras poéticas.",
+      tracks: [
+        { "title": "Norman Fucking Rockwell", "duration": "4:08" },
+        { "title": "Mariners Apartment Complex", "duration": "4:06" },
+        { "title": "Venice Bitch", "duration": "9:37" }
+      ],
+      reviews: [
+        {
+          user: "LanaStan",
+          rating: 5,
+          date: "2019-09-05",
+          comment: "Obra maestra absoluta. Lana es la poeta de nuestra generación."
+        }
+      ]
+    },
+    {
+      id: 54,
+      title: "Born To Die - The Paradise Edition",
+      artist: "Lana Del Rey",
+      genre: "Baroque Pop",
+      price: 15.99,
+      releaseDate: "2012-11-09",
+      cover: "https://i.scdn.co/image/ab67616d0000b273ebc8cfac8b586bc475b04918",
+      description: "Edición especial del icónico álbum debut, incluyendo temas adicionales que definieron el sonido de Lana.",
+      tracks: [
+        { "title": "Born to Die", "duration": "4:46" },
+        { "title": "Video Games", "duration": "4:42" },
+        { "title": "Ride", "duration": "4:49" }
+      ],
+      reviews: [
+        {
+          user: "LanaFan2000",
+          rating: 5,
+          date: "2012-11-15",
+          comment: "Este álbum cambió el pop para siempre. 'Ride' es eterna."
+        }
+      ]
+    },
+    {
+      id: 55,
+      title: "eternal sunshine",
+      artist: "Ariana Grande",
+      genre: "Pop",
+      price: 13.99,
+      releaseDate: "2024-03-08",
+      cover: "https://i.scdn.co/image/ab67616d0000b2738b58d20f1b77295730db15b4",
+      description: "Un álbum conceptual que explora el amor y la pérdida, con producción minimalista y vocales celestiales.",
+      tracks: [
+        { "title": "eternal sunshine", "duration": "3:29" },
+        { "title": "Saturn Returns Interlude", "duration": "2:45" },
+        { "title": "Yes, And?", "duration": "3:34" }
+      ],
+      reviews: [
+        {
+          user: "ArianaFan",
+          rating: 4,
+          date: "2024-03-10",
+          comment: "Ariana vuelve a reinventarse. 'Yes, And?' es un bop."
+        }
+      ]
+    },
+    {
+      id: 56,
+      title: "positions",
+      artist: "Ariana Grande",
+      genre: "R&B",
+      price: 12.99,
+      releaseDate: "2020-10-30",
+      cover: "https://i.scdn.co/image/ab67616d0000b2735ef878a782c987d38d82b605",
+      description: "Un álbum íntimo con influencias de R&B y trap, destacando la versatilidad vocal de Ariana.",
+      tracks: [
+        { "title": "positions", "duration": "2:52" },
+        { "title": "34+35", "duration": "2:53" },
+        { "title": "pov", "duration": "3:21" }
+      ],
+      reviews: [
+        {
+          user: "PopLover",
+          rating: 4,
+          date: "2020-11-05",
+          comment: "Ariana domina el R&B moderno. 'pov' es sublime."
+        }
+      ]
+    },
+    {
+      id: 57,
+      title: "News of The World (2011 Remaster)",
+      artist: "Queen",
+      genre: "Rock",
+      price: 16.99,
+      releaseDate: "1977-10-28",
+      cover: "https://i.scdn.co/image/ab67616d0000b2731f7077ae1018b5fbab08dfa8",
+      description: "Remasterización del clásico de Queen, incluyendo himnos como 'We Will Rock You' y 'We Are The Champions'.",
+      tracks: [
+        { "title": "We Will Rock You", "duration": "2:01" },
+        { "title": "We Are The Champions", "duration": "3:00" },
+        { "title": "Spread Your Wings", "duration": "4:34" }
+      ],
+      reviews: [
+        {
+          user: "QueenFan",
+          rating: 5,
+          date: "2011-11-01",
+          comment: "El remaster suena increíble. ¡Queen nunca muere!"
+        }
+      ]
+    },
+    {
+      id: 58,
+      title: "Queen II (2011 Remaster)",
+      artist: "Queen",
+      genre: "Progressive Rock",
+      price: 15.99,
+      releaseDate: "1974-03-08",
+      cover: "https://i.scdn.co/image/ab67616d0000b273a9e35124316610df21d54aa4",
+      description: "Álbum remasterizado que muestra el lado más experimental y teatral de Queen, con gemas como 'Seven Seas of Rhye'.",
+      tracks: [
+        { "title": "Seven Seas of Rhye", "duration": "2:48" },
+        { "title": "The March of the Black Queen", "duration": "6:33" },
+        { "title": "White Queen (As It Began)", "duration": "4:34" }
+      ],
+      reviews: [
+        {
+          user: "ProgRockFan",
+          rating: 5,
+          date: "2011-03-15",
+          comment: "Un viaje épico. El remaster hace justicia a esta obra."
+        }
+      ]
+    },
+    {
+      id: 59,
+      title: "The New Abnormal",
+      artist: "The Strokes",
+      genre: "Indie Rock",
+      price: 14.99,
+      releaseDate: "2020-04-10",
+      cover: "https://i.scdn.co/image/ab67616d0000b273bfa99afb5ef0d26d5064b23b",
+      description: "El regreso triunfal de The Strokes, fusionando new wave y rock alternativo con letras nostálgicas.",
+      tracks: [
+        { "title": "The Adults Are Talking", "duration": "5:09" },
+        { "title": "Bad Decisions", "duration": "4:53" },
+        { "title": "Ode to the Mets", "duration": "5:51" }
+      ],
+      reviews: [
+        {
+          user: "StrokesFan",
+          rating: 5,
+          date: "2020-04-15",
+          comment: "Mejor álbum desde 'Is This It'. ¡Imperdible!"
+        }
+      ]
+    },
+    {
+      id: 60,
+      title: "Angles",
+      artist: "The Strokes",
+      genre: "Indie Rock",
+      price: 12.99,
+      releaseDate: "2011-03-18",
+      cover: "https://i.scdn.co/image/ab67616d0000b273397d02cfe1aab2923f9d1697",
+      description: "Un álbum experimental que explora el synthpop y el rock psicodélico, marcando una nueva dirección para la banda.",
+      tracks: [
+        { "title": "Under Cover of Darkness", "duration": "3:55" },
+        { "title": "Machu Picchu", "duration": "3:32" },
+        { "title": "Taken for a Fool", "duration": "3:24" }
+      ],
+      reviews: [
+        {
+          user: "IndieRockLover",
+          rating: 4,
+          date: "2011-03-25",
+          comment: "No es su mejor trabajo, pero tiene momentos brillantes."
+        }
+      ]
+    },
+    {
+      id: 61,
+      title: "The Dark Side of the Moon",
+      artist: "Pink Floyd",
+      genre: "Progressive Rock",
+      price: 19.99,
+      releaseDate: "1973-03-01",
+      cover: "https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe",
+      description: "Uno de los álbumes más influyentes de la historia, explorando temas existenciales con sonidos innovadores.",
+      tracks: [
+        { "title": "Speak to Me/Breathe", "duration": "3:58" },
+        { "title": "Time", "duration": "6:53" },
+        { "title": "Money", "duration": "6:22" }
+      ],
+      reviews: [
+        {
+          user: "PinkFloydFanatic",
+          rating: 5,
+          date: "1973-03-10",
+          comment: "Una obra maestra atemporal. Cada nota es perfecta."
+        }
+      ]
+    },
+    {
+      id: 62,
+      title: "Wish You Were Here",
+      artist: "Pink Floyd",
+      genre: "Progressive Rock",
+      price: 18.99,
+      releaseDate: "1975-09-12",
+      cover: "https://i.scdn.co/image/ab67616d0000b2731a84d71391df7469c5ab8539",
+      description: "Homenaje a Syd Barrett y crítica a la industria musical, con suites épicas y atmósferas melancólicas.",
+      tracks: [
+        { "title": "Shine On You Crazy Diamond (Parts I-V)", "duration": "13:32" },
+        { "title": "Wish You Were Here", "duration": "5:34" },
+        { "title": "Have a Cigar", "duration": "5:24" }
+      ],
+      reviews: [
+        {
+          user: "ProgMaster",
+          rating: 5,
+          date: "1975-09-20",
+          comment: "El tributo más conmovedor de la historia del rock."
+        }
+      ]
+    },
+    {
+      id: 63,
+      title: "The Division Bell",
+      artist: "Pink Floyd",
+      genre: "Progressive Rock",
+      price: 17.99,
+      releaseDate: "1994-03-28",
+      cover: "https://i.scdn.co/image/ab67616d0000b2738431fb4cb38f8ee96d3434c0",
+      description: "Último álbum de estudio de Pink Floyd, fusionando rock progresivo con texturas electrónicas y letras filosóficas.",
+      tracks: [
+        { "title": "High Hopes", "duration": "8:32" },
+        { "title": "Marooned", "duration": "5:29" },
+        { "title": "Coming Back to Life", "duration": "6:19" }
+      ],
+      reviews: [
+        {
+          user: "FloydLover",
+          rating: 4,
+          date: "1994-04-05",
+          comment: "Un final digno para una leyenda. 'High Hopes' es épica."
+        }
+      ]
+    },
+    {
+      id: 64,
+      title: "Thriller",
+      artist: "Michael Jackson",
+      genre: "Pop",
+      price: 19.99,
+      releaseDate: "1982-11-30",
+      cover: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png",
+      description: "El álbum más vendido de la historia, revolucionando la música pop, el baile y los videoclips. Ganador de 8 premios Grammy y certificado 34x platino en EE.UU.",
+      tracks: [
+        { "title": "Wanna Be Startin' Somethin'", "duration": "6:03" },
+        { "title": "Baby Be Mine", "duration": "4:20" },
+        { "title": "The Girl Is Mine (con Paul McCartney)", "duration": "3:42" },
+        { "title": "Thriller", "duration": "5:57" }, // Incluye el monólogo de Vincent Price
+        { "title": "Beat It", "duration": "4:18" },
+        { "title": "Billie Jean", "duration": "4:54" },
+        { "title": "Human Nature", "duration": "4:06" },
+        { "title": "P.Y.T. (Pretty Young Thing)", "duration": "3:59" },
+        { "title": "The Lady in My Life", "duration": "5:00" }
+      ],
+      reviews: [
+        {
+          user: "KingOfPopFan",
+          rating: 5,
+          date: "1982-12-01",
+          comment: "¡El álbum que cambió la música para siempre! 'Billie Jean' y 'Thriller' son obras maestras atemporales."
+        },
+        {
+          user: "MusicHistorian",
+          rating: 5,
+          date: "2023-10-27",
+          comment: "Cada canción es un hit. La producción de Quincy Jones y el genio de MJ crearon un legado imbatible."
+        }
+      ]
     }
   ],
 };
