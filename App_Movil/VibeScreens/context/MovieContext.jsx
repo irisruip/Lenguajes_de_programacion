@@ -1,7 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { API_KEY } from '@env';
+//import { API_KEY } from '@env';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
+
+const API_KEY = 'tu_api_key_de_TheMovieDB';
 
 const MovieContext = createContext();
 

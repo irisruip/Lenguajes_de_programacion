@@ -61,6 +61,34 @@ const listsData = [
   },
 ];
 
+// Datos de ejemplo para amigos
+const friendsData = [
+  {
+    id: '1',
+    name: 'Brad Pitt',
+    avatar: 'https://via.placeholder.com/150',
+    mutualMovies: 15,
+  },
+  {
+    id: '2',
+    name: 'Lana del Rey',
+    avatar: 'https://via.placeholder.com/150',
+    mutualMovies: 8,
+  },
+  {
+    id: '3',
+    name: 'Jennifer Lawrence',
+    avatar: 'https://via.placeholder.com/150',
+    mutualMovies: 23,
+  },
+  {
+    id: '4',
+    name: 'Luis Miguel',
+    avatar: 'https://via.placeholder.com/150',
+    mutualMovies: 12,
+  },
+];
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
 
@@ -97,6 +125,22 @@ const ProfileScreen = () => {
         <Text style={styles.listTitle}>{item.title}</Text>
         <Text style={styles.listCount}>{item.count} películas</Text>
       </View>
+    </TouchableOpacity>
+  );
+
+  const renderFriendItem = ({ item }) => (
+    <TouchableOpacity style={styles.friendItem}>
+      <Image
+        source={{ uri: item.avatar }}
+        style={styles.friendAvatar}
+      />
+      <View style={styles.friendInfo}>
+        <Text style={styles.friendName}>{item.name}</Text>
+        <Text style={styles.friendMutual}>{item.mutualMovies} películas en común</Text>
+      </View>
+      <TouchableOpacity style={styles.friendActionButton}>
+        <Ionicons name="chatbubble-outline" size={20} color="#ff6b6b" />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -160,6 +204,29 @@ const ProfileScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
         />
+      </View>
+
+      {/* Nueva sección de amigos */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Amigos</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeAllButton}>Ver todos</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.friendsContainer}>
+          <FlatList
+            data={friendsData}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFriendItem}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={false}
+          />
+          <TouchableOpacity style={styles.addFriendButton}>
+            <Ionicons name="person-add" size={20} color="#fff" />
+            <Text style={styles.addFriendText}>Añadir amigos</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.settingsSection}>
@@ -317,6 +384,60 @@ const styles = StyleSheet.create({
   listCount: {
     color: '#ccc',
     fontSize: 12,
+  },
+  // Estilos para la sección de amigos
+  friendsContainer: {
+    marginTop: 8,
+  },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+  },
+  friendAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  friendInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  friendName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  friendMutual: {
+    color: '#aaa',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  friendActionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addFriendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff6b6b',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 8,
+  },
+  addFriendText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   settingsSection: {
     padding: 16,
