@@ -39,10 +39,10 @@ function Header() {
           <h1>Soundfy</h1>
         </Link>
 
-        <div className="search-bar">
+        {/* <div className="search-bar">
           <input type="text" placeholder="Buscar música, álbumes, artistas..." />
           <button className="search-button">Buscar</button>
-        </div>
+        </div> */}
 
         <nav className={`nav ${isMenuOpen ? "nav-open" : ""}`}>
           <ul className="nav-list">

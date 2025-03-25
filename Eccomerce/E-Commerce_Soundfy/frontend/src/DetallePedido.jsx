@@ -36,7 +36,7 @@ function DetallePedido() {
             }
           })
         )
-
+        console.log("pedidos con items", pedidosConItems)
         setPedido(pedidosConItems)
       }
       catch (err) {
@@ -86,7 +86,8 @@ function DetallePedido() {
     fecha_envio,
     items,
   } = pedido[0]
-  console.log(pedido)
+  console.log(pedido[0])
+
 
   return (
     <div className="order-detail-container">
@@ -115,9 +116,9 @@ function DetallePedido() {
                         {item.format === "digital" ? "Digital" : item.format === "cd" ? "CD" : "Vinilo"}
                       </div>
                     </div>
-                    <div className="item-price">${item.price.toFixed(2)}</div>
+                    <div className="item-price">${Number(item.price).toFixed(2)}</div>
                     <div className="item-quantity">x{item.cantidad}</div>
-                    <div className="item-total">${(item.price * item.cantidad).toFixed(2)}</div>
+                    <div className="item-total">${(Number(item.price) * Number(item.cantidad)).toFixed(2)}</div>
                   </div>
                 ))}
               </div>

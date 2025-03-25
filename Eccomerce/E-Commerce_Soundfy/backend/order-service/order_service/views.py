@@ -2,14 +2,42 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Pedido, PedidoItem
-from django.shortcuts import redirect
+import json
 
 
 # Create your views here.
-
+@csrf_exempt
 def create_order(request, user_id):
-    return JsonResponse({'status': 'success'})
-
+    if (request.method == 'POST'):
+        try:
+            data = json.loads(request.body)
+            pedido = Pedido.objects.create(
+                usuario_id=user_id,
+                numero=data['numero_pedido'],
+                fecha=data['fecha'],
+                estado=data['estado'],
+                total=data['total'],
+                direccion_envio=data['direccion_envio'],
+                ciudad_envio=data['ciudad_envio'],
+                pais_envio=data['pais_envio'],
+                codigo_postal_envio=data['codigo_postal_envio'],
+                impuestos=data['impuestos'],
+                costo_envio=data['costo_envio'],
+                fecha_envio=data['fecha_envio'],
+                subtotal=data['subtotal'],
+            )
+            for item in data['items']:
+                PedidoItem.objects.create(
+                    pedido_id=pedido.id,
+                    producto_id=item['product_id'],
+                    cantidad=item['quantity']
+                )
+            return JsonResponse({'status': 'Orden creada con éxito'}, status=200)
+        except Exception as e:
+            return JsonResponse({'status': 'Error al crear orden', 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'status': 'Método no permitido'}, status=405)
+@csrf_exempt
 def get_orders(request, user_id):
     if (request.method == 'GET'):
         try:
@@ -37,7 +65,7 @@ def get_orders(request, user_id):
             return JsonResponse({'status': 'Error al obtener pedidos', 'error': str(e)}, status=500)
     else:
         return JsonResponse({'status': 'Método no permitido'}, status=405)
-
+@csrf_exempt
 def get_order(request, order_id):
     if (request.method == 'GET'):
         try:
@@ -65,6 +93,8 @@ def get_order(request, order_id):
         except Exception as e:
             return JsonResponse({'status': 'Error al obtener pedido', 'error': str(e)}, status=500)
 
+
+@csrf_exempt
 def get_order_items(request, order_id):
     if (request.method == 'GET'):
         try:
@@ -84,6 +114,6 @@ def get_order_items(request, order_id):
         return JsonResponse({'status': 'Método no permitido'}, status=405)
     
 
-
+@csrf_exempt
 def update_order(request, order_id):
     return JsonResponse({'status': 'success'})

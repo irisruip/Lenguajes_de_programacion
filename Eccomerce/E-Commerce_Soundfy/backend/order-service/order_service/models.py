@@ -9,7 +9,7 @@ class Formato(models.TextChoices):
 
 class EstadoPedido(models.TextChoices):
     PENDIENTE = 'Pendiente', 'Pendiente'
-    PROCESANDO = 'Procesando', 'Procesando'
+    PAGADO = 'Pagado', 'Pagado'
     ENVIADO = 'Enviado', 'Enviado'
     ENTREGADO = 'Entregado', 'Entregado'
     CANCELADO = 'Cancelado', 'Cancelado'

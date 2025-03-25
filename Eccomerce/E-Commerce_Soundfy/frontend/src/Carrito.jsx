@@ -3,6 +3,20 @@ import { Link } from "react-router-dom"
 import { useCart } from "./CarritoContext"
 import "./Cart.css"
 import { useEffect } from "react"
+import axios from "axios"
+
+function convertirNumeroAFormatoVenezolano(numero) {
+  // Eliminar cualquier carácter no numérico
+  const numeroLimpo = numero.replace(/\D/g, '');
+
+  // Verificar si el número comienza con 0 (formato local)
+  if (numeroLimpo.startsWith('0')) {
+    return '+58' + numeroLimpo.substring(1);
+  }
+
+  // Si ya está en formato internacional, devolver el número tal cual
+  return '+58' + numeroLimpo;
+}
 
 function Carrito() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart()
@@ -32,12 +46,48 @@ function Carrito() {
             ],
           })
         },
-        onApprove: (data, actions) => {
-          return actions.order.capture().then((details) => {
-            alert(`Pago completado por ${details.payer.name.given_name}`)
+        onApprove: async (data, actions) => {
+          try {
+            const details = await actions.order.capture()
+            const usuario = await axios.get(`/api/users/${JSON.parse(localStorage.getItem("user")).id}/`)
+            console.log("carritoooo", cart)
+
+            const orderData = {
+              items: cart,
+              total: total,
+              estado: "Pagado",
+              numero_pedido: details.id,
+              fecha: new Date().toISOString(),
+              direccion_envio: usuario.data.direccion,
+              ciudad_envio: usuario.data.ciudad,
+              codigo_postal_envio: usuario.data.codigo_postal,
+              pais_envio: usuario.data.pais,
+              impuestos: impuestos,
+              costo_envio: envio,
+              fecha_envio: new Date().toISOString(),
+              subtotal: subtotal,
+            }
+            console.log("Datos de la orden:", orderData)
+
+            const response = await axios.post(`/api/orders/create_order/${usuario.data.id}/`, orderData)
+            console.log("Orden creada:", response.data)
+            const notificacion = {
+              to: convertirNumeroAFormatoVenezolano(usuario.data.telefono),
+              message: `Tu pedido #${details.id} ha sido procesado. Espero que tengas un lindo dia y disfrutes tu música :)`,
+            }
+            console.log("Notificación:", notificacion)
+
+            await axios.post(`/api/notification-service/send-sms/`, notificacion)
+            alert("Pago exitoso. Tu pedido ha sido procesado.")
             clearCart()
-          })
+
+          }
+          catch (error) {
+            console.error("Error al capturar pago de PayPal:", error)
+          }
         },
+
+
       }).render("#paypal-button-container")
     }
     document.body.appendChild(script)

@@ -12,7 +12,7 @@ export default defineConfig({
         strictPort: true,
         proxy: {
             '/api': { // Cambia según el prefijo de tus rutas del backend
-                target: 'http://localhost:8080',
+                target: 'http://localhost:8080', // Cambia según el host y puerto de tu backend
                 changeOrigin: true,
                 secure: false
             }
