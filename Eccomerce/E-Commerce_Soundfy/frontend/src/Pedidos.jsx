@@ -25,7 +25,7 @@ function Pedidos() {
             try {
               const itemsResponse = await axios.get(`/api/orders/get_order_items/${pedido.id}/`)
               const itemsConProductos = itemsResponse.data.map((item) => {
-                const producto = productos.find((p) => p.id === item.producto_id)
+                const producto = productos.albums.find((p) => p.id === item.producto_id)
                 return { ...item, ...producto }
               })
               return { ...pedido, items: itemsConProductos }
