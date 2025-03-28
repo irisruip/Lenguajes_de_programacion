@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useMovies } from '../context/MovieContext';
+import { useNavigation } from '@react-navigation/native';
 
 const ExploreScreen = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -32,8 +34,16 @@ const ExploreScreen = () => {
     }
   };
 
+  const handleMoviePress = (movie) => {
+    // Navegar a la pantalla de detalles con el ID de la película
+    navigation.navigate('MovieDetail', { movieId: movie.id });
+  };
+
   const renderMovieItem = ({ item }) => (
-    <TouchableOpacity style={styles.movieItem}>
+    <TouchableOpacity 
+      style={styles.movieItem}
+      onPress={() => handleMoviePress(item)}
+    >
       <Image
         source={{
           uri: item.poster_path
@@ -110,8 +120,6 @@ const ExploreScreen = () => {
     </View>
   );
 };
-
-//Estilos provicionales, se pasarán luego a un ThemeProvider
 
 const styles = StyleSheet.create({
   container: {
