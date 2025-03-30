@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+// Firebase
+import appFirebase from './credenciales';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Screens
 import SignInScreen from './screens/SignInScreen';
@@ -16,8 +20,8 @@ import MovieDetailScreen from './screens/MovieDetailScreen';
 
 // Context
 import { MovieProvider } from './context/MovieContext';
-//Aquí se pondría el Auth Context
 
+const auth = getAuth(appFirebase);
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -25,6 +29,7 @@ const ExploreStack = createStackNavigator();
 const NotificationsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
+// Cada tab tiene su propio stack navigator
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
@@ -96,20 +101,45 @@ function MainTabs() {
 }
 
 export default function App() {
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState(null);
+
+  // Manejar cambios en el estado de autenticación
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      if (initializing) setInitializing(false);
+    });
+
+    // Limpiar la suscripción al desmontar
+    return unsubscribe;
+  }, [initializing]);
+
+  if (initializing) {
+    return null; // O un componente de carga
+  }
+
   return (
     <MovieProvider>
       <NavigationContainer>
         <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
         <Stack.Navigator
-          initialRouteName="SignIn"
+          initialRouteName={user ? "MainApp" : "SignIn"}
           screenOptions={{
             headerShown: false,
             cardStyle: { backgroundColor: '#1a1a2e' }
           }}
         >
-          <Stack.Screen name="SignIn" component={SignInScreen} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="MainApp" component={MainTabs} />
+          {user ? (
+            // Rutas para usuarios autenticados
+            <Stack.Screen name="MainApp" component={MainTabs} />
+          ) : (
+            // Rutas para usuarios no autenticados
+            <>
+              <Stack.Screen name="SignIn" component={SignInScreen} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} />
+            </>
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </MovieProvider>

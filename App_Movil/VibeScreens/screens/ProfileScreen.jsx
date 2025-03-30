@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import appFirebase from '../credenciales';
+import { getAuth, signOut } from 'firebase/auth';
+
+const auth = getAuth(appFirebase);
+
 
 // Datos de ejemplo para las películas favoritas
 const favoritesData = [
@@ -91,10 +96,31 @@ const friendsData = [
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    displayName: 'Usuario',
+    email: '',
+    photoURL: null
+  });
 
-  const handleSignOut = () => {
-    // Navegar a la pantalla de inicio de sesión
-    navigation.navigate('SignIn');
+  useEffect(() => {
+    // Obtener información del usuario actual
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUserInfo({
+        displayName: currentUser.displayName || 'Usuario',
+        email: currentUser.email || '',
+        photoURL: currentUser.photoURL
+      });
+    }
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   };
 
   const renderFavoriteItem = ({ item }) => (
@@ -152,8 +178,8 @@ const ProfileScreen = () => {
             source={{ uri: 'https://via.placeholder.com/150' }}
             style={styles.profileImage}
           />
-          <Text style={styles.username}>Usuario de Prueba</Text>
-          <Text style={styles.bio}>Amante del cine y las series</Text>
+          <Text style={styles.username}>{userInfo.displayName}</Text>
+          <Text style={styles.bio}>{userInfo.email}</Text>
           
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>

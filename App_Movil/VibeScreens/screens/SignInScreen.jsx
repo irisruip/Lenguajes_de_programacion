@@ -8,17 +8,54 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SignInScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+import appFirebase from '../credenciales';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
-  const handleSignIn = () => {
-    // Simplemente navega a la pantalla principal sin autenticación
-    navigation.replace('MainApp');
+const auth = getAuth(appFirebase);
+
+const SignInScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    if (email.trim() === '' || password.trim() === '') {
+      setError('Por favor, completa todos los campos');
+      return;
+    }
+  
+    setLoading(true);
+    setError('');
+  
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('Error de inicio de sesión:', error);
+      
+      // Mensajes de error a diferentes situaciones que puedan suceder 2
+      let errorMessage = 'Error al iniciar sesión. Inténtalo de nuevo.';
+      
+      if (error.code === 'auth/invalid-email') {
+        errorMessage = 'El formato del correo electrónico no es válido.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No existe una cuenta con este correo electrónico.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Contraseña incorrecta.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Demasiados intentos fallidos. Inténtalo más tarde.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,14 +79,18 @@ const SignInScreen = ({ navigation }) => {
         <Text style={styles.title}>Sign in</Text>
         <Text style={styles.subtitle}>Solo me caen bien Rodrigo y Emilio</Text>
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
+          <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Username"
+            placeholder="Email"
             placeholderTextColor="#888"
-            value={username}
-            onChangeText={setUsername}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -68,23 +109,25 @@ const SignInScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.signInButton}
           onPress={handleSignIn}
+          disabled={loading}
         >
-          <Text style={styles.signInButtonText}>Sign in</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.signInButtonText}>Sign in</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? Go to the </Text>
+          <Text style={styles.footerText}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.loginLink}>Login Page</Text>
+            <Text style={styles.loginLink}>Sign Up</Text>
           </TouchableOpacity>
-          <Text style={styles.footerText}>.</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-//Estilos provicionales, se pasarán luego a un ThemeProvider
 
 const styles = StyleSheet.create({
   container: {
@@ -142,6 +185,12 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginBottom: 30,
     textAlign: 'center',
+  },
+  errorText: {
+    color: '#ff6b6b',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontSize: 14,
   },
   inputContainer: {
     flexDirection: 'row',
