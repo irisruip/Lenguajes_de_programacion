@@ -8,18 +8,71 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+import appFirebase from '../credenciales';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+
+const auth = getAuth(appFirebase);
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    // Simplemente navega a la pantalla principal sin autenticación
-    navigation.replace('MainApp');
+  const handleSignUp = async () => {
+    // Validaciones básicas el .trim() elimina los espacios 
+    if (username.trim() === '' || email.trim() === '' || password.trim() === '') {
+      setError('Por favor, completa todos los campos');
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+  
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+  
+    setLoading(true);
+    setError('');
+  
+    try {
+      // Crear usuario con email y contraseña
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Actualizar el perfil del usuario con el nombre de usuario
+      await updateProfile(userCredential.user, {
+        displayName: username
+      });
+      
+    } catch (error) {
+      console.error('Error de registro:', error);
+      
+      // Mensajes de error a diferentes situaciones que pueddan suceder
+      let errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Ya existe una cuenta con este correo electrónico.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'El formato del correo electrónico no es válido.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'La contraseña es demasiado débil.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,6 +96,8 @@ const SignUpScreen = ({ navigation }) => {
         <Text style={styles.title}>Sign Up</Text>
         <Text style={styles.subtitle}>Se pueden registrar todos menos el que se llame Juan</Text>
 
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
@@ -61,6 +116,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholder="Email"
             placeholderTextColor="#888"
             keyboardType="email-address"
+            autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
@@ -78,26 +134,40 @@ const SignUpScreen = ({ navigation }) => {
           />
         </View>
 
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#888"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+        </View>
+
         <TouchableOpacity
           style={styles.signUpButton}
           onPress={handleSignUp}
+          disabled={loading}
         >
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.signUpButtonText}>Sign Up</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? Go to the </Text>
+          <Text style={styles.footerText}>Already have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.loginLink}>Login Page</Text>
+            <Text style={styles.loginLink}>Sign In</Text>
           </TouchableOpacity>
-          <Text style={styles.footerText}>.</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-//Estilos provicionales, se pasarán luego a un ThemeProvider
 
 const styles = StyleSheet.create({
   container: {
@@ -155,6 +225,12 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginBottom: 30,
     textAlign: 'center',
+  },
+  errorText: {
+    color: '#ff6b6b',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontSize: 14,
   },
   inputContainer: {
     flexDirection: 'row',
