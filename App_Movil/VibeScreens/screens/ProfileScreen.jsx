@@ -123,6 +123,11 @@ const ProfileScreen = () => {
     }
   };
 
+  // Navegar a la pantalla de edición de perfil
+  const handleEditProfile = () => {
+    navigation.navigate('EditProfile');
+  };
+
   const renderFavoriteItem = ({ item }) => (
     <TouchableOpacity style={styles.favoriteItem}>
       <Image
@@ -157,7 +162,11 @@ const ProfileScreen = () => {
   const renderFriendItem = ({ item }) => (
     <TouchableOpacity style={styles.friendItem}>
       <Image
-        source={{ uri: item.avatar }}
+        source={{ 
+          uri: item.avatar || 'https://ui-avatars.com/api/?name=' + 
+          encodeURIComponent(item.name) + 
+          '&background=1a1a2e&color=fff&size=50' 
+        }}
         style={styles.friendAvatar}
       />
       <View style={styles.friendInfo}>
@@ -174,10 +183,13 @@ const ProfileScreen = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Image
-            source={{ uri: 'https://via.placeholder.com/150' }}
-            style={styles.profileImage}
-          />
+        <Image
+          source={{ 
+            uri: userInfo.photoURL || 'https://ui-avatars.com/api/?name=' +
+            encodeURIComponent(userInfo.displayName) + '&background=1a1a2e&color=fff&size=150' 
+          }}
+          style={styles.profileImage}
+        />
           <Text style={styles.username}>{userInfo.displayName}</Text>
           <Text style={styles.bio}>{userInfo.email}</Text>
           
@@ -256,7 +268,7 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.settingsSection}>
-        <TouchableOpacity style={styles.settingsItem}>
+        <TouchableOpacity style={styles.settingsItem} onPress={handleEditProfile}>
           <Ionicons name="person-outline" size={24} color="#fff" />
           <Text style={styles.settingsText}>Editar perfil</Text>
         </TouchableOpacity>
