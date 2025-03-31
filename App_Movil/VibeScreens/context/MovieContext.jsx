@@ -112,23 +112,23 @@ export const MovieProvider = ({ children }) => {
     }
   };
 
-  const getMovieDetails = async (movieId) => {
-    try {
-      const response = await fetch(
-        `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,reviews`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Error de API: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      console.error('Error getting movie details:', err);
-      return null;
+const getMovieDetails = async (movieId) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,videos,watch/providers`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error de API: ${response.status}`);
     }
-  };
+    
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('Error getting movie details:', err);
+    throw err;
+  }
+};
 
   useEffect(() => {
     fetchAllMovies();
