@@ -16,36 +16,36 @@ import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
 
-const MovieDetailScreen = ({ route, navigation }) => {
-  const { movieId } = route.params;
-  const { getMovieDetails } = useMovies();
-  const [movie, setMovie] = useState(null);
+const SeriesDetailScreen = ({ route, navigation }) => {
+  const { seriesId } = route.params;
+  const { getSeriesDetails } = useMovies(); // Asegúrate de tener esta función en tu contexto
+  const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const fetchMovieDetails = async () => {
+    const fetchSeriesDetails = async () => {
       try {
         setLoading(true);
-        const details = await getMovieDetails(movieId);
-        setMovie(details);
+        const details = await getSeriesDetails(seriesId);
+        setSeries(details);
       } catch (err) {
-        console.error('Error fetching movie details:', err);
-        setError('No se pudieron cargar los detalles de la película');
+        console.error('Error fetching series details:', err);
+        setError('No se pudieron cargar los detalles de la serie');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMovieDetails();
-  }, [movieId]);
+    fetchSeriesDetails();
+  }, [seriesId]);
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Echa un vistazo a ${movie.title} (${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}). ¡Te encantará!`,
+        message: `Echa un vistazo a ${series.name} (${series.first_air_date ? series.first_air_date.split('-')[0] : 'N/A'}). ¡Te encantará!`,
       });
     } catch (error) {
       console.error('Error al compartir:', error);
@@ -68,7 +68,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
     );
   }
 
-  if (error || !movie) {
+  if (error || !series) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error || 'Ocurrió un error inesperado'}</Text>
@@ -82,21 +82,21 @@ const MovieDetailScreen = ({ route, navigation }) => {
     );
   }
 
-  // Calcular el año de lanzamiento y formatear la duración
-  const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
-  const formatRuntime = (minutes) => {
+  // Calcular el año de primera emisión y formatear la duración promedio (si se dispone de esos datos)
+  const firstAirYear = series.first_air_date ? new Date(series.first_air_date).getFullYear() : 'N/A';
+  const formatEpisodeRuntime = (minutes) => {
     if (!minutes) return 'N/A';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
 
-  const genres = movie.genres || [];
+  const genres = series.genres || [];
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      {/* Botón de regreso en el header */}
+      {/* Botón de regreso */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButtonHeader}
@@ -110,8 +110,8 @@ const MovieDetailScreen = ({ route, navigation }) => {
         <View style={styles.posterContainer}>
           <Image
             source={{
-              uri: movie.backdrop_path
-                ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+              uri: series.backdrop_path
+                ? `https://image.tmdb.org/t/p/w1280${series.backdrop_path}`
                 : 'https://via.placeholder.com/1280x720?text=No+Image'
             }}
             style={styles.backdrop}
@@ -119,22 +119,22 @@ const MovieDetailScreen = ({ route, navigation }) => {
           <View style={styles.posterOverlay}>
             <Image
               source={{
-                uri: movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                uri: series.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
                   : 'https://via.placeholder.com/500x750?text=No+Image'
               }}
               style={styles.poster}
             />
-            <View style={styles.movieInfo}>
-              <Text style={styles.title}>{movie.title}</Text>
-              <Text style={styles.year}>{releaseYear} • {formatRuntime(movie.runtime)}</Text>
+            <View style={styles.seriesInfo}>
+              <Text style={styles.title}>{series.name}</Text>
+              <Text style={styles.year}>{firstAirYear} • {formatEpisodeRuntime(series.episode_run_time && series.episode_run_time[0])}</Text>
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={20} color="#ffd700" />
                 <Text style={styles.rating}>
-                  {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
+                  {series.vote_average ? series.vote_average.toFixed(1) : 'N/A'}
                 </Text>
                 <Text style={styles.voteCount}>
-                  ({movie.vote_count} votos)
+                  ({series.vote_count} votos)
                 </Text>
               </View>
               <View style={styles.genreContainer}>
@@ -166,7 +166,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sinopsis</Text>
           <Text style={styles.overview}>
-            {movie.overview || 'No hay sinopsis disponible para esta película.'}
+            {series.overview || 'No hay sinopsis disponible para esta serie.'}
           </Text>
         </View>
       </ScrollView>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     height: 180,
     borderRadius: 8,
   },
-  movieInfo: {
+  seriesInfo: {
     flex: 1,
     marginLeft: 16,
     justifyContent: 'flex-end',
@@ -325,4 +325,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MovieDetailScreen;
+export default SeriesDetailScreen;
