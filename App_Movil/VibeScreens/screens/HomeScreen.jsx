@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,41 +14,43 @@ import { useNavigation } from '@react-navigation/native';
 import { useMovies } from '../context/MovieContext';
 import { Ionicons } from '@expo/vector-icons';
 
-const MoviePoster = ({ movie, onPress }) => {
-  return (
-    <TouchableOpacity style={styles.posterContainer} onPress={onPress}>
-      <Image
-        source={{
-          uri: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : 'https://via.placeholder.com/150x225?text=No+Image'
-        }}
-        style={styles.poster}
-      />
-    </TouchableOpacity>
-  );
-};
+const API_KEY = '<TU_API_KEY_AQUI>'; // TMDb API Key
 
+// Componente para mostrar posters (películas o series)
+const MoviePoster = ({ movie, onPress }) => (
+  <TouchableOpacity style={styles.posterContainer} onPress={onPress}>
+    <Image
+      source={{
+        uri: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : 'https://via.placeholder.com/150x225?text=No+Image'
+      }}
+      style={styles.poster}
+    />
+  </TouchableOpacity>
+);
+
+// Componente reutilizable para colecciones de películas/series
 const MovieCollection = ({ title, movies = [], onMoviePress }) => {
-  // Añadimos un valor por defecto de array vacío para movies
   if (!movies || movies.length === 0) {
     return (
       <View style={styles.collectionContainer}>
         <Text style={styles.collectionTitle}>{title}</Text>
         <View style={styles.emptyCollection}>
-          <Text style={styles.emptyText}>Cargando películas...</Text>
+          <Text style={styles.emptyText}>Cargando...</Text>
         </View>
       </View>
     );
   }
-
   return (
     <View style={styles.collectionContainer}>
       <Text style={styles.collectionTitle}>{title}</Text>
       <FlatList
         data={movies}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <MoviePoster movie={item} onPress={() => onMoviePress(item)} />}
+        renderItem={({ item }) => (
+          <MoviePoster movie={item} onPress={() => onMoviePress(item)} />
+        )}
         horizontal
         showsHorizontalScrollIndicator={false}
       />
@@ -56,83 +58,201 @@ const MovieCollection = ({ title, movies = [], onMoviePress }) => {
   );
 };
 
-const UserReview = ({ review }) => {
-  return (
-    <View style={styles.reviewContainer}>
-      <View style={styles.reviewHeader}>
-        <Image
-          source={{ uri: 'https://via.placeholder.com/40x40' }}
-          style={styles.reviewAvatar}
-        />
-        <View>
-          <Text style={styles.reviewAuthor}>{review.author}</Text>
-          <View style={styles.reviewRating}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Ionicons
-                key={star}
-                name={star <= review.rating ? 'star' : 'star-outline'}
-                size={14}
-                color="#ffd700"
-              />
-            ))}
-          </View>
+// Componente para mostrar cada reseña
+const ReviewItem = ({ review }) => (
+  <View style={styles.reviewItemContainer}>
+    <Text style={styles.reviewAuthor}>{review.author}</Text>
+    <Text style={styles.reviewContent} numberOfLines={3}>
+      {review.content}
+    </Text>
+  </View>
+);
+
+// Componente para la colección de reseñas
+const ReviewCollection = ({ title, reviews = [] }) => {
+  if (!reviews || reviews.length === 0) {
+    return (
+      <View style={styles.collectionContainer}>
+        <Text style={styles.collectionTitle}>{title}</Text>
+        <View style={styles.emptyCollection}>
+          <Text style={styles.emptyText}>Cargando...</Text>
         </View>
       </View>
-      <Text style={styles.reviewContent} numberOfLines={3}>
-        {review.content}
-      </Text>
-      <TouchableOpacity>
-        <Text style={styles.readMore}>leer más...</Text>
-      </TouchableOpacity>
+    );
+  }
+  return (
+    <View style={styles.collectionContainer}>
+      <Text style={styles.collectionTitle}>{title}</Text>
+      <FlatList
+        data={reviews}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => <ReviewItem review={item} />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      />
     </View>
   );
 };
 
-// Datos de ejemplo para las reseñas
-const sampleReviews = [
-  {
-    id: 1,
-    author: 'Barbie',
-    rating: 4,
-    content: 'Margot Robbie is amazing in this movie. I loved the action scenes and the soundtrack. Can\'t wait for the sequel! Also, Ryan Gosling is a great Ken and a great actor when he sings I pissed off.'
-  },
-  {
-    id: 2,
-    author: 'Zack Snyder\'s Justice League',
-    rating: 2,
-    content: 'Pues a mí no me gustó, pero a mi amigo Rodrigo sí. No sé, cada quien tiene su opinión, supongo. La mejor parte fue cuando apareció el Joker de Jared Leto, eso sí fue inesperado.'
-  },
-  {
-    id: 3,
-    author: 'tick, tick...BOOM!',
-    rating: 5,
-    content: 'Andrew Garfield gives the performance of his career in this musical biopic about Jonathan Larson, the creator of Rent who tragically died before its premiere.'
-  }
-];
-
 const HomeScreen = () => {
   const navigation = useNavigation();
   const {
-    trendingMovies,
-    monthlyMovies,
+    trendingMovies, // películas populares
+    monthlyMovies,  // películas del mes
     isLoading,
     error,
     refreshMovies
   } = useMovies();
 
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [series, setSeries] = useState([]);
+  const [monthlySeries, setMonthlySeries] = useState([]);
+  const [seriesLoading, setSeriesLoading] = useState(false);
+  const [seriesError, setSeriesError] = useState(null);
 
-  const onRefresh = React.useCallback(async () => {
+  // Estado para contenidos de Netflix y Disney (se han eliminado HBO y Amazon)
+  const [netflixMovies, setNetflixMovies] = useState([]);
+  const [disneyMovies, setDisneyMovies] = useState([]);
+  const [netflixSeries, setNetflixSeries] = useState([]);
+  const [disneySeries, setDisneySeries] = useState([]);
+
+  // Estado para reseñas de una película destacada
+  const [featuredReviews, setFeaturedReviews] = useState([]);
+
+  // Calculamos "Las mejores películas" ordenando por vote_average descendente
+  const bestMovies = trendingMovies
+    ? [...trendingMovies].sort((a, b) => b.vote_average - a.vote_average).slice(0, 5)
+    : [];
+
+  // Calculamos "Las mejores series" ordenando la lista de series populares
+  const bestSeries = series
+    ? [...series].sort((a, b) => b.vote_average - a.vote_average).slice(0, 5)
+    : [];
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshMovies();
+    await fetchSeries();
+    await fetchMonthlySeries();
+    // Actualizamos contenidos para cada plataforma
+    await fetchPlatformMovies(8, setNetflixMovies);
+    await fetchPlatformMovies(337, setDisneyMovies);
+    await fetchPlatformSeries(8, setNetflixSeries);
+    await fetchPlatformSeries(337, setDisneySeries);
+    // Actualizamos reseñas de la película destacada
+    if (trendingMovies && trendingMovies.length > 0) {
+      const reviews = await fetchReviews(trendingMovies[0].id, 'movie');
+      setFeaturedReviews(reviews);
+    }
     setRefreshing(false);
-  }, [refreshMovies]);
+  }, [refreshMovies, trendingMovies]);
 
-  const handleMoviePress = (movie) => {
-    //Aquí iría la navegación a la pantalla de detalles de la película
-    console.log('Movie selected:', movie.title);
-    navigation.navigate('MovieDetail', { movieId: movie.id });
+  const handleMoviePress = async (movie) => {
+    const reviews = await fetchReviews(movie.id, 'movie');
+    navigation.navigate('MovieDetail', { movieId: movie.id, reviews });
   };
+
+  const handleSeriesPress = async (serie) => {
+    const reviews = await fetchReviews(serie.id, 'tv');
+    navigation.navigate('SeriesDetail', { seriesId: serie.id, reviews });
+  };
+
+  // Obtener series populares usando la TMDb API
+  const fetchSeries = async () => {
+    setSeriesLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}&language=es-ES&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setSeries(data.results);
+      }
+    } catch (err) {
+      setSeriesError(err.message);
+    } finally {
+      setSeriesLoading(false);
+    }
+  };
+
+  // Obtener series del mes
+  const fetchMonthlySeries = async () => {
+    setSeriesLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/tv/on_the_air?api_key=${API_KEY}&language=es-ES&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setMonthlySeries(data.results);
+      }
+    } catch (err) {
+      setSeriesError(err.message);
+    } finally {
+      setSeriesLoading(false);
+    }
+  };
+
+  // Función genérica para obtener películas según proveedor
+  const fetchPlatformMovies = async (providerId, setter) => {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=es-ES&with_watch_providers=${providerId}&watch_region=ES&sort_by=popularity.desc&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setter(data.results);
+      }
+    } catch (error) {
+      console.error(`Error fetching platform movies (provider ${providerId}):`, error);
+    }
+  };
+
+  // Función genérica para obtener series según proveedor
+  const fetchPlatformSeries = async (providerId, setter) => {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&language=es-ES&with_watch_providers=${providerId}&watch_region=ES&sort_by=popularity.desc&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setter(data.results);
+      }
+    } catch (error) {
+      console.error(`Error fetching platform series (provider ${providerId}):`, error);
+    }
+  };
+
+  // Obtener reseñas de la TMDb API
+  const fetchReviews = async (id, type) => {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/${type}/${id}/reviews?api_key=${API_KEY}&language=es-ES`
+      );
+      const data = await response.json();
+      return data.results;
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      return [];
+    }
+  };
+
+  // Llamadas iniciales
+  useEffect(() => {
+    fetchSeries();
+    fetchMonthlySeries();
+    // Cargar contenidos para cada plataforma
+    fetchPlatformMovies(8, setNetflixMovies);
+    fetchPlatformMovies(337, setDisneyMovies);
+    fetchPlatformSeries(8, setNetflixSeries);
+    fetchPlatformSeries(337, setDisneySeries);
+    // Al cargar, si hay películas populares, obtenemos sus reseñas
+    if (trendingMovies && trendingMovies.length > 0) {
+      fetchReviews(trendingMovies[0].id, 'movie').then(reviews => {
+        setFeaturedReviews(reviews);
+      });
+    }
+  }, [trendingMovies]);
 
   if (isLoading && !refreshing) {
     return (
@@ -142,10 +262,10 @@ const HomeScreen = () => {
     );
   }
 
-  if (error) {
+  if (error || seriesError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
+        <Text style={styles.errorText}>Error: {error || seriesError}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={refreshMovies}>
           <Text style={styles.retryButtonText}>Reintentar</Text>
         </TouchableOpacity>
@@ -156,9 +276,7 @@ const HomeScreen = () => {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ff6b6b" />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ff6b6b" />}
     >
       <View style={styles.header}>
         <View>
@@ -172,66 +290,116 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Sección de películas */}
       <MovieCollection
-        title="Películas populares"
+        title="Películas Populares"
         movies={trendingMovies ? trendingMovies.slice(0, 5) : []}
         onMoviePress={handleMoviePress}
       />
-
       <MovieCollection
-        title="Películas del mes"
+        title="Películas del Mes"
         movies={monthlyMovies ? monthlyMovies.slice(0, 5) : []}
         onMoviePress={handleMoviePress}
       />
+      <MovieCollection
+        title="Las Mejores Películas"
+        movies={bestMovies}
+        onMoviePress={handleMoviePress}
+      />
 
-      <View style={styles.collectionContainer}>
-        <Text style={styles.collectionTitle}>Reseñas</Text>
-        <FlatList
-          data={sampleReviews}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <UserReview review={item} />}
-          scrollEnabled={false}
-        />
-      </View>
+      {/* Sección de series */}
+      {seriesLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#ff6b6b" />
+        </View>
+      ) : seriesError ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error cargando series: {seriesError}</Text>
+        </View>
+      ) : (
+        <>
+          <MovieCollection
+            title="Series Populares"
+            movies={series ? series.slice(0, 5) : []}
+            onMoviePress={handleSeriesPress}
+          />
+          <MovieCollection
+            title="Series del Mes"
+            movies={monthlySeries ? monthlySeries.slice(0, 5) : []}
+            onMoviePress={handleSeriesPress}
+          />
+          <MovieCollection
+            title="Las Mejores Series"
+            movies={bestSeries}
+            onMoviePress={handleSeriesPress}
+          />
+        </>
+      )}
+
+      {/* Secciones para Netflix y Disney+ */}
+      <MovieCollection
+        title="Películas en Netflix"
+        movies={netflixMovies ? netflixMovies.slice(0, 5) : []}
+        onMoviePress={handleMoviePress}
+      />
+      <MovieCollection
+        title="Series en Netflix"
+        movies={netflixSeries ? netflixSeries.slice(0, 5) : []}
+        onMoviePress={handleSeriesPress}
+      />
+      <MovieCollection
+        title="Películas en Disney+"
+        movies={disneyMovies ? disneyMovies.slice(0, 5) : []}
+        onMoviePress={handleMoviePress}
+      />
+      <MovieCollection
+        title="Series en Disney+"
+        movies={disneySeries ? disneySeries.slice(0, 5) : []}
+        onMoviePress={handleSeriesPress}
+      />
+
+      {/* Nueva sección de Reseñas Destacadas */}
+      <ReviewCollection
+        title="Reseñas Destacadas"
+        reviews={featuredReviews}
+      />
     </ScrollView>
   );
 };
 
-//Estilos provicionales, se pasarán luego a un ThemeProvider
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#1a1a2e'
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#1a1a2e'
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a1a2e',
-    padding: 20,
+    padding: 20
   },
   errorText: {
     color: '#ff6b6b',
     fontSize: 16,
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   retryButton: {
     backgroundColor: '#ff6b6b',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 20
   },
   retryButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   header: {
     flexDirection: 'row',
@@ -239,89 +407,71 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 8,
+    paddingBottom: 8
   },
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#fff'
   },
   username: {
     fontSize: 14,
-    color: '#aaa',
+    color: '#aaa'
   },
   notificationButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   collectionContainer: {
     marginTop: 24,
-    paddingHorizontal: 16,
+    paddingHorizontal: 16
   },
   collectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 12,
+    marginBottom: 12
   },
   emptyCollection: {
     height: 180,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   emptyText: {
     color: '#aaa',
     fontSize: 14,
+    textAlign: 'center'
   },
   posterContainer: {
     marginRight: 12,
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   poster: {
     width: 120,
     height: 180,
+    borderRadius: 8
+  },
+  reviewItemContainer: {
+    backgroundColor: '#2e2e3d',
     borderRadius: 8,
-  },
-  reviewContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  reviewAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    padding: 10,
     marginRight: 12,
+    width: 250
   },
   reviewAuthor: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#fff',
-  },
-  reviewRating: {
-    flexDirection: 'row',
-    marginTop: 4,
+    marginBottom: 4
   },
   reviewContent: {
-    color: '#ccc',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  readMore: {
-    color: '#ff6b6b',
-    fontSize: 14,
-  },
+    fontSize: 12,
+    color: '#ccc'
+  }
 });
 
 export default HomeScreen;
