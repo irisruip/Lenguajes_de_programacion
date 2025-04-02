@@ -11,8 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
-const API_KEY = '<TU_API_KEY_AQUI>'; // TMDb API Key
+import { API_KEY } from '@env';
 
 const ExploreScreen = () => {
   const navigation = useNavigation();
@@ -44,8 +43,14 @@ const ExploreScreen = () => {
   };
 
   const handleItemPress = (item) => {
-    // Navegar a la pantalla de detalles con el ID y el tipo de contenido (movie o tv)
-    navigation.navigate('MovieDetail', { movieId: item.id, mediaType: item.media_type });
+    // Verificar si el item es una película o una serie
+    if (item.title) {
+      // Es una película
+      navigation.navigate('MovieDetail', { movieId: item.id });
+    } else if (item.name) {
+      // Es una serie
+      navigation.navigate('SeriesDetail', { seriesId: item.id });
+    }
   };
 
   const renderItem = ({ item }) => {
@@ -66,7 +71,7 @@ const ExploreScreen = () => {
           source={{
             uri: item.poster_path
               ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-              : 'https://via.placeholder.com/150x225?text=No+Image'
+              : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.title || item.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
           }}
           style={styles.moviePoster}
         />
@@ -233,3 +238,6 @@ const styles = StyleSheet.create({
 });
 
 export default ExploreScreen;
+
+// .--- ..- .- -. --..-- / ... ..- -... .. ... - . / .-.. .- / .- .--. .. / -.- . -.-- / .- / --. .. - .... ..- -...
+// https://i.imgflip.com/9atwyk.jpg?a484008

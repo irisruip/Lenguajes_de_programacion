@@ -12,7 +12,7 @@ export const SeriesProvider = ({ children }) => {
   const [trendingSeries, setTrendingSeries] = useState([]);
   const [popularSeries, setPopularSeries] = useState([]);
   const [topRatedSeries, setTopRatedSeries] = useState([]);
-  const [onAirSeries, setOnAirSeries] = useState([]); // Series actualmente en emisión
+  const [onAirSeries, setOnAirSeries] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
