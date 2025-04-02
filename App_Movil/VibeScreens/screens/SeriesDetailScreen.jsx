@@ -11,14 +11,14 @@ import {
   Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useMovies } from '../context/MovieContext';
+import { useSeries } from '../context/SeriesContext';
 import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
 
 const SeriesDetailScreen = ({ route, navigation }) => {
   const { seriesId } = route.params;
-  const { getSeriesDetails } = useMovies(); // Asegúrate de tener esta función en tu contexto
+  const { getSeriesDetails } = useSeries(); //Cambié useMovies por use Series
   const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

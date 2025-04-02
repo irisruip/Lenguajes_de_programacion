@@ -13,8 +13,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useMovies } from '../context/MovieContext';
 import { Ionicons } from '@expo/vector-icons';
+import { API_KEY } from '@env';
 
-const API_KEY = 'd647995e212b2081ea74c5dae6367383'; // TMDb API Key
+const apiKey = API_KEY || '';
 
 // Componente para mostrar posters (películas o series)
 const MoviePoster = ({ movie, onPress }) => (
@@ -23,7 +24,7 @@ const MoviePoster = ({ movie, onPress }) => (
       source={{
         uri: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : 'https://via.placeholder.com/150x225?text=No+Image'
+          : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(movie.title || movie.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
       }}
       style={styles.poster}
     />
