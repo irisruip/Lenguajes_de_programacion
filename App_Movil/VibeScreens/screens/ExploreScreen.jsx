@@ -11,18 +11,16 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { API_KEY } from '@env';
 import { useMovies } from '../context/MovieContext';
+import { API_KEY } from '@env';
 
 const ExploreScreen = ({ navigation }) => {
   const { searchMovies } = useMovies();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-
   const [loading, setLoading] = useState(false);
+  const { navigate } = useNavigation();
 
-  // Realizar búsqueda cuando cambia la consulta
   useEffect(() => {
     const delaySearch = setTimeout(() => {
       if (searchQuery.trim()) {
@@ -35,11 +33,7 @@ const ExploreScreen = ({ navigation }) => {
     return () => clearTimeout(delaySearch);
   }, [searchQuery]);
 
-  // Función para buscar películas
   const handleSearch = async () => {
-    if (searchQuery.trim() === '') return;
-
-    setIsSearching(true);
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
@@ -53,52 +47,41 @@ const ExploreScreen = ({ navigation }) => {
         )}&page=1`
       );
       const data = await response.json();
-      // Filtrar solo películas y series
-      const results = data.results.filter(
+      const filteredResults = data.results.filter(
         (item) => item.media_type === 'movie' || item.media_type === 'tv'
       );
-      setSearchResults(results);
-      const results = await searchMovies(searchQuery);
-      // Ordenar resultados por calificación (de mayor a menor)
-      const sortedResults = results.sort((a, b) => b.vote_average - a.vote_average);
+      const sortedResults = filteredResults.sort((a, b) => b.vote_average - a.vote_average);
       setSearchResults(sortedResults);
     } catch (error) {
-      console.error('Error buscando películas y series:', error);
+      console.error('Error buscando contenido:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleItemPress = (item) => {
-    // Verificar si el item es una película o una serie
-    if (item.title) {
-      // Es una película
-      navigation.navigate('MovieDetail', { movieId: item.id });
-    } else if (item.name) {
-      // Es una serie
-      navigation.navigate('SeriesDetail', { seriesId: item.id });
+    if (item.media_type === 'movie') {
+      navigate('MovieDetail', { movieId: item.id });
+    } else if (item.media_type === 'tv') {
+      navigate('SeriesDetail', { seriesId: item.id });
     }
   };
 
   const renderItem = ({ item }) => {
-    // Para películas usamos title y release_date; para series usamos name y first_air_date
-    const title = item.media_type === 'tv' ? item.name : item.title;
-    const date =
-      item.media_type === 'tv'
-        ? item.first_air_date
-          ? new Date(item.first_air_date).getFullYear()
-          : 'N/A'
-        : item.release_date
-        ? new Date(item.release_date).getFullYear()
-        : 'N/A';
+    const title = item.title || item.name;
+    const date = item.release_date || item.first_air_date;
+    const year = date ? new Date(date).getFullYear() : 'N/A';
 
     return (
-      <TouchableOpacity style={styles.movieItem} onPress={() => handleItemPress(item)}>
+      <TouchableOpacity
+        style={styles.movieItem}
+        onPress={() => handleItemPress(item)}
+      >
         <Image
           source={{
             uri: item.poster_path
               ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-              : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.title || item.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
+              : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(title) + '&size=150&background=1a1a2e&color=fff'
           }}
           style={styles.moviePoster}
         />
@@ -106,47 +89,22 @@ const ExploreScreen = ({ navigation }) => {
           <Text style={styles.movieTitle} numberOfLines={2}>
             {title}
           </Text>
-          <Text style={styles.movieYear}>{date}</Text>
+          <Text style={styles.movieYear}>{year}</Text>
           <View style={styles.ratingContainer}>
             <Ionicons name="star" size={16} color="#ffd700" />
-            <Text style={styles.ratingText}>
-              {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}
+            <Text style={styles.rating}>
+              {item.vote_average?.toFixed(1) || 'N/A'}
             </Text>
           </View>
+          {item.media_type === 'tv' && (
+            <View style={styles.typeBadge}>
+              <Text style={styles.typeText}>SERIE</Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     );
   };
-  // Renderizar cada película en los resultados
-  const renderMovieItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.movieItem}
-      onPress={() => navigation.navigate('MovieDetail', { movieId: item.id })}
-    >
-      <Image
-        source={{
-          uri: item.poster_path
-            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-            : 'https://placehold.co/500x750/1a1a2e/ffffff?text=No+Image'
-        }}
-        style={styles.moviePoster}
-      />
-      <View style={styles.movieInfo}>
-        <Text style={styles.movieTitle} numberOfLines={2}>
-          {item.title}
-        </Text>
-        <Text style={styles.movieYear}>
-          {item.release_date ? new Date(item.release_date).getFullYear() : 'N/A'}
-        </Text>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color="#ffd700" />
-          <Text style={styles.rating}>
-            {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -155,32 +113,11 @@ const ExploreScreen = ({ navigation }) => {
       </View>
       
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar películas y series..."
-          placeholderTextColor="#888"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch}
-          returnKeyType="search"
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity
-            style={styles.clearButton}
-            onPress={() => {
-              setSearchQuery('');
-              setSearchResults([]);
-            }}
-          >
-            <Ionicons name="close-circle" size={20} color="#888" />
-          </TouchableOpacity>
-        )}
         <View style={styles.searchInputContainer}>
           <Ionicons name="search" size={20} color="#aaa" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar películas..."
+            placeholder="Buscar películas y series..."
             placeholderTextColor="#aaa"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -205,33 +142,20 @@ const ExploreScreen = ({ navigation }) => {
           data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
-          contentContainerStyle={styles.resultsList}
-        />
-      ) : searchQuery.length > 0 ? (
-        <View style={styles.noResultsContainer}>
-          <Ionicons name="search-outline" size={64} color="#555" />
-          <Text style={styles.noResultsText}>
-            No se encontraron resultados para "{searchQuery}"
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.initialStateContainer}>
-          <Ionicons name="film-outline" size={64} color="#555" />
-          <Text style={styles.initialStateText}>Busca tus películas y series favoritas</Text>
-        </View>
-          renderItem={renderMovieItem}
           contentContainerStyle={styles.moviesList}
           ListEmptyComponent={
             searchQuery.trim() ? (
               <View style={styles.emptyContainer}>
+                <Ionicons name="search-outline" size={64} color="#555" />
                 <Text style={styles.emptyText}>
                   No se encontraron resultados para "{searchQuery}"
                 </Text>
               </View>
             ) : (
               <View style={styles.emptyContainer}>
+                <Ionicons name="film-outline" size={64} color="#555" />
                 <Text style={styles.emptyText}>
-                  Busca películas por su título
+                  Busca tus películas y series favoritas
                 </Text>
               </View>
             )
@@ -342,9 +266,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  typeBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#ff6b6b',
+    borderRadius: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+  },
+  typeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  movieInfo: {
+    flex: 1,
+    padding: 12,
+    position: 'relative',
+  },
 });
 
 export default ExploreScreen;
-
-// .--- ..- .- -. --..-- / ... ..- -... .. ... - . / .-.. .- / .- .--. .. / -.- . -.-- / .- / --. .. - .... ..- -...
-// https://i.imgflip.com/9atwyk.jpg?a484008

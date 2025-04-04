@@ -74,11 +74,11 @@ export const SeriesProvider = ({ children }) => {
     }
   };
 
-  // Función para obtener los detalles de una serie (incluye créditos y reseñas)
+  // Función para obtener los detalles de una serie (incluye créditos, reseñas, videos y proveedores)
   const getSeriesDetails = async (seriesId) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,reviews`
+        `${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,reviews,videos,watch/providers`
       );
       if (!response.ok) {
         throw new Error(`Error de API: ${response.status}`);
