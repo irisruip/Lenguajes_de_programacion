@@ -17,10 +17,12 @@ import ProfileScreen from './screens/ProfileScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import ExploreScreen from './screens/ExploreScreen';
 import MovieDetailScreen from './screens/MovieDetailScreen';
+import SeriesDetailScreen from './screens/SeriesDetailScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 
 // Context
 import { MovieProvider } from './context/MovieContext';
+import { SeriesProvider } from './context/SeriesContext';
 
 const auth = getAuth(appFirebase);
 const Stack = createStackNavigator();
@@ -36,6 +38,7 @@ function HomeStackScreen() {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="MovieDetail" component={MovieDetailScreen} />
+      <HomeStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -45,6 +48,7 @@ function ExploreStackScreen() {
     <ExploreStack.Navigator screenOptions={{ headerShown: false }}>
       <ExploreStack.Screen name="ExploreScreen" component={ExploreScreen} />
       <ExploreStack.Screen name="MovieDetail" component={MovieDetailScreen} />
+      <ExploreStack.Screen name="SeriesDetail" component={SeriesDetailScreen} /> 
     </ExploreStack.Navigator>
   );
 }
@@ -123,27 +127,27 @@ export default function App() {
 
   return (
     <MovieProvider>
-      <NavigationContainer>
-        <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-        <Stack.Navigator
-          initialRouteName={user ? "MainApp" : "SignIn"}
-          screenOptions={{
-            headerShown: false,
-            cardStyle: { backgroundColor: '#1a1a2e' }
-          }}
-        >
-          {user ? (
-            // Rutas para usuarios autenticados
-            <Stack.Screen name="MainApp" component={MainTabs} />
-          ) : (
-            // Rutas para usuarios no autenticados
-            <>
-              <Stack.Screen name="SignIn" component={SignInScreen} />
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SeriesProvider> 
+        <NavigationContainer>
+          <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
+          <Stack.Navigator
+            initialRouteName={user ? "MainApp" : "SignIn"}
+            screenOptions={{
+              headerShown: false,
+              cardStyle: { backgroundColor: '#1a1a2e' }
+            }}
+          >
+            {user ? (
+              <Stack.Screen name="MainApp" component={MainTabs} />
+            ) : (
+              <>
+                <Stack.Screen name="SignIn" component={SignInScreen} />
+                <Stack.Screen name="SignUp" component={SignUpScreen} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SeriesProvider>
     </MovieProvider>
   );
 }
