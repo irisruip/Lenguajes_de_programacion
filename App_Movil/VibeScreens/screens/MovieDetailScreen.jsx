@@ -62,6 +62,24 @@ const MovieDetailScreen = ({ route, navigation }) => {
     fetchMovieDetails();
   }, [movieId]);
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Echa un vistazo a ${movie.title} (${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}). ¡Te encantará!`,
+      });
+    } catch (error) {
+      console.error('Error al compartir:', error);
+    }
+  };
+
+  const toggleLike = () => {
+    setLiked(!liked);
+  };
+
+  const toggleSave = () => {
+    setSaved(!saved);
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -84,18 +102,15 @@ const MovieDetailScreen = ({ route, navigation }) => {
     );
   }
 
-  //Calcular el año de lanzamiento
+  // Calcular el año de lanzamiento y formatear la duración
   const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
-  
-  //Formatear la duración en horas y minutos
   const formatRuntime = (minutes) => {
     if (!minutes) return 'N/A';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
-  
-  //Obtener los géneros
+
   const genres = movie.genres || [];
 
   // Obtener el director

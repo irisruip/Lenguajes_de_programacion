@@ -10,12 +10,16 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { API_KEY } from '@env';
 import { useMovies } from '../context/MovieContext';
 
 const ExploreScreen = ({ navigation }) => {
   const { searchMovies } = useMovies();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   // Realizar búsqueda cuando cambia la consulta
@@ -33,6 +37,9 @@ const ExploreScreen = ({ navigation }) => {
 
   // Función para buscar películas
   const handleSearch = async () => {
+    if (searchQuery.trim() === '') return;
+
+    setIsSearching(true);
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
@@ -40,17 +47,76 @@ const ExploreScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&language=es-ES&query=${encodeURIComponent(
+          searchQuery
+        )}&page=1`
+      );
+      const data = await response.json();
+      // Filtrar solo películas y series
+      const results = data.results.filter(
+        (item) => item.media_type === 'movie' || item.media_type === 'tv'
+      );
+      setSearchResults(results);
       const results = await searchMovies(searchQuery);
       // Ordenar resultados por calificación (de mayor a menor)
       const sortedResults = results.sort((a, b) => b.vote_average - a.vote_average);
       setSearchResults(sortedResults);
     } catch (error) {
-      console.error('Error searching movies:', error);
+      console.error('Error buscando películas y series:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleItemPress = (item) => {
+    // Verificar si el item es una película o una serie
+    if (item.title) {
+      // Es una película
+      navigation.navigate('MovieDetail', { movieId: item.id });
+    } else if (item.name) {
+      // Es una serie
+      navigation.navigate('SeriesDetail', { seriesId: item.id });
+    }
+  };
+
+  const renderItem = ({ item }) => {
+    // Para películas usamos title y release_date; para series usamos name y first_air_date
+    const title = item.media_type === 'tv' ? item.name : item.title;
+    const date =
+      item.media_type === 'tv'
+        ? item.first_air_date
+          ? new Date(item.first_air_date).getFullYear()
+          : 'N/A'
+        : item.release_date
+        ? new Date(item.release_date).getFullYear()
+        : 'N/A';
+
+    return (
+      <TouchableOpacity style={styles.movieItem} onPress={() => handleItemPress(item)}>
+        <Image
+          source={{
+            uri: item.poster_path
+              ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+              : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.title || item.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
+          }}
+          style={styles.moviePoster}
+        />
+        <View style={styles.movieInfo}>
+          <Text style={styles.movieTitle} numberOfLines={2}>
+            {title}
+          </Text>
+          <Text style={styles.movieYear}>{date}</Text>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={16} color="#ffd700" />
+            <Text style={styles.ratingText}>
+              {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
   // Renderizar cada película en los resultados
   const renderMovieItem = ({ item }) => (
     <TouchableOpacity
@@ -89,6 +155,27 @@ const ExploreScreen = ({ navigation }) => {
       </View>
       
       <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar películas y series..."
+          placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={() => {
+              setSearchQuery('');
+              setSearchResults([]);
+            }}
+          >
+            <Ionicons name="close-circle" size={20} color="#888" />
+          </TouchableOpacity>
+        )}
         <View style={styles.searchInputContainer}>
           <Ionicons name="search" size={20} color="#aaa" style={styles.searchIcon} />
           <TextInput
@@ -117,6 +204,21 @@ const ExploreScreen = ({ navigation }) => {
         <FlatList
           data={searchResults}
           keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.resultsList}
+        />
+      ) : searchQuery.length > 0 ? (
+        <View style={styles.noResultsContainer}>
+          <Ionicons name="search-outline" size={64} color="#555" />
+          <Text style={styles.noResultsText}>
+            No se encontraron resultados para "{searchQuery}"
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.initialStateContainer}>
+          <Ionicons name="film-outline" size={64} color="#555" />
+          <Text style={styles.initialStateText}>Busca tus películas y series favoritas</Text>
+        </View>
           renderItem={renderMovieItem}
           contentContainerStyle={styles.moviesList}
           ListEmptyComponent={
@@ -243,3 +345,6 @@ const styles = StyleSheet.create({
 });
 
 export default ExploreScreen;
+
+// .--- ..- .- -. --..-- / ... ..- -... .. ... - . / .-.. .- / .- .--. .. / -.- . -.-- / .- / --. .. - .... ..- -...
+// https://i.imgflip.com/9atwyk.jpg?a484008
