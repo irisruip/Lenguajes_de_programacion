@@ -50,7 +50,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
         // Obtener proveedores de streaming
         if (details["watch/providers"] && details["watch/providers"].results) {
           // Usar el país del usuario (aquí usamos ES para España como ejemplo)
-          const countryCode = "ES" // Puedes cambiar esto según la región del usuario
+          const countryCode = "MX" //Se puede cambiar esto según la región
           const providers = details["watch/providers"].results[countryCode]
           setWatchProviders(providers)
         }
@@ -666,4 +666,3 @@ const styles = StyleSheet.create({
 })
 
 export default MovieDetailScreen
-

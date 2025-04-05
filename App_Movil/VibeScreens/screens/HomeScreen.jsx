@@ -163,7 +163,7 @@ const HomeScreen = () => {
     setSeriesLoading(true);
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}&language=es-ES&page=1`
+        `https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}&language=es-MX&page=1`
       );
       const data = await response.json();
       if (data.results) {
@@ -181,7 +181,7 @@ const HomeScreen = () => {
     setSeriesLoading(true);
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/tv/on_the_air?api_key=${API_KEY}&language=es-ES&page=1`
+        `https://api.themoviedb.org/3/tv/on_the_air?api_key=${API_KEY}&language=es-MX&page=1`
       );
       const data = await response.json();
       if (data.results) {
@@ -198,7 +198,7 @@ const HomeScreen = () => {
   const fetchPlatformMovies = async (providerId, setter) => {
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=es-ES&with_watch_providers=${providerId}&watch_region=ES&sort_by=popularity.desc&page=1`
+        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=es-MX&with_watch_providers=${providerId}&watch_region=MX&sort_by=popularity.desc&page=1`
       );
       const data = await response.json();
       if (data.results) {
@@ -213,7 +213,7 @@ const HomeScreen = () => {
   const fetchPlatformSeries = async (providerId, setter) => {
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&language=es-ES&with_watch_providers=${providerId}&watch_region=ES&sort_by=popularity.desc&page=1`
+        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&language=es-MX&with_watch_providers=${providerId}&watch_region=MX&sort_by=popularity.desc&page=1`
       );
       const data = await response.json();
       if (data.results) {
@@ -228,7 +228,7 @@ const HomeScreen = () => {
   const fetchReviews = async (id, type) => {
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/${type}/${id}/reviews?api_key=${API_KEY}&language=es-ES`
+        `https://api.themoviedb.org/3/${type}/${id}/reviews?api_key=${API_KEY}&language=es-MX`
       );
       const data = await response.json();
       return data.results;
