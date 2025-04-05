@@ -103,7 +103,7 @@ export const MovieProvider = ({ children }) => {
   const getMovieDetails = async (movieId) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,videos,watch/providers`
+        `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=es-MX&append_to_response=credits,videos,watch/providers`
       );
       
       if (!response.ok) {

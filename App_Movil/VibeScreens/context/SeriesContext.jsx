@@ -78,7 +78,7 @@ export const SeriesProvider = ({ children }) => {
   const getSeriesDetails = async (seriesId) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=es-ES&append_to_response=credits,reviews,videos,watch/providers`
+        `${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=es-MX&append_to_response=credits,reviews,videos,watch/providers`
       );
       if (!response.ok) {
         throw new Error(`Error de API: ${response.status}`);
