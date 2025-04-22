@@ -77,13 +77,13 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
+          if (route.name === 'Inicio') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Explore') {
+          } else if (route.name === 'Buscar') {
             iconName = focused ? 'compass' : 'compass-outline';
-          } else if (route.name === 'Notifications') {
+          } else if (route.name === 'Notificaciones') {
             iconName = focused ? 'notifications' : 'notifications-outline';
-          } else if (route.name === 'Profile') {
+          } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
           }
 
@@ -98,10 +98,10 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeStackScreen} />
-      <Tab.Screen name="Explore" component={ExploreStackScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsStackScreen} />
-      <Tab.Screen name="Profile" component={ProfileStackScreen} />
+      <Tab.Screen name="Inicio" component={HomeStackScreen} />
+      <Tab.Screen name="Buscar" component={ExploreStackScreen} />
+      <Tab.Screen name="Notificaciones" component={NotificationsStackScreen} />
+      <Tab.Screen name="Perfil" component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }

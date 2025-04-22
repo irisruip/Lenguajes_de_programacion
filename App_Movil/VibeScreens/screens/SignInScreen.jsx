@@ -76,8 +76,8 @@ const SignInScreen = ({ navigation }) => {
           <Text style={styles.logoText}>VibeScreens</Text>
         </View>
 
-        <Text style={styles.title}>Sign in</Text>
-        <Text style={styles.subtitle}>Solo me caen bien Rodrigo y Emilio</Text>
+        <Text style={styles.title}>Inicio de Sesión</Text>
+        <Text style={styles.subtitle}>¡Bienvenido de vuelta!</Text>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -85,7 +85,7 @@ const SignInScreen = ({ navigation }) => {
           <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Correo electrónico"
             placeholderTextColor="#888"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -98,7 +98,7 @@ const SignInScreen = ({ navigation }) => {
           <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Contraseña"
             placeholderTextColor="#888"
             secureTextEntry
             value={password}
@@ -119,9 +119,9 @@ const SignInScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.loginLink}>Sign Up</Text>
+            <Text style={styles.loginLink}>Registrate</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
