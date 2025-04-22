@@ -93,8 +93,8 @@ const SignUpScreen = ({ navigation }) => {
           <Text style={styles.logoText}>VibeScreens</Text>
         </View>
 
-        <Text style={styles.title}>Sign Up</Text>
-        <Text style={styles.subtitle}>Se pueden registrar todos menos el que se llame Juan</Text>
+        <Text style={styles.title}>Registro</Text>
+        <Text style={styles.subtitle}>¡Hola! Unete a nosotros</Text>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -102,7 +102,7 @@ const SignUpScreen = ({ navigation }) => {
           <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Username"
+            placeholder="Nombre de usuario"
             placeholderTextColor="#888"
             value={username}
             onChangeText={setUsername}
@@ -113,7 +113,7 @@ const SignUpScreen = ({ navigation }) => {
           <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Correo electrónico"
             placeholderTextColor="#888"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -126,7 +126,7 @@ const SignUpScreen = ({ navigation }) => {
           <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Contraseña"
             placeholderTextColor="#888"
             secureTextEntry
             value={password}
@@ -138,7 +138,7 @@ const SignUpScreen = ({ navigation }) => {
           <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Confirm Password"
+            placeholder="Confirmar contraseña"
             placeholderTextColor="#888"
             secureTextEntry
             value={confirmPassword}
@@ -154,14 +154,14 @@ const SignUpScreen = ({ navigation }) => {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.signUpButtonText}>Sign Up</Text>
+            <Text style={styles.signUpButtonText}>Registrate</Text>
           )}
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
+          <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.loginLink}>Sign In</Text>
+            <Text style={styles.loginLink}>Inicia Sesión</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
