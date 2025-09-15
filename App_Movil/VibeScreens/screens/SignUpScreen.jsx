@@ -25,6 +25,8 @@ const SignUpScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = async () => {
     // Validaciones básicas el .trim() elimina los espacios 
@@ -128,10 +130,13 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Contraseña"
             placeholderTextColor="#888"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#888" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
@@ -140,10 +145,13 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Confirmar contraseña"
             placeholderTextColor="#888"
-            secureTextEntry
+            secureTextEntry={!showConfirmPassword}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
           />
+          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+            <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#888" />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity

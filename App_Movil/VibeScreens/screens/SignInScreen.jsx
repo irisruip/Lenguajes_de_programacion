@@ -24,6 +24,7 @@ const SignInScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = async () => {
     if (email.trim() === '' || password.trim() === '') {
@@ -100,10 +101,13 @@ const SignInScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Contraseña"
             placeholderTextColor="#888"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#888" />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
