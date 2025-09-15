@@ -87,5 +87,11 @@ VibeScreens es una aplicación móvil que utiliza la API de [TheMovieDB](https:/
 - Problemas: Verifica que tu archivo .env esté bien configurado y que tu red permita la comunicación entre tu computadora y tu dispositivo móvil.
 
 
+## Cambios hechos en los últimos commits
+
+Esto lo voy a hacer para tener correctamente todos los cambios que tenga en cada commit 
+
+- Ultimo cambio: "fix: se cambia el idioma de español de España a español latino" cambié como 5 archivos para cambiar de español españo a latino, lo hice, pero no funciona con los posters...
+
 
 

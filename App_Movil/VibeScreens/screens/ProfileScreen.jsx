@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import appFirebase from '../credenciales';
+import { getAuth, signOut } from 'firebase/auth';
+
+const auth = getAuth(appFirebase);
+
 
 // Datos de ejemplo para las películas favoritas
 const favoritesData = [
@@ -91,10 +96,36 @@ const friendsData = [
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    displayName: 'Usuario',
+    email: '',
+    photoURL: null
+  });
 
-  const handleSignOut = () => {
-    // Navegar a la pantalla de inicio de sesión
-    navigation.navigate('SignIn');
+  useEffect(() => {
+    // Obtener información del usuario actual
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUserInfo({
+        displayName: currentUser.displayName || 'Usuario',
+        email: currentUser.email || '',
+        photoURL: currentUser.photoURL
+      });
+    }
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
+  // Navegar a la pantalla de edición de perfil
+  const handleEditProfile = () => {
+    navigation.navigate('EditProfile');
   };
 
   const renderFavoriteItem = ({ item }) => (
@@ -131,7 +162,11 @@ const ProfileScreen = () => {
   const renderFriendItem = ({ item }) => (
     <TouchableOpacity style={styles.friendItem}>
       <Image
-        source={{ uri: item.avatar }}
+        source={{ 
+          uri: item.avatar || 'https://ui-avatars.com/api/?name=' + 
+          encodeURIComponent(item.name) + 
+          '&background=1a1a2e&color=fff&size=50' 
+        }}
         style={styles.friendAvatar}
       />
       <View style={styles.friendInfo}>
@@ -148,12 +183,15 @@ const ProfileScreen = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Image
-            source={{ uri: 'https://via.placeholder.com/150' }}
-            style={styles.profileImage}
-          />
-          <Text style={styles.username}>Usuario de Prueba</Text>
-          <Text style={styles.bio}>Amante del cine y las series</Text>
+        <Image
+          source={{ 
+            uri: userInfo.photoURL || 'https://ui-avatars.com/api/?name=' +
+            encodeURIComponent(userInfo.displayName) + '&background=1a1a2e&color=fff&size=150' 
+          }}
+          style={styles.profileImage}
+        />
+          <Text style={styles.username}>{userInfo.displayName}</Text>
+          <Text style={styles.bio}>{userInfo.email}</Text>
           
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
@@ -230,7 +268,7 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.settingsSection}>
-        <TouchableOpacity style={styles.settingsItem}>
+        <TouchableOpacity style={styles.settingsItem} onPress={handleEditProfile}>
           <Ionicons name="person-outline" size={24} color="#fff" />
           <Text style={styles.settingsText}>Editar perfil</Text>
         </TouchableOpacity>
