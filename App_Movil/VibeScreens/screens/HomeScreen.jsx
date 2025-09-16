@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   FlatList,
   RefreshControl,
-  ActivityIndicator
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useMovies } from '../context/MovieContext';
-import { Ionicons } from '@expo/vector-icons';
-import { API_KEY } from '@env';
+  ActivityIndicator,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useMovies } from "../context/MovieContext";
+import { Ionicons } from "@expo/vector-icons";
+import { API_KEY } from "@env";
 
-const apiKey = API_KEY || '';
+const apiKey = API_KEY || "";
 
 // Componente para mostrar posters (películas o series)
 const MoviePoster = ({ movie, onPress }) => (
@@ -24,7 +24,9 @@ const MoviePoster = ({ movie, onPress }) => (
       source={{
         uri: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(movie.title || movie.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
+          : "https://ui-avatars.com/api/?name=" +
+            encodeURIComponent(movie.title || movie.name || "No Image") +
+            "&size=150&background=1a1a2e&color=fff",
       }}
       style={styles.poster}
     />
@@ -99,10 +101,10 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const {
     trendingMovies, // películas populares
-    monthlyMovies,  // películas del mes
+    monthlyMovies, // películas del mes
     isLoading,
     error,
-    refreshMovies
+    refreshMovies,
   } = useMovies();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -122,7 +124,9 @@ const HomeScreen = () => {
 
   // Calculamos "Las mejores películas" ordenando por vote_average descendente
   const bestMovies = trendingMovies
-    ? [...trendingMovies].sort((a, b) => b.vote_average - a.vote_average).slice(0, 5)
+    ? [...trendingMovies]
+        .sort((a, b) => b.vote_average - a.vote_average)
+        .slice(0, 5)
     : [];
 
   // Calculamos "Las mejores series" ordenando la lista de series populares
@@ -142,20 +146,20 @@ const HomeScreen = () => {
     await fetchPlatformSeries(337, setDisneySeries);
     // Actualizamos reseñas de la película destacada
     if (trendingMovies && trendingMovies.length > 0) {
-      const reviews = await fetchReviews(trendingMovies[0].id, 'movie');
+      const reviews = await fetchReviews(trendingMovies[0].id, "movie");
       setFeaturedReviews(reviews);
     }
     setRefreshing(false);
   }, [refreshMovies, trendingMovies]);
 
   const handleMoviePress = async (movie) => {
-    const reviews = await fetchReviews(movie.id, 'movie');
-    navigation.navigate('MovieDetail', { movieId: movie.id, reviews });
+    const reviews = await fetchReviews(movie.id, "movie");
+    navigation.navigate("MovieDetail", { movieId: movie.id, reviews });
   };
 
   const handleSeriesPress = async (serie) => {
-    const reviews = await fetchReviews(serie.id, 'tv');
-    navigation.navigate('SeriesDetail', { seriesId: serie.id, reviews });
+    const reviews = await fetchReviews(serie.id, "tv");
+    navigation.navigate("SeriesDetail", { seriesId: serie.id, reviews });
   };
 
   // Obtener series populares usando la TMDb API
@@ -205,7 +209,10 @@ const HomeScreen = () => {
         setter(data.results);
       }
     } catch (error) {
-      console.error(`Error fetching platform movies (provider ${providerId}):`, error);
+      console.error(
+        `Error fetching platform movies (provider ${providerId}):`,
+        error
+      );
     }
   };
 
@@ -220,7 +227,10 @@ const HomeScreen = () => {
         setter(data.results);
       }
     } catch (error) {
-      console.error(`Error fetching platform series (provider ${providerId}):`, error);
+      console.error(
+        `Error fetching platform series (provider ${providerId}):`,
+        error
+      );
     }
   };
 
@@ -249,7 +259,7 @@ const HomeScreen = () => {
     fetchPlatformSeries(337, setDisneySeries);
     // Al cargar, si hay películas populares, obtenemos sus reseñas
     if (trendingMovies && trendingMovies.length > 0) {
-      fetchReviews(trendingMovies[0].id, 'movie').then(reviews => {
+      fetchReviews(trendingMovies[0].id, "movie").then((reviews) => {
         setFeaturedReviews(reviews);
       });
     }
@@ -277,7 +287,13 @@ const HomeScreen = () => {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ff6b6b" />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#ff6b6b"
+        />
+      }
     >
       <View style={styles.header}>
         <View>
@@ -315,7 +331,9 @@ const HomeScreen = () => {
         </View>
       ) : seriesError ? (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error cargando series: {seriesError}</Text>
+          <Text style={styles.errorText}>
+            Error cargando series: {seriesError}
+          </Text>
         </View>
       ) : (
         <>
@@ -360,10 +378,7 @@ const HomeScreen = () => {
       />
 
       {/* Nueva sección de Reseñas Destacadas */}
-      <ReviewCollection
-        title="Reseñas Destacadas"
-        reviews={featuredReviews}
-      />
+      <ReviewCollection title="Reseñas Destacadas" reviews={featuredReviews} />
     </ScrollView>
   );
 };
@@ -371,108 +386,108 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: "#1a1a2e",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1a1a2e'
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1a1a2e',
-    padding: 20
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
+    padding: 20,
   },
   errorText: {
-    color: '#ff6b6b',
+    color: "#ff6b6b",
     fontSize: 16,
     marginBottom: 20,
-    textAlign: 'center'
+    textAlign: "center",
   },
   retryButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 20
+    borderRadius: 20,
   },
   retryButtonText: {
-    color: '#fff',
-    fontWeight: 'bold'
+    color: "#fff",
+    fontWeight: "bold",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 8
+    paddingBottom: 8,
   },
   greeting: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff'
+    fontWeight: "bold",
+    color: "#fff",
   },
   username: {
     fontSize: 14,
-    color: '#aaa'
+    color: "#aaa",
   },
   notificationButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center",
   },
   collectionContainer: {
     marginTop: 24,
-    paddingHorizontal: 16
+    paddingHorizontal: 16,
   },
   collectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 12,
   },
   emptyCollection: {
     height: 180,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyText: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 14,
-    textAlign: 'center'
+    textAlign: "center",
   },
   posterContainer: {
     marginRight: 12,
     borderRadius: 8,
-    overflow: 'hidden'
+    overflow: "hidden",
   },
   poster: {
     width: 120,
     height: 180,
-    borderRadius: 8
+    borderRadius: 8,
   },
   reviewItemContainer: {
-    backgroundColor: '#2e2e3d',
+    backgroundColor: "#2e2e3d",
     borderRadius: 8,
     padding: 10,
     marginRight: 12,
-    width: 250
+    width: 250,
   },
   reviewAuthor: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
   },
   reviewContent: {
     fontSize: 12,
-    color: '#ccc'
-  }
+    color: "#ccc",
+  },
 });
 
 export default HomeScreen;

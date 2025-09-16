@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,41 +6,40 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  FlatList
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import appFirebase from '../credenciales';
-import { getAuth, signOut } from 'firebase/auth';
-import { useMovies } from '../context/MovieContext';
+  FlatList,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import appFirebase from "../credenciales";
+import { getAuth, signOut } from "firebase/auth";
+import { useMovies } from "../context/MovieContext";
 
 const auth = getAuth(appFirebase);
-
 
 // Datos de ejemplo para las películas favoritas
 const favoritesData = [
   {
-    id: '1',
-    title: 'Dune',
-    posterPath: '/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
+    id: "1",
+    title: "Dune",
+    posterPath: "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
     rating: 4.5,
   },
   {
-    id: '2',
-    title: 'The Batman',
-    posterPath: '/74xTEgt7R36Fpooo50r9T25onhq.jpg',
+    id: "2",
+    title: "The Batman",
+    posterPath: "/74xTEgt7R36Fpooo50r9T25onhq.jpg",
     rating: 4.2,
   },
   {
-    id: '3',
-    title: 'Everything Everywhere All at Once',
-    posterPath: '/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg',
+    id: "3",
+    title: "Everything Everywhere All at Once",
+    posterPath: "/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg",
     rating: 4.8,
   },
   {
-    id: '4',
-    title: 'Oppenheimer',
-    posterPath: '/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+    id: "4",
+    title: "Oppenheimer",
+    posterPath: "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
     rating: 4.7,
   },
 ];
@@ -48,49 +47,49 @@ const favoritesData = [
 // Datos de ejemplo para las listas de películas
 const listsData = [
   {
-    id: '1',
-    title: 'Para ver con amigos',
+    id: "1",
+    title: "Para ver con amigos",
     count: 12,
-    coverPath: '/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg',
+    coverPath: "/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg",
   },
   {
-    id: '2',
-    title: 'Películas de terror',
+    id: "2",
+    title: "Películas de terror",
     count: 8,
-    coverPath: '/74xTEgt7R36Fpooo50r9T25onhq.jpg',
+    coverPath: "/74xTEgt7R36Fpooo50r9T25onhq.jpg",
   },
   {
-    id: '3',
-    title: 'Clásicos que debo ver',
+    id: "3",
+    title: "Clásicos que debo ver",
     count: 15,
-    coverPath: '/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+    coverPath: "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
   },
 ];
 
 // Datos de ejemplo para amigos
 const friendsData = [
   {
-    id: '1',
-    name: 'Brad Pitt',
-    avatar: 'https://via.placeholder.com/150',
+    id: "1",
+    name: "Brad Pitt",
+    avatar: "https://via.placeholder.com/150",
     mutualMovies: 15,
   },
   {
-    id: '2',
-    name: 'Lana del Rey',
-    avatar: 'https://via.placeholder.com/150',
+    id: "2",
+    name: "Lana del Rey",
+    avatar: "https://via.placeholder.com/150",
     mutualMovies: 8,
   },
   {
-    id: '3',
-    name: 'Jennifer Lawrence',
-    avatar: 'https://via.placeholder.com/150',
+    id: "3",
+    name: "Jennifer Lawrence",
+    avatar: "https://via.placeholder.com/150",
     mutualMovies: 23,
   },
   {
-    id: '4',
-    name: 'Luis Miguel',
-    avatar: 'https://via.placeholder.com/150',
+    id: "4",
+    name: "Luis Miguel",
+    avatar: "https://via.placeholder.com/150",
     mutualMovies: 12,
   },
 ];
@@ -100,9 +99,9 @@ const ProfileScreen = () => {
   const { getUserLists } = useMovies();
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    displayName: 'Usuario',
-    email: '',
-    photoURL: null
+    displayName: "Usuario",
+    email: "",
+    photoURL: null,
   });
   const [lists, setLists] = useState([]);
 
@@ -111,9 +110,9 @@ const ProfileScreen = () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
       setUserInfo({
-        displayName: currentUser.displayName || 'Usuario',
-        email: currentUser.email || '',
-        photoURL: currentUser.photoURL
+        displayName: currentUser.displayName || "Usuario",
+        email: currentUser.email || "",
+        photoURL: currentUser.photoURL,
       });
 
       // Obtener listas del usuario
@@ -129,20 +128,20 @@ const ProfileScreen = () => {
     try {
       await signOut(auth);
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error("Error al cerrar sesión:", error);
     }
   };
 
   // Navegar a la pantalla de edición de perfil
   const handleEditProfile = () => {
-    navigation.navigate('EditProfile');
+    navigation.navigate("EditProfile");
   };
 
   const renderFavoriteItem = ({ item }) => (
     <TouchableOpacity style={styles.favoriteItem}>
       <Image
         source={{
-          uri: `https://image.tmdb.org/t/p/w500${item.posterPath}`
+          uri: `https://image.tmdb.org/t/p/w500${item.posterPath}`,
         }}
         style={styles.favoritePoster}
       />
@@ -156,13 +155,15 @@ const ProfileScreen = () => {
   const renderListItem = ({ item }) => (
     <TouchableOpacity
       style={styles.listItem}
-      onPress={() => navigation.navigate('ListDetail', { listId: item.id })}
+      onPress={() => navigation.navigate("ListDetail", { listId: item.id })}
     >
       <Image
         source={{
           uri: item.coverPath
             ? `https://image.tmdb.org/t/p/w500${item.coverPath}`
-            : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.name) + '&background=1a1a2e&color=fff&size=200'
+            : "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(item.name) +
+              "&background=1a1a2e&color=fff&size=200",
         }}
         style={styles.listCover}
       />
@@ -177,16 +178,20 @@ const ProfileScreen = () => {
   const renderFriendItem = ({ item }) => (
     <TouchableOpacity style={styles.friendItem}>
       <Image
-        source={{ 
-          uri: item.avatar || 'https://ui-avatars.com/api/?name=' + 
-          encodeURIComponent(item.name) + 
-          '&background=1a1a2e&color=fff&size=50' 
+        source={{
+          uri:
+            item.avatar ||
+            "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(item.name) +
+              "&background=1a1a2e&color=fff&size=50",
         }}
         style={styles.friendAvatar}
       />
       <View style={styles.friendInfo}>
         <Text style={styles.friendName}>{item.name}</Text>
-        <Text style={styles.friendMutual}>{item.mutualMovies} películas en común</Text>
+        <Text style={styles.friendMutual}>
+          {item.mutualMovies} películas en común
+        </Text>
       </View>
       <TouchableOpacity style={styles.friendActionButton}>
         <Ionicons name="chatbubble-outline" size={20} color="#ff6b6b" />
@@ -198,16 +203,19 @@ const ProfileScreen = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-        <Image
-          source={{ 
-            uri: userInfo.photoURL || 'https://ui-avatars.com/api/?name=' +
-            encodeURIComponent(userInfo.displayName) + '&background=1a1a2e&color=fff&size=150' 
-          }}
-          style={styles.profileImage}
-        />
+          <Image
+            source={{
+              uri:
+                userInfo.photoURL ||
+                "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(userInfo.displayName) +
+                  "&background=1a1a2e&color=fff&size=150",
+            }}
+            style={styles.profileImage}
+          />
           <Text style={styles.username}>{userInfo.displayName}</Text>
           <Text style={styles.bio}>{userInfo.email}</Text>
-          
+
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>127</Text>
@@ -246,7 +254,7 @@ const ProfileScreen = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Mis listas</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('CreateList')}>
+          <TouchableOpacity onPress={() => navigation.navigate("CreateList")}>
             <Ionicons name="add" size={24} color="#ff6b6b" />
           </TouchableOpacity>
         </View>
@@ -283,7 +291,10 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.settingsSection}>
-        <TouchableOpacity style={styles.settingsItem} onPress={handleEditProfile}>
+        <TouchableOpacity
+          style={styles.settingsItem}
+          onPress={handleEditProfile}
+        >
           <Ionicons name="person-outline" size={24} color="#fff" />
           <Text style={styles.settingsText}>Editar perfil</Text>
         </TouchableOpacity>
@@ -297,7 +308,9 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.settingsItem} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={24} color="#ff6b6b" />
-          <Text style={[styles.settingsText, { color: '#ff6b6b' }]}>Cerrar sesión</Text>
+          <Text style={[styles.settingsText, { color: "#ff6b6b" }]}>
+            Cerrar sesión
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -309,13 +322,13 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   header: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   headerContent: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 30,
   },
   profileImage: {
@@ -326,63 +339,63 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 8,
   },
   bio: {
     fontSize: 16,
-    color: '#aaa',
+    color: "#aaa",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 20,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '80%',
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "80%",
     marginTop: 16,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   statNumber: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   statLabel: {
     fontSize: 14,
-    color: '#aaa',
+    color: "#aaa",
     marginTop: 4,
   },
   statDivider: {
     width: 1,
-    height: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    height: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   section: {
     padding: 16,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   seeAllButton: {
     fontSize: 14,
-    color: '#ff6b6b',
+    color: "#ff6b6b",
   },
   favoriteItem: {
     marginRight: 12,
-    position: 'relative',
+    position: "relative",
   },
   favoritePoster: {
     width: 120,
@@ -390,20 +403,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   favoriteRating: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 8,
     right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 6,
     paddingVertical: 3,
   },
   favoriteRatingText: {
-    color: '#ffd700',
+    color: "#ffd700",
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 3,
   },
   listItem: {
@@ -411,31 +424,31 @@ const styles = StyleSheet.create({
     height: 100,
     marginRight: 12,
     borderRadius: 8,
-    overflow: 'hidden',
-    position: 'relative',
+    overflow: "hidden",
+    position: "relative",
   },
   listCover: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   listOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   listInfo: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     padding: 10,
   },
   listTitle: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   listCount: {
-    color: '#ccc',
+    color: "#ccc",
     fontSize: 12,
   },
   // Estilos para la sección de amigos
@@ -443,9 +456,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   friendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -460,12 +473,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   friendName: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   friendMutual: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 14,
     marginTop: 4,
   },
@@ -473,23 +486,23 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   addFriendButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ff6b6b',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ff6b6b",
     borderRadius: 12,
     padding: 14,
     marginTop: 8,
   },
   addFriendText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   settingsSection: {
@@ -498,15 +511,15 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   settingsText: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     marginLeft: 16,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,16 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  ActivityIndicator
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useMovies } from '../context/MovieContext';
-import { API_KEY } from '@env';
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useMovies } from "../context/MovieContext";
+import { API_KEY } from "@env";
 
 const ExploreScreen = ({ navigation }) => {
   const { searchMovies } = useMovies();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const { navigate } = useNavigation();
@@ -48,29 +48,31 @@ const ExploreScreen = ({ navigation }) => {
       );
       const data = await response.json();
       const filteredResults = data.results.filter(
-        (item) => item.media_type === 'movie' || item.media_type === 'tv'
+        (item) => item.media_type === "movie" || item.media_type === "tv"
       );
-      const sortedResults = filteredResults.sort((a, b) => b.vote_average - a.vote_average);
+      const sortedResults = filteredResults.sort(
+        (a, b) => b.vote_average - a.vote_average
+      );
       setSearchResults(sortedResults);
     } catch (error) {
-      console.error('Error buscando contenido:', error);
+      console.error("Error buscando contenido:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleItemPress = (item) => {
-    if (item.media_type === 'movie') {
-      navigate('MovieDetail', { movieId: item.id });
-    } else if (item.media_type === 'tv') {
-      navigate('SeriesDetail', { seriesId: item.id });
+    if (item.media_type === "movie") {
+      navigate("MovieDetail", { movieId: item.id });
+    } else if (item.media_type === "tv") {
+      navigate("SeriesDetail", { seriesId: item.id });
     }
   };
 
   const renderItem = ({ item }) => {
     const title = item.title || item.name;
     const date = item.release_date || item.first_air_date;
-    const year = date ? new Date(date).getFullYear() : 'N/A';
+    const year = date ? new Date(date).getFullYear() : "N/A";
 
     return (
       <TouchableOpacity
@@ -81,7 +83,9 @@ const ExploreScreen = ({ navigation }) => {
           source={{
             uri: item.poster_path
               ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-              : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(title) + '&size=150&background=1a1a2e&color=fff'
+              : "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(title) +
+                "&size=150&background=1a1a2e&color=fff",
           }}
           style={styles.moviePoster}
         />
@@ -93,10 +97,10 @@ const ExploreScreen = ({ navigation }) => {
           <View style={styles.ratingContainer}>
             <Ionicons name="star" size={16} color="#ffd700" />
             <Text style={styles.rating}>
-              {item.vote_average?.toFixed(1) || 'N/A'}
+              {item.vote_average?.toFixed(1) || "N/A"}
             </Text>
           </View>
-          {item.media_type === 'tv' && (
+          {item.media_type === "tv" && (
             <View style={styles.typeBadge}>
               <Text style={styles.typeText}>SERIE</Text>
             </View>
@@ -111,10 +115,15 @@ const ExploreScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Explorar</Text>
       </View>
-      
+
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
-          <Ionicons name="search" size={20} color="#aaa" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={20}
+            color="#aaa"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar películas y series..."
@@ -124,7 +133,7 @@ const ExploreScreen = ({ navigation }) => {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
-              onPress={() => setSearchQuery('')}
+              onPress={() => setSearchQuery("")}
               style={styles.clearButton}
             >
               <Ionicons name="close-circle" size={20} color="#aaa" />
@@ -132,7 +141,7 @@ const ExploreScreen = ({ navigation }) => {
           )}
         </View>
       </View>
-      
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#ff6b6b" />
@@ -169,34 +178,34 @@ const ExploreScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   searchContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   searchInputContainer: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#2a2a4a',
+    flexDirection: "row",
+    backgroundColor: "#2a2a4a",
     borderRadius: 20,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 12,
   },
   searchIcon: {
@@ -205,7 +214,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 40,
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
   clearButton: {
@@ -213,18 +222,18 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   moviesList: {
     padding: 16,
   },
   movieItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
-    backgroundColor: '#2a2a4a',
+    backgroundColor: "#2a2a4a",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   moviePoster: {
     width: 80,
@@ -236,54 +245,54 @@ const styles = StyleSheet.create({
   },
   movieTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 4,
   },
   movieYear: {
     fontSize: 14,
-    color: '#aaa',
+    color: "#aaa",
     marginBottom: 8,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   rating: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#ffd700',
+    fontWeight: "bold",
+    color: "#ffd700",
     marginLeft: 4,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   emptyText: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   typeBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
     borderRadius: 4,
     paddingVertical: 2,
     paddingHorizontal: 6,
   },
   typeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   movieInfo: {
     flex: 1,
     padding: 12,
-    position: 'relative',
+    position: "relative",
   },
 });
 

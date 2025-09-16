@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,68 +9,79 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import appFirebase from '../credenciales';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import appFirebase from "../credenciales";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 
 const auth = getAuth(appFirebase);
 
 const SignUpScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = async () => {
-    // Validaciones básicas el .trim() elimina los espacios 
-    if (username.trim() === '' || email.trim() === '' || password.trim() === '') {
-      setError('Por favor, completa todos los campos');
+    // Validaciones básicas el .trim() elimina los espacios
+    if (
+      username.trim() === "" ||
+      email.trim() === "" ||
+      password.trim() === ""
+    ) {
+      setError("Por favor, completa todos los campos");
       return;
     }
-  
+
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError("Las contraseñas no coinciden");
       return;
     }
-  
+
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
-  
+
     setLoading(true);
-    setError('');
-  
+    setError("");
+
     try {
       // Crear usuario con email y contraseña
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
       // Actualizar el perfil del usuario con el nombre de usuario
       await updateProfile(userCredential.user, {
-        displayName: username
+        displayName: username,
       });
-      
     } catch (error) {
-      console.error('Error de registro:', error);
-      
+      console.error("Error de registro:", error);
+
       // Mensajes de error a diferentes situaciones que pueddan suceder
-      let errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
-      
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'Ya existe una cuenta con este correo electrónico.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'El formato del correo electrónico no es válido.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'La contraseña es demasiado débil.';
+      let errorMessage = "Error al crear la cuenta. Inténtalo de nuevo.";
+
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Ya existe una cuenta con este correo electrónico.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "El formato del correo electrónico no es válido.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "La contraseña es demasiado débil.";
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -79,13 +90,15 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.backgroundImageContainer}>
           <Image
-            source={{ uri: 'https://image.tmdb.org/t/p/original/3bhkrj58Vtu7enYsRolD1fZdja1.jpg' }}
+            source={{
+              uri: "https://image.tmdb.org/t/p/original/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+            }}
             style={styles.backgroundImage}
           />
           <View style={styles.overlay} />
@@ -101,7 +114,12 @@ const SignUpScreen = ({ navigation }) => {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#888"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Nombre de usuario"
@@ -112,7 +130,12 @@ const SignUpScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color="#888"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Correo electrónico"
@@ -125,7 +148,12 @@ const SignUpScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color="#888"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
@@ -135,12 +163,21 @@ const SignUpScreen = ({ navigation }) => {
             onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#888" />
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={20}
+              color="#888"
+            />
           </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color="#888"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Confirmar contraseña"
@@ -149,8 +186,14 @@ const SignUpScreen = ({ navigation }) => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
           />
-          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-            <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#888" />
+          <TouchableOpacity
+            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+          >
+            <Ionicons
+              name={showConfirmPassword ? "eye-off" : "eye"}
+              size={20}
+              color="#888"
+            />
           </TouchableOpacity>
         </View>
 
@@ -168,7 +211,7 @@ const SignUpScreen = ({ navigation }) => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+          <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
             <Text style={styles.loginLink}>Inicia Sesión</Text>
           </TouchableOpacity>
         </View>
@@ -180,15 +223,15 @@ const SignUpScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   backgroundImageContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -196,18 +239,18 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(26, 26, 46, 0.85)',
+    backgroundColor: "rgba(26, 26, 46, 0.85)",
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   logoCirclesContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 10,
   },
   logoCircle: {
@@ -218,32 +261,32 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#ff6b6b',
+    fontWeight: "bold",
+    color: "#ff6b6b",
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: '#aaa',
+    color: "#aaa",
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   errorText: {
-    color: '#ff6b6b',
-    textAlign: 'center',
+    color: "#ff6b6b",
+    textAlign: "center",
     marginBottom: 15,
     fontSize: 14,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 25,
     marginBottom: 15,
     paddingHorizontal: 15,
@@ -254,35 +297,35 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 50,
-    color: '#fff',
+    color: "#fff",
   },
   signUpButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
     borderRadius: 25,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 20,
     marginBottom: 30,
   },
   signUpButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
   },
   footerText: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 14,
   },
   loginLink: {
-    color: '#ff6b6b',
+    color: "#ff6b6b",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

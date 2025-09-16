@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,42 +7,42 @@ import {
   TouchableOpacity,
   Alert,
   Switch,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useMovies } from '../context/MovieContext';
-import appFirebase from '../credenciales';
-import { getAuth } from 'firebase/auth';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useMovies } from "../context/MovieContext";
+import appFirebase from "../credenciales";
+import { getAuth } from "firebase/auth";
 
 const auth = getAuth(appFirebase);
 
 const CreateListScreen = ({ navigation }) => {
   const { createNewList } = useMovies();
-  const [listName, setListName] = useState('');
+  const [listName, setListName] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleCreateList = async () => {
     if (!listName.trim()) {
-      Alert.alert('Error', 'Por favor ingresa un nombre para la lista');
+      Alert.alert("Error", "Por favor ingresa un nombre para la lista");
       return;
     }
 
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      Alert.alert('Error', 'Usuario no autenticado');
+      Alert.alert("Error", "Usuario no autenticado");
       setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      await createNewList(currentUser.uid, listName.trim(), '', isPublic);
-      Alert.alert('Éxito', 'Lista creada correctamente', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+      await createNewList(currentUser.uid, listName.trim(), "", isPublic);
+      Alert.alert("Éxito", "Lista creada correctamente", [
+        { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      console.error('Error creating list:', error);
-      Alert.alert('Error', 'No se pudo crear la lista');
+      console.error("Error creating list:", error);
+      Alert.alert("Error", "No se pudo crear la lista");
     } finally {
       setLoading(false);
     }
@@ -77,12 +77,14 @@ const CreateListScreen = ({ navigation }) => {
           <Switch
             value={isPublic}
             onValueChange={setIsPublic}
-            trackColor={{ false: '#767577', true: '#ff6b6b' }}
-            thumbColor={isPublic ? '#fff' : '#f4f3f4'}
+            trackColor={{ false: "#767577", true: "#ff6b6b" }}
+            thumbColor={isPublic ? "#fff" : "#f4f3f4"}
           />
         </View>
         <Text style={styles.switchDescription}>
-          {isPublic ? 'Visible para todos los usuarios' : 'Solo visible para ti'}
+          {isPublic
+            ? "Visible para todos los usuarios"
+            : "Solo visible para ti"}
         </Text>
 
         <TouchableOpacity
@@ -91,7 +93,7 @@ const CreateListScreen = ({ navigation }) => {
           disabled={loading}
         >
           <Text style={styles.createButtonText}>
-            {loading ? 'Creando...' : 'Crear Lista'}
+            {loading ? "Creando..." : "Crear Lista"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -102,29 +104,29 @@ const CreateListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   content: {
     flex: 1,
@@ -132,46 +134,46 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     marginBottom: 10,
   },
   input: {
-    backgroundColor: '#2a2a4a',
+    backgroundColor: "#2a2a4a",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginBottom: 20,
   },
   switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   switchLabel: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
   },
   switchDescription: {
     fontSize: 14,
-    color: '#aaa',
+    color: "#aaa",
     marginBottom: 30,
   },
   createButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
     borderRadius: 8,
     paddingVertical: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
     opacity: 0.6,
   },
   createButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
