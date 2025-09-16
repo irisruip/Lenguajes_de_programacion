@@ -44,7 +44,7 @@ VibeScreens es una aplicación móvil que utiliza la API de [TheMovieDB](https:/
 3. **Navegar a la App**
     Se dirigen a la carpeta de la aplicación:
     ```bash
-    cd App_Movil/VibeScreen
+    cd App_Movil/VibeScreens
 
 4. **Instalar Dependencias**
     Una vez dentro de la carpeta de la app, instalan las dependencias con:
