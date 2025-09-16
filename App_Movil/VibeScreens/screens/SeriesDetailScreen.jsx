@@ -36,11 +36,14 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     removeItemFromList,
     isItemInAnyList,
     isItemInList,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
   } = useMovies();
   const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [liked, setLiked] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [saved, setSaved] = useState(false);
   const [trailerKey, setTrailerKey] = useState(null);
   const [watchProviders, setWatchProviders] = useState(null);
@@ -86,6 +89,10 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         if (currentUser) {
           const saved = await isItemInAnyList(currentUser.uid, seriesId, "tv");
           setIsSaved(saved);
+
+          // Check if series is favorited
+          const favorited = await isFavorite(currentUser.uid, seriesId, "tv");
+          setIsFavorited(favorited);
         }
       } catch (err) {
         console.error("Error fetching series details:", err);
@@ -110,8 +117,22 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const toggleLike = () => {
-    setLiked(!liked);
+  const toggleLike = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser && series) {
+      try {
+        if (isFavorited) {
+          await removeFavorite(currentUser.uid, series.id, "tv");
+          setIsFavorited(false);
+        } else {
+          await addFavorite(currentUser.uid, series);
+          setIsFavorited(true);
+        }
+      } catch (error) {
+        console.error("Error toggling favorite:", error);
+        Alert.alert("Error", "No se pudo actualizar el favorito");
+      }
+    }
   };
 
   const toggleSave = async () => {
@@ -257,9 +278,9 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             onPress={toggleLike}
           >
             <Ionicons
-              name={liked ? "heart" : "heart-outline"}
+              name={isFavorited ? "heart" : "heart-outline"}
               size={24}
-              color={liked ? "#ff6b6b" : "#fff"}
+              color={isFavorited ? "#ff6b6b" : "#fff"}
             />
           </TouchableOpacity>
           <TouchableOpacity

@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { StatusBar } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 // Firebase
-import appFirebase from './credenciales';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import appFirebase from "./credenciales";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 // Screens
-import SignInScreen from './screens/SignInScreen';
-import SignUpScreen from './screens/SignUpScreen';
-import HomeScreen from './screens/HomeScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import NotificationsScreen from './screens/NotificationsScreen';
-import ExploreScreen from './screens/ExploreScreen';
-import MovieDetailScreen from './screens/MovieDetailScreen';
-import SeriesDetailScreen from './screens/SeriesDetailScreen';
-import EditProfileScreen from './screens/EditProfileScreen';
-import CreateListScreen from './screens/CreateListScreen';
-import ListDetailScreen from './screens/ListDetailScreen';
+import SignInScreen from "./screens/SignInScreen";
+import SignUpScreen from "./screens/SignUpScreen";
+import HomeScreen from "./screens/HomeScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import NotificationsScreen from "./screens/NotificationsScreen";
+import ExploreScreen from "./screens/ExploreScreen";
+import MovieDetailScreen from "./screens/MovieDetailScreen";
+import SeriesDetailScreen from "./screens/SeriesDetailScreen";
+import EditProfileScreen from "./screens/EditProfileScreen";
+import CreateListScreen from "./screens/CreateListScreen";
+import ListDetailScreen from "./screens/ListDetailScreen";
+import FavoritesScreen from "./screens/FavoritesScreen";
 
 // Context
-import { MovieProvider } from './context/MovieContext';
-import { SeriesProvider } from './context/SeriesContext';
+import { MovieProvider } from "./context/MovieContext";
+import { SeriesProvider } from "./context/SeriesContext";
 
 const auth = getAuth(appFirebase);
 const Stack = createStackNavigator();
@@ -50,7 +51,7 @@ function ExploreStackScreen() {
     <ExploreStack.Navigator screenOptions={{ headerShown: false }}>
       <ExploreStack.Screen name="ExploreScreen" component={ExploreScreen} />
       <ExploreStack.Screen name="MovieDetail" component={MovieDetailScreen} />
-      <ExploreStack.Screen name="SeriesDetail" component={SeriesDetailScreen} /> 
+      <ExploreStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
     </ExploreStack.Navigator>
   );
 }
@@ -58,7 +59,10 @@ function ExploreStackScreen() {
 function NotificationsStackScreen() {
   return (
     <NotificationsStack.Navigator screenOptions={{ headerShown: false }}>
-      <NotificationsStack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+      <NotificationsStack.Screen
+        name="NotificationsScreen"
+        component={NotificationsScreen}
+      />
     </NotificationsStack.Navigator>
   );
 }
@@ -70,6 +74,7 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
       <ProfileStack.Screen name="CreateList" component={CreateListScreen} />
       <ProfileStack.Screen name="ListDetail" component={ListDetailScreen} />
+      <ProfileStack.Screen name="Favorites" component={FavoritesScreen} />
     </ProfileStack.Navigator>
   );
 }
@@ -81,22 +86,22 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Inicio') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Buscar') {
-            iconName = focused ? 'compass' : 'compass-outline';
-          } else if (route.name === 'Notificaciones') {
-            iconName = focused ? 'notifications' : 'notifications-outline';
-          } else if (route.name === 'Perfil') {
-            iconName = focused ? 'person' : 'person-outline';
+          if (route.name === "Inicio") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Buscar") {
+            iconName = focused ? "compass" : "compass-outline";
+          } else if (route.name === "Notificaciones") {
+            iconName = focused ? "notifications" : "notifications-outline";
+          } else if (route.name === "Perfil") {
+            iconName = focused ? "person" : "person-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#ff6b6b',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: "#ff6b6b",
+        tabBarInactiveTintColor: "gray",
         tabBarStyle: {
-          backgroundColor: '#1a1a2e',
+          backgroundColor: "#1a1a2e",
           borderTopWidth: 0,
         },
         headerShown: false,
@@ -131,14 +136,14 @@ export default function App() {
 
   return (
     <MovieProvider>
-      <SeriesProvider> 
+      <SeriesProvider>
         <NavigationContainer>
           <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
           <Stack.Navigator
             initialRouteName={user ? "MainApp" : "SignIn"}
             screenOptions={{
               headerShown: false,
-              cardStyle: { backgroundColor: '#1a1a2e' }
+              cardStyle: { backgroundColor: "#1a1a2e" },
             }}
           >
             {user ? (

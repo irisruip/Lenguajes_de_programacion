@@ -216,3 +216,74 @@ export const isItemInList = async (userId, listId, itemId, type) => {
     return false;
   }
 };
+
+export const addFavorite = async (userId, itemDetails) => {
+  try {
+    const favoritesRef = collection(db, "users", userId, "favorites");
+    const type = itemDetails.media_type || (itemDetails.title ? "movie" : "tv");
+    const title = itemDetails.title || itemDetails.name;
+    await addDoc(favoritesRef, {
+      contentId: itemDetails.id,
+      title: title,
+      poster_path: itemDetails.poster_path,
+      backdrop_path: itemDetails.backdrop_path,
+      type: type,
+      addedAt: serverTimestamp(),
+    });
+    console.log("Favorite added successfully");
+  } catch (error) {
+    console.error("Error adding favorite: ", error);
+    throw error;
+  }
+};
+
+export const removeFavorite = async (userId, contentId, type) => {
+  try {
+    const favoritesRef = collection(db, "users", userId, "favorites");
+    const q = query(
+      favoritesRef,
+      where("contentId", "==", contentId),
+      where("type", "==", type)
+    );
+    const querySnapshot = await getDocs(q);
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+    console.log("Favorite removed successfully");
+  } catch (error) {
+    console.error("Error removing favorite: ", error);
+    throw error;
+  }
+};
+
+export const isFavorite = async (userId, contentId, type) => {
+  try {
+    const favoritesRef = collection(db, "users", userId, "favorites");
+    const q = query(
+      favoritesRef,
+      where("contentId", "==", contentId),
+      where("type", "==", type)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking if item is favorite: ", error);
+    return false;
+  }
+};
+
+export const getUserFavorites = (userId, callback) => {
+  const q = query(
+    collection(db, "users", userId, "favorites"),
+    orderBy("addedAt", "desc")
+  );
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const favorites = [];
+    querySnapshot.forEach((doc) => {
+      favorites.push({ id: doc.id, ...doc.data() });
+    });
+    callback(favorites);
+  });
+
+  return unsubscribe;
+};

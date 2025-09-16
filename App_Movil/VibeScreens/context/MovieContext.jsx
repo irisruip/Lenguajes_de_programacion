@@ -9,6 +9,10 @@ import {
   getListItems,
   isItemInAnyList,
   isItemInList,
+  addFavorite,
+  removeFavorite,
+  isFavorite,
+  getUserFavorites,
 } from "../src/services/firestoreService";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -164,6 +168,10 @@ export const MovieProvider = ({ children }) => {
         getListItems,
         isItemInAnyList,
         isItemInList,
+        addFavorite,
+        removeFavorite,
+        isFavorite,
+        getUserFavorites,
       }}
     >
       {children}

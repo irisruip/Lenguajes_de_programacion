@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -16,33 +17,7 @@ import { useMovies } from "../context/MovieContext";
 
 const auth = getAuth(appFirebase);
 
-// Datos de ejemplo para las películas favoritas
-const favoritesData = [
-  {
-    id: "1",
-    title: "Dune",
-    posterPath: "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
-    rating: 4.5,
-  },
-  {
-    id: "2",
-    title: "The Batman",
-    posterPath: "/74xTEgt7R36Fpooo50r9T25onhq.jpg",
-    rating: 4.2,
-  },
-  {
-    id: "3",
-    title: "Everything Everywhere All at Once",
-    posterPath: "/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg",
-    rating: 4.8,
-  },
-  {
-    id: "4",
-    title: "Oppenheimer",
-    posterPath: "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-    rating: 4.7,
-  },
-];
+// Datos de ejemplo para las películas favoritas - REMOVED
 
 // Datos de ejemplo para las listas de películas
 const listsData = [
@@ -96,7 +71,7 @@ const friendsData = [
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { getUserLists } = useMovies();
+  const { getUserLists, getUserFavorites } = useMovies();
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
     displayName: "Usuario",
@@ -104,6 +79,8 @@ const ProfileScreen = () => {
     photoURL: null,
   });
   const [lists, setLists] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   useEffect(() => {
     // Obtener información del usuario actual
@@ -116,11 +93,23 @@ const ProfileScreen = () => {
       });
 
       // Obtener listas del usuario
-      const unsubscribe = getUserLists(currentUser.uid, (userLists) => {
+      const unsubscribeLists = getUserLists(currentUser.uid, (userLists) => {
         setLists(userLists);
       });
 
-      return unsubscribe; // Limpiar la suscripción al desmontar
+      // Obtener favoritos del usuario
+      const unsubscribeFavorites = getUserFavorites(
+        currentUser.uid,
+        (userFavorites) => {
+          setFavorites(userFavorites.slice(0, 4)); // Mostrar solo las últimas 3-4
+          setFavoritesLoading(false);
+        }
+      );
+
+      return () => {
+        unsubscribeLists();
+        unsubscribeFavorites();
+      }; // Limpiar las suscripciones al desmontar
     }
   }, []);
 
@@ -138,17 +127,33 @@ const ProfileScreen = () => {
   };
 
   const renderFavoriteItem = ({ item }) => (
-    <TouchableOpacity style={styles.favoriteItem}>
+    <TouchableOpacity
+      style={styles.favoriteItem}
+      onPress={() => {
+        // Navigate to movie or series detail
+        if (item.type === "tv") {
+          navigation.navigate("Inicio", {
+            screen: "SeriesDetail",
+            params: { seriesId: item.contentId },
+          });
+        } else {
+          navigation.navigate("Inicio", {
+            screen: "MovieDetail",
+            params: { movieId: item.contentId },
+          });
+        }
+      }}
+    >
       <Image
         source={{
-          uri: `https://image.tmdb.org/t/p/w500${item.posterPath}`,
+          uri: item.poster_path
+            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+            : "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(item.title) +
+              "&background=1a1a2e&color=fff&size=150",
         }}
         style={styles.favoritePoster}
       />
-      <View style={styles.favoriteRating}>
-        <Ionicons name="star" size={12} color="#ffd700" />
-        <Text style={styles.favoriteRatingText}>{item.rating}</Text>
-      </View>
     </TouchableOpacity>
   );
 
@@ -238,17 +243,23 @@ const ProfileScreen = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Favoritas</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Favorites")}>
             <Text style={styles.seeAllButton}>Ver todas</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={favoritesData}
-          keyExtractor={(item) => item.id}
-          renderItem={renderFavoriteItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
+        {favoritesLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#ff6b6b" />
+          </View>
+        ) : (
+          <FlatList
+            data={favorites}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFavoriteItem}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        )}
       </View>
 
       <View style={styles.section}>
@@ -323,6 +334,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1a1a2e",
+  },
+  loadingContainer: {
+    height: 180, // Same height as favoritePoster
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     backgroundColor: "rgba(255, 255, 255, 0.05)",

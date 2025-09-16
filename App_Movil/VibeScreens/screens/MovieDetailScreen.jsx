@@ -37,6 +37,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
     removeItemFromList,
     isItemInAnyList,
     isItemInList,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
   } = useMovies();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +47,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [trailerKey, setTrailerKey] = useState(null);
   const [watchProviders, setWatchProviders] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showListModal, setShowListModal] = useState(false);
   const [userLists, setUserLists] = useState([]);
@@ -84,6 +87,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
             "movie"
           );
           setIsSaved(saved);
+
+          // Check if movie is favorited
+          const favorited = await isFavorite(currentUser.uid, movieId, "movie");
+          setIsFavorited(favorited);
         }
       } catch (err) {
         console.error("Error fetching movie details:", err);
@@ -108,8 +115,22 @@ const MovieDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const toggleLike = () => {
-    setLiked(!liked);
+  const toggleLike = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser && movie) {
+      try {
+        if (isFavorited) {
+          await removeFavorite(currentUser.uid, movie.id, "movie");
+          setIsFavorited(false);
+        } else {
+          await addFavorite(currentUser.uid, movie);
+          setIsFavorited(true);
+        }
+      } catch (error) {
+        console.error("Error toggling favorite:", error);
+        Alert.alert("Error", "No se pudo actualizar el favorito");
+      }
+    }
   };
 
   const toggleSave = async () => {
@@ -268,9 +289,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
             onPress={toggleLike}
           >
             <Ionicons
-              name={liked ? "heart" : "heart-outline"}
+              name={isFavorited ? "heart" : "heart-outline"}
               size={24}
-              color={liked ? "#ff6b6b" : "#fff"}
+              color={isFavorited ? "#ff6b6b" : "#fff"}
             />
           </TouchableOpacity>
           <TouchableOpacity
