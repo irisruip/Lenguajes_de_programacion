@@ -13,18 +13,24 @@ import {
   Dimensions,
   Linking,
   Share,
+  Modal,
+  Alert,
 } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useMovies } from "../context/MovieContext"
 import { StatusBar } from "expo-status-bar"
 import { LinearGradient } from "expo-linear-gradient"
 import { WebView } from "react-native-webview"
+import appFirebase from '../credenciales'
+import { getAuth } from 'firebase/auth'
+
+const auth = getAuth(appFirebase)
 
 const { width } = Dimensions.get("window")
 
 const MovieDetailScreen = ({ route, navigation }) => {
   const { movieId } = route.params
-  const { getMovieDetails } = useMovies()
+  const { getMovieDetails, getUserLists, addMovieToList, isMovieInAnyList, isMovieInList } = useMovies()
   const [movie, setMovie] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -33,6 +39,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [showTrailer, setShowTrailer] = useState(false)
   const [liked, setLiked] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showListModal, setShowListModal] = useState(false)
+  const [userLists, setUserLists] = useState([])
+  const [isSaved, setIsSaved] = useState(false)
+  const [listsUnsubscribe, setListsUnsubscribe] = useState(null)
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -53,6 +63,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
           const countryCode = "MX" //Se puede cambiar esto según la región
           const providers = details["watch/providers"].results[countryCode]
           setWatchProviders(providers)
+        }
+
+        // Check if movie is saved
+        const currentUser = auth.currentUser
+        if (currentUser) {
+          const saved = await isMovieInAnyList(currentUser.uid, movieId)
+          setIsSaved(saved)
         }
       } catch (err) {
         console.error("Error fetching movie details:", err)
@@ -79,8 +96,52 @@ const MovieDetailScreen = ({ route, navigation }) => {
     setLiked(!liked)
   }
 
-  const toggleSave = () => {
-    setSaved(!saved)
+  const toggleSave = async () => {
+    console.log('toggleSave called');
+    if (showListModal) return; // Prevent opening multiple times
+    // Fetch user lists and show modal
+    const currentUser = auth.currentUser;
+    console.log('Current user:', currentUser);
+    if (currentUser) {
+      const unsubscribe = getUserLists(currentUser.uid, (lists) => {
+        console.log('User lists:', lists);
+        setUserLists(lists);
+        setShowListModal(true);
+      });
+      setListsUnsubscribe(() => unsubscribe);
+    } else {
+      console.log('No current user');
+    }
+  }
+
+  const handleAddToList = async (listId) => {
+    console.log('handleAddToList called with listId:', listId);
+    const currentUser = auth.currentUser;
+    console.log('Current user in handleAddToList:', currentUser);
+    if (currentUser && movie) {
+      try {
+        // Check if movie is already in the list
+        const alreadyInList = await isMovieInList(currentUser.uid, listId, movie.id);
+        if (alreadyInList) {
+          Alert.alert('Info', 'Esta película ya está en la lista');
+          return;
+        }
+        await addMovieToList(currentUser.uid, listId, movie);
+        if (listsUnsubscribe) {
+          listsUnsubscribe();
+          setListsUnsubscribe(null);
+        }
+        setShowListModal(false);
+        setSaved(true);
+        setIsSaved(true);
+        console.log('Movie added to list successfully');
+      } catch (error) {
+        console.error('Error adding to list:', error);
+        Alert.alert('Error', 'No se pudo añadir la película a la lista');
+      }
+    } else {
+      console.log('No current user or movie');
+    }
   }
 
   if (loading) {
@@ -128,6 +189,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backButtonHeader} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.headerActionButton} onPress={() => { console.log('Bookmark pressed'); toggleSave(); }}>
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={24} color={isSaved ? "#ff6b6b" : "#fff"} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerActionButton} onPress={toggleLike}>
+            <Ionicons name={liked ? "heart" : "heart-outline"} size={24} color={liked ? "#ff6b6b" : "#fff"} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerActionButton} onPress={handleShare}>
+            <Ionicons name="share-social-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {showTrailer && trailerKey ? (
@@ -159,19 +231,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
               colors={["transparent", "rgba(26, 26, 46, 0.8)", "#1a1a2e"]}
               style={styles.gradientOverlay}
             />
-
-            {/* Botones de acción flotantes */}
-            <View style={styles.floatingActions}>
-              <TouchableOpacity style={styles.floatingActionButton} onPress={toggleSave}>
-                <Ionicons name={saved ? "bookmark" : "bookmark-outline"} size={24} color={saved ? "#ff6b6b" : "#fff"} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.floatingActionButton} onPress={toggleLike}>
-                <Ionicons name={liked ? "heart" : "heart-outline"} size={24} color={liked ? "#ff6b6b" : "#fff"} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.floatingActionButton} onPress={handleShare}>
-                <Ionicons name="share-social-outline" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* Información principal de la película */}
@@ -383,6 +442,56 @@ const MovieDetailScreen = ({ route, navigation }) => {
           </View>
         </ScrollView>
       )}
+
+      {/* Modal for selecting list */}
+      <Modal
+        visible={showListModal}
+        transparent={true}
+        animationType="slide"
+        presentationStyle="overFullScreen"
+        onRequestClose={() => {
+          if (listsUnsubscribe) {
+            listsUnsubscribe();
+            setListsUnsubscribe(null);
+          }
+          setShowListModal(false);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Seleccionar lista</Text>
+            <TouchableOpacity
+              style={styles.createListButton}
+              onPress={() => {
+                setShowListModal(false);
+                navigation.navigate('Perfil', { screen: 'CreateList' });
+              }}
+            >
+              <Ionicons name="add-circle-outline" size={20} color="#ff6b6b" />
+              <Text style={styles.createListText}>Crear nueva lista</Text>
+            </TouchableOpacity>
+            <FlatList
+              data={userLists}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.listItem}
+                  onPress={() => handleAddToList(item.id)}
+                >
+                  <Text style={styles.listName}>{item.name}</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#aaa" />
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity
+              style={styles.closeModalButton}
+              onPress={() => setShowListModal(false)}
+            >
+              <Text style={styles.closeModalText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -429,6 +538,7 @@ const styles = StyleSheet.create({
     height: 60,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     zIndex: 10,
   },
@@ -439,6 +549,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerActions: {
+    flexDirection: "row",
+  },
+  headerActionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
   },
   backdropContainer: {
     position: "relative",
@@ -456,22 +578,6 @@ const styles = StyleSheet.create({
     top: 0,
     height: 250,
     zIndex: 1,
-  },
-  floatingActions: {
-    position: "absolute",
-    top: 40,
-    right: 16,
-    zIndex: 2,
-    flexDirection: "row",
-  },
-  floatingActionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
   },
   mainInfoContainer: {
     flexDirection: "row",
@@ -662,6 +768,60 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#fff",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#1a1a2e',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    maxHeight: '60%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  createListButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 10,
+  },
+  createListText: {
+    fontSize: 16,
+    color: '#ff6b6b',
+    marginLeft: 10,
+  },
+  listItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  listName: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  closeModalButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  closeModalText: {
+    color: '#ff6b6b',
+    fontSize: 16,
   },
 })
 

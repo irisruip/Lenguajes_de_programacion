@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import appFirebase from '../credenciales';
 import { getAuth, signOut } from 'firebase/auth';
+import { useMovies } from '../context/MovieContext';
 
 const auth = getAuth(appFirebase);
 
@@ -96,12 +97,14 @@ const friendsData = [
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const { getUserLists } = useMovies();
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
     displayName: 'Usuario',
     email: '',
     photoURL: null
   });
+  const [lists, setLists] = useState([]);
 
   useEffect(() => {
     // Obtener información del usuario actual
@@ -112,6 +115,13 @@ const ProfileScreen = () => {
         email: currentUser.email || '',
         photoURL: currentUser.photoURL
       });
+
+      // Obtener listas del usuario
+      const unsubscribe = getUserLists(currentUser.uid, (userLists) => {
+        setLists(userLists);
+      });
+
+      return unsubscribe; // Limpiar la suscripción al desmontar
     }
   }, []);
 
@@ -144,17 +154,22 @@ const ProfileScreen = () => {
   );
 
   const renderListItem = ({ item }) => (
-    <TouchableOpacity style={styles.listItem}>
+    <TouchableOpacity
+      style={styles.listItem}
+      onPress={() => navigation.navigate('ListDetail', { listId: item.id })}
+    >
       <Image
         source={{
-          uri: `https://image.tmdb.org/t/p/w500${item.coverPath}`
+          uri: item.coverPath
+            ? `https://image.tmdb.org/t/p/w500${item.coverPath}`
+            : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.name) + '&background=1a1a2e&color=fff&size=200'
         }}
         style={styles.listCover}
       />
       <View style={styles.listOverlay} />
       <View style={styles.listInfo}>
-        <Text style={styles.listTitle}>{item.title}</Text>
-        <Text style={styles.listCount}>{item.count} películas</Text>
+        <Text style={styles.listTitle}>{item.name}</Text>
+        <Text style={styles.listCount}>{item.movieCount || 0} películas</Text>
       </View>
     </TouchableOpacity>
   );
@@ -231,12 +246,12 @@ const ProfileScreen = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Mis listas</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllButton}>Ver todas</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('CreateList')}>
+            <Ionicons name="add" size={24} color="#ff6b6b" />
           </TouchableOpacity>
         </View>
         <FlatList
-          data={listsData}
+          data={lists}
           keyExtractor={(item) => item.id}
           renderItem={renderListItem}
           horizontal

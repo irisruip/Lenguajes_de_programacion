@@ -19,6 +19,8 @@ import ExploreScreen from './screens/ExploreScreen';
 import MovieDetailScreen from './screens/MovieDetailScreen';
 import SeriesDetailScreen from './screens/SeriesDetailScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
+import CreateListScreen from './screens/CreateListScreen';
+import ListDetailScreen from './screens/ListDetailScreen';
 
 // Context
 import { MovieProvider } from './context/MovieContext';
@@ -66,6 +68,8 @@ function ProfileStackScreen() {
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       <ProfileStack.Screen name="ProfileScreen" component={ProfileScreen} />
       <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
+      <ProfileStack.Screen name="CreateList" component={CreateListScreen} />
+      <ProfileStack.Screen name="ListDetail" component={ListDetailScreen} />
     </ProfileStack.Navigator>
   );
 }

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { API_KEY } from '@env';
+import { createNewList, addMovieToList, getUserLists, removeMovieFromList, deleteList, getListMovies, isMovieInAnyList, isMovieInList } from '../src/services/firestoreService';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -134,6 +135,14 @@ export const MovieProvider = ({ children }) => {
         searchMovies,
         getMovieDetails,
         refreshMovies: fetchAllMovies,
+        createNewList,
+        addMovieToList,
+        getUserLists,
+        removeMovieFromList,
+        deleteList,
+        getListMovies,
+        isMovieInAnyList,
+        isMovieInList,
       }}
     >
       {children}
