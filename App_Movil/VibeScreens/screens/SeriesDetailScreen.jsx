@@ -30,8 +30,13 @@ const { width } = Dimensions.get("window");
 const SeriesDetailScreen = ({ route, navigation }) => {
   const { seriesId } = route.params;
   const { getSeriesDetails } = useSeries();
-  const { getUserLists, addMovieToList, isMovieInAnyList, isMovieInList } =
-    useMovies();
+  const {
+    getUserLists,
+    addMovieToList,
+    removeItemFromList,
+    isItemInAnyList,
+    isItemInList,
+  } = useMovies();
   const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,7 +84,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Check if series is saved
         const currentUser = auth.currentUser;
         if (currentUser) {
-          const saved = await isMovieInAnyList(currentUser.uid, seriesId);
+          const saved = await isItemInAnyList(currentUser.uid, seriesId, "tv");
           setIsSaved(saved);
         }
       } catch (err) {
@@ -119,13 +124,18 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Initialize selected lists
         const selected = new Set();
         for (const list of lists) {
-          const isIn = await isMovieInList(currentUser.uid, list.id, series.id);
+          const isIn = await isItemInList(
+            currentUser.uid,
+            list.id,
+            series.id,
+            "tv"
+          );
           if (isIn) selected.add(list.id);
         }
         setSelectedLists(selected);
-        setShowListModal(true);
       });
       setListsUnsubscribe(() => unsubscribe);
+      setShowListModal(true);
     }
   };
 
@@ -148,16 +158,17 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         const promises = [];
         for (const list of userLists) {
           const isSelected = selectedLists.has(list.id);
-          const isInList = await isMovieInList(
+          const isInList = await isItemInList(
             currentUser.uid,
             list.id,
-            series.id
+            series.id,
+            "tv"
           );
           if (isSelected && !isInList) {
             promises.push(addMovieToList(currentUser.uid, list.id, series));
           } else if (!isSelected && isInList) {
             promises.push(
-              removeMovieFromList(currentUser.uid, list.id, series.id)
+              removeItemFromList(currentUser.uid, list.id, series.id, "tv")
             );
           }
         }
@@ -168,7 +179,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         }
         setShowListModal(false);
         // Update isSaved
-        const saved = await isMovieInAnyList(currentUser.uid, series.id);
+        const saved = await isItemInAnyList(currentUser.uid, series.id, "tv");
         setIsSaved(saved);
         console.log("Lists updated successfully");
       } catch (error) {

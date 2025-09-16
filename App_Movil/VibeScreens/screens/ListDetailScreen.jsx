@@ -18,7 +18,11 @@ const auth = getAuth(appFirebase);
 
 const ListDetailScreen = ({ route, navigation }) => {
   const { listId } = route.params;
-  const { getListMovies, deleteList, removeMovieFromList } = useMovies();
+  const {
+    getListItems: getListMovies,
+    deleteList,
+    removeItemFromList: removeMovieFromList,
+  } = useMovies();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [listName, setListName] = useState("Mi Lista");
@@ -77,7 +81,12 @@ const ListDetailScreen = ({ route, navigation }) => {
     const currentUser = auth.currentUser;
     if (currentUser) {
       try {
-        await removeMovieFromList(currentUser.uid, listId, movie.movieId);
+        await removeMovieFromList(
+          currentUser.uid,
+          listId,
+          movie.movieId,
+          movie.type
+        );
         // The list will update automatically via onSnapshot
       } catch (error) {
         console.error("Error removing movie:", error);

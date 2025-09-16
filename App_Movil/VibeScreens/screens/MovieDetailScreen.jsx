@@ -34,9 +34,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
     getMovieDetails,
     getUserLists,
     addMovieToList,
-    removeMovieFromList,
-    isMovieInAnyList,
-    isMovieInList,
+    removeItemFromList,
+    isItemInAnyList,
+    isItemInList,
   } = useMovies();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +78,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
         // Check if movie is saved
         const currentUser = auth.currentUser;
         if (currentUser) {
-          const saved = await isMovieInAnyList(currentUser.uid, movieId);
+          const saved = await isItemInAnyList(
+            currentUser.uid,
+            movieId,
+            "movie"
+          );
           setIsSaved(saved);
         }
       } catch (err) {
@@ -121,7 +125,12 @@ const MovieDetailScreen = ({ route, navigation }) => {
         // Initialize selected lists
         const selected = new Set();
         for (const list of lists) {
-          const isIn = await isMovieInList(currentUser.uid, list.id, movie.id);
+          const isIn = await isItemInList(
+            currentUser.uid,
+            list.id,
+            movie.id,
+            "movie"
+          );
           if (isIn) selected.add(list.id);
         }
         setSelectedLists(selected);
@@ -152,16 +161,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
         const promises = [];
         for (const list of userLists) {
           const isSelected = selectedLists.has(list.id);
-          const isInList = await isMovieInList(
+          const isInList = await isItemInList(
             currentUser.uid,
             list.id,
-            movie.id
+            movie.id,
+            "movie"
           );
           if (isSelected && !isInList) {
             promises.push(addMovieToList(currentUser.uid, list.id, movie));
           } else if (!isSelected && isInList) {
             promises.push(
-              removeMovieFromList(currentUser.uid, list.id, movie.id)
+              removeItemFromList(currentUser.uid, list.id, movie.id, "movie")
             );
           }
         }
@@ -172,7 +182,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
         setShowListModal(false);
         // Update isSaved
-        const saved = await isMovieInAnyList(currentUser.uid, movie.id);
+        const saved = await isItemInAnyList(currentUser.uid, movie.id, "movie");
         setIsSaved(saved);
         console.log("Lists updated successfully");
       } catch (error) {

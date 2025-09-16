@@ -4,11 +4,11 @@ import {
   createNewList,
   addMovieToList,
   getUserLists,
-  removeMovieFromList,
+  removeItemFromList,
   deleteList,
-  getListMovies,
-  isMovieInAnyList,
-  isMovieInList,
+  getListItems,
+  isItemInAnyList,
+  isItemInList,
 } from "../src/services/firestoreService";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -159,11 +159,11 @@ export const MovieProvider = ({ children }) => {
         createNewList,
         addMovieToList,
         getUserLists,
-        removeMovieFromList,
+        removeItemFromList,
         deleteList,
-        getListMovies,
-        isMovieInAnyList,
-        isMovieInList,
+        getListItems,
+        isItemInAnyList,
+        isItemInList,
       }}
     >
       {children}

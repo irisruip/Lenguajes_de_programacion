@@ -38,23 +38,25 @@ export const createNewList = async (
   }
 };
 
-export const addMovieToList = async (userId, listId, movieDetails) => {
+export const addMovieToList = async (userId, listId, itemDetails) => {
   console.log(
-    "Adding movie to list:",
-    movieDetails.title,
+    "Adding item to list:",
+    itemDetails.title || itemDetails.name,
     "to list:",
     listId,
     "for user:",
     userId
   );
   try {
-    const movieRef = collection(db, "users", userId, "lists", listId, "movies");
-    await addDoc(movieRef, {
-      movieId: movieDetails.id,
-      title: movieDetails.title,
-      poster_path: movieDetails.poster_path,
-      backdrop_path: movieDetails.backdrop_path,
-      type: movieDetails.media_type || "movie",
+    const itemRef = collection(db, "users", userId, "lists", listId, "items");
+    const type = itemDetails.media_type || (itemDetails.title ? "movie" : "tv");
+    const title = itemDetails.title || itemDetails.name;
+    await addDoc(itemRef, {
+      movieId: itemDetails.id,
+      title: title,
+      poster_path: itemDetails.poster_path,
+      backdrop_path: itemDetails.backdrop_path,
+      type: type,
       addedAt: serverTimestamp(),
     });
 
@@ -62,13 +64,13 @@ export const addMovieToList = async (userId, listId, movieDetails) => {
     const listRef = doc(db, "users", userId, "lists", listId);
     await updateDoc(listRef, {
       movieCount: increment(1),
-      coverPath: movieDetails.poster_path, // Set cover to the added movie's poster
+      coverPath: itemDetails.poster_path, // Set cover to the added item's poster
       updatedAt: serverTimestamp(),
     });
 
-    console.log("Movie added successfully");
+    console.log("Item added successfully");
   } catch (error) {
-    console.error("Error adding movie to list: ", error);
+    console.error("Error adding item to list: ", error);
     throw error;
   }
 };
@@ -90,10 +92,14 @@ export const getUserLists = (userId, callback) => {
   return unsubscribe;
 };
 
-export const removeMovieFromList = async (userId, listId, movieId) => {
+export const removeItemFromList = async (userId, listId, itemId, type) => {
   try {
-    const movieRef = collection(db, "users", userId, "lists", listId, "movies");
-    const q = query(movieRef, where("movieId", "==", movieId));
+    const itemRef = collection(db, "users", userId, "lists", listId, "items");
+    const q = query(
+      itemRef,
+      where("movieId", "==", itemId),
+      where("type", "==", type)
+    );
     const querySnapshot = await getDocs(q);
     const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
@@ -101,9 +107,10 @@ export const removeMovieFromList = async (userId, listId, movieId) => {
     // Update movieCount and coverPath in the list
     const listRef = doc(db, "users", userId, "lists", listId);
 
-    // Get remaining movies to update cover
+    // Get remaining items to update cover (prioritize the same type for cover)
     const remainingQuery = query(
-      movieRef,
+      itemRef,
+      where("type", "==", type),
       orderBy("addedAt", "desc"),
       limit(1)
     );
@@ -119,7 +126,7 @@ export const removeMovieFromList = async (userId, listId, movieId) => {
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error("Error removing movie from list: ", error);
+    console.error("Error removing item from list: ", error);
     throw error;
   }
 };
@@ -127,18 +134,11 @@ export const removeMovieFromList = async (userId, listId, movieId) => {
 export const deleteList = async (userId, listId) => {
   console.log("Deleting list:", listId, "for user:", userId);
   try {
-    // First, delete all movies in the list
-    const moviesRef = collection(
-      db,
-      "users",
-      userId,
-      "lists",
-      listId,
-      "movies"
-    );
-    const moviesSnapshot = await getDocs(moviesRef);
-    console.log("Movies to delete:", moviesSnapshot.docs.length);
-    const deletePromises = moviesSnapshot.docs.map((movieDoc) =>
+    // First, delete all items in the list
+    const itemsRef = collection(db, "users", userId, "lists", listId, "items");
+    const itemsSnapshot = await getDocs(itemsRef);
+    console.log("Movies to delete:", itemsSnapshot.docs.length);
+    const deletePromises = itemsSnapshot.docs.map((movieDoc) =>
       deleteDoc(movieDoc.ref)
     );
     await Promise.all(deletePromises);
@@ -154,64 +154,65 @@ export const deleteList = async (userId, listId) => {
   }
 };
 
-export const getListMovies = (userId, listId, callback) => {
+export const getListItems = (userId, listId, callback) => {
   const q = query(
-    collection(db, "users", userId, "lists", listId, "movies"),
+    collection(db, "users", userId, "lists", listId, "items"),
     orderBy("addedAt", "desc")
   );
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const movies = [];
+    const items = [];
     querySnapshot.forEach((doc) => {
-      movies.push({ id: doc.id, ...doc.data() });
+      items.push({ id: doc.id, ...doc.data() });
     });
-    callback(movies);
+    callback(items);
   });
 
   return unsubscribe;
 };
 
-export const isMovieInAnyList = async (userId, movieId) => {
+export const isItemInAnyList = async (userId, itemId, type) => {
   try {
     const listsRef = collection(db, "users", userId, "lists");
     const listsSnapshot = await getDocs(listsRef);
     for (const listDoc of listsSnapshot.docs) {
-      const moviesRef = collection(
+      const itemsRef = collection(
         db,
         "users",
         userId,
         "lists",
         listDoc.id,
-        "movies"
+        "items"
       );
-      const q = query(moviesRef, where("movieId", "==", movieId));
-      const moviesSnapshot = await getDocs(q);
-      if (!moviesSnapshot.empty) {
+      const q = query(
+        itemsRef,
+        where("movieId", "==", itemId),
+        where("type", "==", type)
+      );
+      const itemsSnapshot = await getDocs(q);
+      if (!itemsSnapshot.empty) {
         return true;
       }
     }
     return false;
   } catch (error) {
-    console.error("Error checking if movie is in any list: ", error);
+    console.error("Error checking if item is in any list: ", error);
     return false;
   }
 };
 
-export const isMovieInList = async (userId, listId, movieId) => {
+export const isItemInList = async (userId, listId, itemId, type) => {
   try {
-    const moviesRef = collection(
-      db,
-      "users",
-      userId,
-      "lists",
-      listId,
-      "movies"
+    const itemsRef = collection(db, "users", userId, "lists", listId, "items");
+    const q = query(
+      itemsRef,
+      where("movieId", "==", itemId),
+      where("type", "==", type)
     );
-    const q = query(moviesRef, where("movieId", "==", movieId));
-    const moviesSnapshot = await getDocs(q);
-    return !moviesSnapshot.empty;
+    const itemsSnapshot = await getDocs(q);
+    return !itemsSnapshot.empty;
   } catch (error) {
-    console.error("Error checking if movie is in list: ", error);
+    console.error("Error checking if item is in list: ", error);
     return false;
   }
 };
