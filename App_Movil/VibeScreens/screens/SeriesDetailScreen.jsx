@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -39,6 +39,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     addFavorite,
     removeFavorite,
     isFavorite,
+    getReviewsForContent,
   } = useMovies();
   const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +55,9 @@ const SeriesDetailScreen = ({ route, navigation }) => {
   const [selectedLists, setSelectedLists] = useState(new Set());
   const [isSaved, setIsSaved] = useState(false);
   const [listsUnsubscribe, setListsUnsubscribe] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null);
+  const scrollViewRef = useRef(null);
 
   useEffect(() => {
     const fetchSeriesDetails = async () => {
@@ -93,6 +97,16 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           // Check if series is favorited
           const favorited = await isFavorite(currentUser.uid, seriesId, "tv");
           setIsFavorited(favorited);
+
+          // Load reviews
+          const reviewsUnsub = getReviewsForContent(
+            seriesId,
+            "tv",
+            (seriesReviews) => {
+              setReviews(seriesReviews);
+            }
+          );
+          setReviewsUnsubscribe(() => reviewsUnsub);
         }
       } catch (err) {
         console.error("Error fetching series details:", err);
@@ -104,6 +118,41 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
     fetchSeriesDetails();
   }, [seriesId]);
+
+  // Handle scrolling to reviews section and refreshing reviews when coming back from review screen
+  useEffect(() => {
+    // Handle both direct parameters and nested parameters from tab navigation
+    const params = route.params?.params || route.params;
+    const scrollToReviews = params?.scrollToReviews;
+    const refreshReviews = params?.refreshReviews;
+
+    if (scrollToReviews && scrollViewRef.current) {
+      // Force refresh reviews if refreshReviews parameter is present
+      if (refreshReviews) {
+        // Unsubscribe from current reviews listener
+        if (reviewsUnsubscribe) {
+          reviewsUnsubscribe();
+        }
+        // Re-subscribe to get fresh data
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const newReviewsUnsub = getReviewsForContent(
+            seriesId,
+            "tv",
+            (seriesReviews) => {
+              setReviews(seriesReviews);
+            }
+          );
+          setReviewsUnsubscribe(() => newReviewsUnsub);
+        }
+      }
+
+      // Wait a bit for the content to load, then scroll to reviews section
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 800, animated: true }); // Approximate position of reviews section
+      }, 500);
+    }
+  }, [route.params]);
 
   const handleShare = async () => {
     try {
@@ -247,6 +296,24 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
   const genres = series.genres || [];
 
+  const renderReviewItem = ({ item }) => (
+    <View style={styles.reviewItem}>
+      <View style={styles.reviewHeader}>
+        <Text style={styles.reviewUsername}>{item.username}</Text>
+        <View style={styles.reviewRating}>
+          <Ionicons name="star" size={14} color="#ffd700" />
+          <Text style={styles.reviewRatingText}>{item.rating}/5</Text>
+        </View>
+      </View>
+      <Text style={styles.reviewText}>{item.text}</Text>
+      <Text style={styles.reviewDate}>
+        {item.createdAt?.toDate
+          ? item.createdAt.toDate().toLocaleDateString("es-ES")
+          : "Fecha desconocida"}
+      </Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -289,6 +356,19 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           >
             <Ionicons name="share-social-outline" size={24} color="#fff" />
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerActionButton}
+            onPress={() =>
+              navigation.navigate("Review", {
+                contentId: seriesId,
+                contentTitle: series?.name,
+                contentType: "tv",
+                posterPath: series?.poster_path,
+              })
+            }
+          >
+            <Ionicons name="create-outline" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -309,7 +389,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           />
         </View>
       ) : (
-        <ScrollView>
+        <ScrollView ref={scrollViewRef}>
           {/* Imagen de fondo con gradiente */}
           <View style={styles.backdropContainer}>
             <Image
@@ -572,6 +652,71 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 <Text style={styles.detailLabel}>Cadena:</Text>
                 <Text style={styles.detailValue}>
                   {series.networks.map((network) => network.name).join(", ")}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Reseñas */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                Reseñas ({reviews.length})
+              </Text>
+              <TouchableOpacity
+                style={styles.writeReviewButton}
+                onPress={() =>
+                  navigation.navigate("Review", {
+                    contentId: seriesId,
+                    contentTitle: series?.name,
+                    contentType: "tv",
+                    posterPath: series?.poster_path,
+                  })
+                }
+              >
+                <Ionicons name="create-outline" size={16} color="#ff6b6b" />
+                <Text style={styles.writeReviewText}>Escribir reseña</Text>
+              </TouchableOpacity>
+            </View>
+
+            {reviews.length > 0 ? (
+              <View>
+                <FlatList
+                  data={reviews.slice(0, 3)}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderReviewItem}
+                  showsVerticalScrollIndicator={false}
+                  scrollEnabled={false}
+                />
+                {reviews.length > 3 && (
+                  <TouchableOpacity
+                    style={styles.viewAllReviewsButton}
+                    onPress={() =>
+                      navigation.navigate("AllReviews", {
+                        contentId: seriesId,
+                        contentTitle: series.name,
+                        contentType: "tv",
+                        posterPath: series.poster_path,
+                      })
+                    }
+                  >
+                    <Text style={styles.viewAllReviewsText}>
+                      Ver todas las reseñas ({reviews.length})
+                    </Text>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={16}
+                      color="#ff6b6b"
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ) : (
+              <View style={styles.noReviewsContainer}>
+                <Ionicons name="chatbubble-outline" size={48} color="#666" />
+                <Text style={styles.noReviewsText}>No hay reseñas aún</Text>
+                <Text style={styles.noReviewsSubtext}>
+                  Sé el primero en compartir tu opinión
                 </Text>
               </View>
             )}
@@ -971,6 +1116,90 @@ const styles = StyleSheet.create({
   closeModalText: {
     color: "#ff6b6b",
     fontSize: 16,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  writeReviewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  writeReviewText: {
+    color: "#ff6b6b",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 4,
+  },
+  reviewItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  reviewUsername: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  reviewRating: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reviewRatingText: {
+    color: "#ffd700",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 4,
+  },
+  reviewText: {
+    fontSize: 14,
+    color: "#ccc",
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: "#666",
+  },
+  noReviewsContainer: {
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  noReviewsText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  noReviewsSubtext: {
+    fontSize: 14,
+    color: "#444",
+    textAlign: "center",
+  },
+  viewAllReviewsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  viewAllReviewsText: {
+    color: "#ff6b6b",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginRight: 8,
   },
 });
 

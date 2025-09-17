@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useMovies } from "../context/MovieContext";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { API_KEY } from "@env";
 
 const apiKey = API_KEY || "";
@@ -62,34 +63,105 @@ const MovieCollection = ({ title, movies = [], onMoviePress }) => {
 };
 
 // Componente para mostrar cada reseña
-const ReviewItem = ({ review }) => (
-  <View style={styles.reviewItemContainer}>
-    <Text style={styles.reviewAuthor}>{review.author}</Text>
-    <Text style={styles.reviewContent} numberOfLines={3}>
-      {review.content}
-    </Text>
-  </View>
+const ReviewItem = ({ review, onPress }) => (
+  <TouchableOpacity style={styles.reviewItemContainer} onPress={onPress}>
+    <Image
+      source={{
+        uri: review.backdropPath
+          ? `https://image.tmdb.org/t/p/w780${review.backdropPath}`
+          : "https://ui-avatars.com/api/?name=" +
+            encodeURIComponent(review.contentTitle || "No Image") +
+            "&background=1a1a2e&color=fff&size=300",
+      }}
+      style={styles.reviewBackdrop}
+    />
+    <View style={styles.reviewOverlay}>
+      <View style={styles.reviewTopLeftTitle}>
+        <Text style={styles.reviewTitle} numberOfLines={1}>
+          {review.contentTitle}
+        </Text>
+      </View>
+      <View style={styles.reviewTopRight}>
+        <View style={styles.reviewRating}>
+          <Ionicons name="star" size={12} color="#ffd700" />
+          <Text style={styles.reviewRatingText}>{review.rating}/5</Text>
+        </View>
+      </View>
+      <LinearGradient
+        colors={[
+          "transparent",
+          "rgba(0, 0, 0, 0.3)",
+          "rgba(0, 0, 0, 0.6)",
+          "rgba(0, 0, 0, 0.8)",
+        ]}
+        style={styles.reviewGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      />
+      <View style={styles.reviewBottomLeft}>
+        <Text style={styles.reviewAuthor} numberOfLines={1}>
+          {review.username}
+        </Text>
+        <Text style={styles.reviewContent} numberOfLines={2}>
+          {review.text}
+        </Text>
+        <Text style={styles.reviewDate}>
+          {review.createdAt?.toDate
+            ? review.createdAt.toDate().toLocaleDateString("es-ES")
+            : "Fecha desconocida"}
+        </Text>
+      </View>
+    </View>
+  </TouchableOpacity>
 );
 
 // Componente para la colección de reseñas
-const ReviewCollection = ({ title, reviews = [] }) => {
-  if (!reviews || reviews.length === 0) {
+const ReviewCollection = ({
+  title,
+  reviews = [],
+  loading = false,
+  onReviewPress,
+}) => {
+  if (loading || !reviews) {
     return (
       <View style={styles.collectionContainer}>
         <Text style={styles.collectionTitle}>{title}</Text>
         <View style={styles.emptyCollection}>
-          <Text style={styles.emptyText}>Cargando...</Text>
+          <ActivityIndicator size="small" color="#ff6b6b" />
+          <Text style={styles.emptyText}>Cargando reseñas...</Text>
         </View>
       </View>
     );
   }
+
+  if (reviews.length === 0) {
+    return (
+      <View style={styles.collectionContainer}>
+        <Text style={styles.collectionTitle}>{title}</Text>
+        <View style={styles.emptyCollection}>
+          <Ionicons name="chatbubble-outline" size={48} color="#666" />
+          <Text style={styles.emptyText}>No hay reseñas aún</Text>
+          <Text style={styles.emptySubtext}>
+            Sé el primero en compartir tu opinión
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.collectionContainer}>
       <Text style={styles.collectionTitle}>{title}</Text>
       <FlatList
-        data={reviews}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <ReviewItem review={item} />}
+        data={reviews.slice(0, 5)} // Limitar a máximo 5 reseñas
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ReviewItem
+            review={item}
+            onPress={() => onReviewPress && onReviewPress(item)}
+          />
+        )}
+        contentContainerStyle={styles.reviewsContainer}
         horizontal
         showsHorizontalScrollIndicator={false}
       />
@@ -105,6 +177,7 @@ const HomeScreen = () => {
     isLoading,
     error,
     refreshMovies,
+    getFeaturedReviews,
   } = useMovies();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -119,8 +192,10 @@ const HomeScreen = () => {
   const [netflixSeries, setNetflixSeries] = useState([]);
   const [disneySeries, setDisneySeries] = useState([]);
 
-  // Estado para reseñas de una película destacada
+  // Estado para reseñas destacadas de Firestore
   const [featuredReviews, setFeaturedReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null);
 
   // Calculamos "Las mejores películas" ordenando por vote_average descendente
   const bestMovies = trendingMovies
@@ -144,11 +219,15 @@ const HomeScreen = () => {
     await fetchPlatformMovies(337, setDisneyMovies);
     await fetchPlatformSeries(8, setNetflixSeries);
     await fetchPlatformSeries(337, setDisneySeries);
-    // Actualizamos reseñas de la película destacada
-    if (trendingMovies && trendingMovies.length > 0) {
-      const reviews = await fetchReviews(trendingMovies[0].id, "movie");
-      setFeaturedReviews(reviews);
+    // Actualizamos reseñas destacadas de Firestore
+    if (reviewsUnsubscribe) {
+      reviewsUnsubscribe();
     }
+    const newUnsubscribe = getFeaturedReviews((reviews) => {
+      setFeaturedReviews(reviews);
+      setReviewsLoading(false);
+    });
+    setReviewsUnsubscribe(() => newUnsubscribe);
     setRefreshing(false);
   }, [refreshMovies, trendingMovies]);
 
@@ -160,6 +239,15 @@ const HomeScreen = () => {
   const handleSeriesPress = async (serie) => {
     const reviews = await fetchReviews(serie.id, "tv");
     navigation.navigate("SeriesDetail", { seriesId: serie.id, reviews });
+  };
+
+  const handleReviewPress = (review) => {
+    // Navegar a los detalles del contenido según el tipo
+    if (review.type === "movie") {
+      navigation.navigate("MovieDetail", { movieId: review.contentId });
+    } else {
+      navigation.navigate("SeriesDetail", { seriesId: review.contentId });
+    }
   };
 
   // Obtener series populares usando la TMDb API
@@ -257,13 +345,22 @@ const HomeScreen = () => {
     fetchPlatformMovies(337, setDisneyMovies);
     fetchPlatformSeries(8, setNetflixSeries);
     fetchPlatformSeries(337, setDisneySeries);
-    // Al cargar, si hay películas populares, obtenemos sus reseñas
-    if (trendingMovies && trendingMovies.length > 0) {
-      fetchReviews(trendingMovies[0].id, "movie").then((reviews) => {
-        setFeaturedReviews(reviews);
-      });
-    }
+    // Cargar reseñas destacadas de Firestore con listener en tiempo real
+    const unsubscribe = getFeaturedReviews((reviews) => {
+      setFeaturedReviews(reviews);
+      setReviewsLoading(false);
+    });
+    setReviewsUnsubscribe(() => unsubscribe);
   }, [trendingMovies]);
+
+  // Cleanup effect for reviews listener
+  useEffect(() => {
+    return () => {
+      if (reviewsUnsubscribe) {
+        reviewsUnsubscribe();
+      }
+    };
+  }, [reviewsUnsubscribe]);
 
   if (isLoading && !refreshing) {
     return (
@@ -324,6 +421,14 @@ const HomeScreen = () => {
         onMoviePress={handleMoviePress}
       />
 
+      {/* Sección de Reseñas Destacadas */}
+      <ReviewCollection
+        title="Reseñas Destacadas"
+        reviews={featuredReviews}
+        loading={reviewsLoading}
+        onReviewPress={handleReviewPress}
+      />
+
       {/* Sección de series */}
       {seriesLoading ? (
         <View style={styles.loadingContainer}>
@@ -376,9 +481,6 @@ const HomeScreen = () => {
         movies={disneySeries ? disneySeries.slice(0, 5) : []}
         onMoviePress={handleSeriesPress}
       />
-
-      {/* Nueva sección de Reseñas Destacadas */}
-      <ReviewCollection title="Reseñas Destacadas" reviews={featuredReviews} />
     </ScrollView>
   );
 };
@@ -472,21 +574,93 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   reviewItemContainer: {
-    backgroundColor: "#2e2e3d",
     borderRadius: 8,
-    padding: 10,
     marginRight: 12,
-    width: 250,
+    width: 300,
+    height: 160,
+    overflow: "hidden",
+  },
+  reviewBackdrop: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+  reviewOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 12,
+  },
+  reviewTopLeftTitle: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 80, // Leave space for the right side content
+    maxWidth: "60%",
+  },
+  reviewTopRight: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    alignItems: "flex-end",
+  },
+  reviewGradient: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "60%", // Covers the bottom 60% of the card
+  },
+  reviewBottomLeft: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    right: 80, // Leave space for the right side content
+    maxWidth: "60%",
   },
   reviewAuthor: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#fff",
+    flex: 1,
+  },
+  reviewRating: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reviewRatingText: {
+    color: "#ffd700",
+    fontSize: 11,
+    fontWeight: "bold",
+    marginLeft: 3,
+  },
+  reviewTitle: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 4,
+    marginBottom: 6,
   },
   reviewContent: {
     fontSize: 12,
     color: "#ccc",
+    lineHeight: 16,
+    marginBottom: 6,
+  },
+  reviewDate: {
+    fontSize: 10,
+    color: "#ff6b6b",
+  },
+  emptySubtext: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  reviewsContainer: {
+    paddingHorizontal: 2,
   },
 });
 

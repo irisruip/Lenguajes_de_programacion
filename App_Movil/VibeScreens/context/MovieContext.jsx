@@ -1,5 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { API_KEY } from "@env";
+import { db } from "../credenciales";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
 import {
   createNewList,
   addMovieToList,
@@ -13,6 +22,9 @@ import {
   removeFavorite,
   isFavorite,
   getUserFavorites,
+  createReview,
+  getReviewsForContent,
+  hasUserReviewedContent,
 } from "../src/services/firestoreService";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -172,6 +184,67 @@ export const MovieProvider = ({ children }) => {
         removeFavorite,
         isFavorite,
         getUserFavorites,
+        createReview,
+        getReviewsForContent,
+        hasUserReviewedContent,
+        getFeaturedReviews: (callback) => {
+          try {
+            const q = query(
+              collection(db, "reviews"),
+              orderBy("createdAt", "desc"),
+              limit(5)
+            );
+
+            // Set up real-time listener
+            const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+              const reviews = [];
+
+              // Para cada reseña, obtener información adicional del contenido desde TMDb
+              for (const doc of querySnapshot.docs) {
+                const reviewData = doc.data();
+                let backdropPath = null;
+                let contentTitle = reviewData.title || "Contenido desconocido";
+
+                try {
+                  // Obtener información del contenido desde TMDb
+                  const response = await fetch(
+                    `${BASE_URL}/${reviewData.type}/${reviewData.contentId}?api_key=${API_KEY}&language=es-MX`
+                  );
+                  if (response.ok) {
+                    const contentData = await response.json();
+                    backdropPath = contentData.backdrop_path;
+                    contentTitle =
+                      contentData.title || contentData.name || reviewData.title;
+                  }
+                } catch (error) {
+                  console.warn(
+                    `Error fetching content info for ${reviewData.contentId}:`,
+                    error
+                  );
+                }
+
+                reviews.push({
+                  id: doc.id,
+                  ...reviewData,
+                  backdropPath,
+                  contentTitle,
+                });
+              }
+
+              // Call the callback with the updated reviews
+              callback(reviews);
+            });
+
+            // Return the unsubscribe function
+            return unsubscribe;
+          } catch (error) {
+            console.error(
+              "Error setting up featured reviews listener: ",
+              error
+            );
+            return () => {}; // Return empty unsubscribe function
+          }
+        },
       }}
     >
       {children}

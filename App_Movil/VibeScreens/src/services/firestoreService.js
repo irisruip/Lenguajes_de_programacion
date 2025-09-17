@@ -287,3 +287,69 @@ export const getUserFavorites = (userId, callback) => {
 
   return unsubscribe;
 };
+
+export const createReview = async (
+  contentId,
+  userId,
+  username,
+  rating,
+  text,
+  type
+) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    await addDoc(reviewsRef, {
+      contentId: contentId,
+      userId: userId,
+      username: username,
+      rating: rating,
+      text: text,
+      type: type,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error creating review: ", error);
+    throw error;
+  }
+};
+
+export const getReviewsForContent = (contentId, type, callback) => {
+  // Usar una consulta más simple para evitar el requerimiento de índice compuesto
+  const q = query(
+    collection(db, "reviews"),
+    where("contentId", "==", contentId),
+    where("type", "==", type)
+  );
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const reviews = [];
+    querySnapshot.forEach((doc) => {
+      reviews.push({ id: doc.id, ...doc.data() });
+    });
+    // Ordenar manualmente por createdAt descendente
+    reviews.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dateB - dateA;
+    });
+    callback(reviews);
+  });
+
+  return unsubscribe;
+};
+
+export const hasUserReviewedContent = async (userId, contentId, type) => {
+  try {
+    const q = query(
+      collection(db, "reviews"),
+      where("userId", "==", userId),
+      where("contentId", "==", contentId),
+      where("type", "==", type)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking if user reviewed content: ", error);
+    return false;
+  }
+};

@@ -22,6 +22,8 @@ import EditProfileScreen from "./screens/EditProfileScreen";
 import CreateListScreen from "./screens/CreateListScreen";
 import ListDetailScreen from "./screens/ListDetailScreen";
 import FavoritesScreen from "./screens/FavoritesScreen";
+import ReviewScreen from "./screens/ReviewScreen";
+import AllReviewsScreen from "./screens/AllReviewsScreen";
 
 // Context
 import { MovieProvider } from "./context/MovieContext";
@@ -42,6 +44,8 @@ function HomeStackScreen() {
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="MovieDetail" component={MovieDetailScreen} />
       <HomeStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
+      <HomeStack.Screen name="Review" component={ReviewScreen} />
+      <HomeStack.Screen name="AllReviews" component={AllReviewsScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -52,6 +56,8 @@ function ExploreStackScreen() {
       <ExploreStack.Screen name="ExploreScreen" component={ExploreScreen} />
       <ExploreStack.Screen name="MovieDetail" component={MovieDetailScreen} />
       <ExploreStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
+      <ExploreStack.Screen name="Review" component={ReviewScreen} />
+      <ExploreStack.Screen name="AllReviews" component={AllReviewsScreen} />
     </ExploreStack.Navigator>
   );
 }
