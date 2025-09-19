@@ -15,6 +15,8 @@ import { useMovies } from "../context/MovieContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { API_KEY } from "@env";
+import appFirebase from "../credenciales";
+import { getAuth } from "firebase/auth";
 
 const apiKey = API_KEY || "";
 
@@ -169,6 +171,8 @@ const ReviewCollection = ({
   );
 };
 
+const auth = getAuth(appFirebase);
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const {
@@ -179,6 +183,8 @@ const HomeScreen = () => {
     refreshMovies,
     getFeaturedReviews,
   } = useMovies();
+
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [refreshing, setRefreshing] = useState(false);
   const [series, setSeries] = useState([]);
@@ -336,6 +342,12 @@ const HomeScreen = () => {
     }
   };
 
+  // Obtener usuario actual
+  useEffect(() => {
+    const user = auth.currentUser;
+    setCurrentUser(user);
+  }, []);
+
   // Llamadas iniciales
   useEffect(() => {
     fetchSeries();
@@ -394,9 +406,11 @@ const HomeScreen = () => {
     >
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Bienvenido Juan!</Text>
+          <Text style={styles.greeting}>
+            ¡Hola {currentUser?.displayName || "Usuario"}!
+          </Text>
           <Text style={styles.username}>
-            Juan Andres, si ves esto, ve Alice in Borderland (Mensaje de Iris)
+            Descubre las mejores películas y series para disfrutar
           </Text>
         </View>
         <TouchableOpacity style={styles.notificationButton}>
