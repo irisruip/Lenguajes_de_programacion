@@ -24,6 +24,7 @@ import ListDetailScreen from "./screens/ListDetailScreen";
 import FavoritesScreen from "./screens/FavoritesScreen";
 import ReviewScreen from "./screens/ReviewScreen";
 import AllReviewsScreen from "./screens/AllReviewsScreen";
+import UserReviewsScreen from "./screens/UserReviewsScreen";
 
 // Context
 import { MovieProvider } from "./context/MovieContext";
@@ -81,6 +82,7 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="CreateList" component={CreateListScreen} />
       <ProfileStack.Screen name="ListDetail" component={ListDetailScreen} />
       <ProfileStack.Screen name="Favorites" component={FavoritesScreen} />
+      <ProfileStack.Screen name="UserReviews" component={UserReviewsScreen} />
     </ProfileStack.Navigator>
   );
 }

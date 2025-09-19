@@ -353,3 +353,24 @@ export const hasUserReviewedContent = async (userId, contentId, type) => {
     return false;
   }
 };
+
+export const getUserReviews = (userId, callback) => {
+  // Usar una consulta más simple para evitar el requerimiento de índice compuesto
+  const q = query(collection(db, "reviews"), where("userId", "==", userId));
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const reviews = [];
+    querySnapshot.forEach((doc) => {
+      reviews.push({ id: doc.id, ...doc.data() });
+    });
+    // Ordenar manualmente por createdAt descendente
+    reviews.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return dateB - dateA;
+    });
+    callback(reviews);
+  });
+
+  return unsubscribe;
+};

@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import appFirebase from "../credenciales";
 import { getAuth, signOut } from "firebase/auth";
 import { useMovies } from "../context/MovieContext";
+import { API_KEY } from "@env";
 
 const auth = getAuth(appFirebase);
 
@@ -71,7 +73,7 @@ const friendsData = [
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { getUserLists, getUserFavorites } = useMovies();
+  const { getUserLists, getUserFavorites, getUserReviews } = useMovies();
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
     displayName: "Usuario",
@@ -80,7 +82,10 @@ const ProfileScreen = () => {
   });
   const [lists, setLists] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [enrichedReviews, setEnrichedReviews] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   useEffect(() => {
     // Obtener información del usuario actual
@@ -106,9 +111,52 @@ const ProfileScreen = () => {
         }
       );
 
+      // Obtener reseñas del usuario
+      const unsubscribeReviews = getUserReviews(
+        currentUser.uid,
+        async (userReviews) => {
+          setReviews(userReviews);
+
+          // Enriquecer las reseñas con información de TMDb
+          const enriched = await Promise.all(
+            userReviews.slice(0, 3).map(async (review) => {
+              let backdropPath = null;
+              let contentTitle = review.title || "Contenido desconocido";
+
+              try {
+                const response = await fetch(
+                  `https://api.themoviedb.org/3/${review.type}/${review.contentId}?api_key=${API_KEY}&language=es-MX`
+                );
+                if (response.ok) {
+                  const contentData = await response.json();
+                  backdropPath = contentData.backdrop_path;
+                  contentTitle =
+                    contentData.title || contentData.name || review.title;
+                }
+              } catch (error) {
+                console.warn(
+                  `Error fetching content info for ${review.contentId}:`,
+                  error
+                );
+              }
+
+              return {
+                ...review,
+                backdropPath,
+                contentTitle,
+              };
+            })
+          );
+
+          setEnrichedReviews(enriched);
+          setReviewsLoading(false);
+        }
+      );
+
       return () => {
         unsubscribeLists();
         unsubscribeFavorites();
+        unsubscribeReviews();
       }; // Limpiar las suscripciones al desmontar
     }
   }, []);
@@ -223,17 +271,17 @@ const ProfileScreen = () => {
 
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>127</Text>
-              <Text style={styles.statLabel}>Películas</Text>
+              <Text style={styles.statNumber}>{favorites.length}</Text>
+              <Text style={styles.statLabel}>Favoritas</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>35</Text>
+              <Text style={styles.statNumber}>{lists.length}</Text>
               <Text style={styles.statLabel}>Listas</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>48</Text>
+              <Text style={styles.statNumber}>{reviews.length}</Text>
               <Text style={styles.statLabel}>Reseñas</Text>
             </View>
           </View>
@@ -276,6 +324,109 @@ const ProfileScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
         />
+      </View>
+
+      {/* Nueva sección de reseñas */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Mis reseñas</Text>
+          {reviews.length > 3 && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("UserReviews")}
+            >
+              <Text style={styles.seeAllButton}>Ver todas</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        {reviewsLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#ff6b6b" />
+          </View>
+        ) : enrichedReviews.length === 0 ? (
+          <View style={styles.emptyCollection}>
+            <Ionicons name="chatbubble-outline" size={48} color="#666" />
+            <Text style={styles.emptyText}>No has escrito reseñas aún</Text>
+            <Text style={styles.emptySubtext}>
+              Comparte tu opinión sobre películas y series
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={enrichedReviews}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.reviewItemContainer}
+                onPress={() => {
+                  if (item.type === "movie") {
+                    navigation.navigate("Inicio", {
+                      screen: "MovieDetail",
+                      params: { movieId: item.contentId },
+                    });
+                  } else {
+                    navigation.navigate("Inicio", {
+                      screen: "SeriesDetail",
+                      params: { seriesId: item.contentId },
+                    });
+                  }
+                }}
+              >
+                <Image
+                  source={{
+                    uri: item.backdropPath
+                      ? `https://image.tmdb.org/t/p/w780${item.backdropPath}`
+                      : "https://ui-avatars.com/api/?name=" +
+                        encodeURIComponent(item.contentTitle || "No Image") +
+                        "&background=1a1a2e&color=fff&size=300",
+                  }}
+                  style={styles.reviewBackdrop}
+                />
+                <View style={styles.reviewOverlay}>
+                  <View style={styles.reviewTopLeftTitle}>
+                    <Text style={styles.reviewTitle} numberOfLines={1}>
+                      {item.contentTitle}
+                    </Text>
+                  </View>
+                  <View style={styles.reviewTopRight}>
+                    <View style={styles.reviewRating}>
+                      <Ionicons name="star" size={12} color="#ffd700" />
+                      <Text style={styles.reviewRatingText}>
+                        {item.rating}/5
+                      </Text>
+                    </View>
+                  </View>
+                  <LinearGradient
+                    colors={[
+                      "transparent",
+                      "rgba(0, 0, 0, 0.3)",
+                      "rgba(0, 0, 0, 0.6)",
+                      "rgba(0, 0, 0, 0.8)",
+                    ]}
+                    style={styles.reviewGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                  />
+                  <View style={styles.reviewBottomLeft}>
+                    <Text style={styles.reviewAuthor} numberOfLines={1}>
+                      {item.username}
+                    </Text>
+                    <Text style={styles.reviewContent} numberOfLines={2}>
+                      {item.text}
+                    </Text>
+                    <Text style={styles.reviewDate}>
+                      {item.createdAt?.toDate
+                        ? item.createdAt.toDate().toLocaleDateString("es-ES")
+                        : "Fecha desconocida"}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.reviewsContainer}
+          />
+        )}
       </View>
 
       {/* Nueva sección de amigos */}
@@ -537,6 +688,106 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     marginLeft: 16,
+  },
+  // Estilos para reseñas (estilo HomeScreen)
+  reviewsContainer: {
+    paddingHorizontal: 2,
+  },
+  reviewItemContainer: {
+    borderRadius: 8,
+    marginRight: 12,
+    width: 300,
+    height: 160,
+    overflow: "hidden",
+  },
+  reviewBackdrop: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+  reviewOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 12,
+  },
+  reviewTopLeftTitle: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 80,
+    maxWidth: "60%",
+  },
+  reviewTopRight: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    alignItems: "flex-end",
+  },
+  reviewGradient: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "60%",
+  },
+  reviewBottomLeft: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    right: 80,
+    maxWidth: "60%",
+  },
+  reviewAuthor: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#fff",
+    flex: 1,
+  },
+  reviewRating: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reviewRatingText: {
+    color: "#ffd700",
+    fontSize: 11,
+    fontWeight: "bold",
+    marginLeft: 3,
+  },
+  reviewTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 6,
+  },
+  reviewContent: {
+    fontSize: 12,
+    color: "#ccc",
+    lineHeight: 16,
+    marginBottom: 6,
+  },
+  reviewDate: {
+    fontSize: 10,
+    color: "#ff6b6b",
+  },
+  emptyCollection: {
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#aaa",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 8,
   },
 });
 

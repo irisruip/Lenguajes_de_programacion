@@ -25,6 +25,7 @@ import {
   createReview,
   getReviewsForContent,
   hasUserReviewedContent,
+  getUserReviews,
 } from "../src/services/firestoreService";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -187,6 +188,7 @@ export const MovieProvider = ({ children }) => {
         createReview,
         getReviewsForContent,
         hasUserReviewedContent,
+        getUserReviews,
         getFeaturedReviews: (callback) => {
           try {
             const q = query(
