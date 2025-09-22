@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react"
 import {
   View,
   Text,
@@ -13,104 +13,85 @@ import {
   Share,
   Modal,
   Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useMovies } from "../context/MovieContext";
-import { StatusBar } from "expo-status-bar";
-import { LinearGradient } from "expo-linear-gradient";
-import { WebView } from "react-native-webview";
-import appFirebase from "../credenciales";
-import { getAuth } from "firebase/auth";
-import { API_KEY } from "@env";
+} from "react-native"
+import { Ionicons } from "@expo/vector-icons"
+import { useMovies } from "../context/MovieContext"
+import { StatusBar } from "expo-status-bar"
+import { LinearGradient } from "expo-linear-gradient"
+import { WebView } from "react-native-webview"
+import appFirebase from '../credenciales'
+import { getAuth } from 'firebase/auth'
+import { API_KEY } from '@env'
 
 // Import external link images
-const imdbLogo = require("../assets/imdb.webp");
-const twitterLogo = require("../assets/twitter.webp");
+const imdbLogo = require('../assets/imdb.webp');
+const twitterLogo = require('../assets/twitter.webp');
 
-const auth = getAuth(appFirebase);
+const auth = getAuth(appFirebase)
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get("window")
 
 const MovieDetailScreen = ({ route, navigation }) => {
-  const { movieId } = route.params;
-  const {
-    getMovieDetails,
-    getUserLists,
-    addMovieToList,
-    removeItemFromList,
-    isItemInAnyList,
-    isItemInList,
-    addFavorite,
-    removeFavorite,
-    isFavorite,
-    getReviewsForContent,
-  } = useMovies();
-  const [movie, setMovie] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [trailerKey, setTrailerKey] = useState(null);
-  const [watchProviders, setWatchProviders] = useState(null);
-  const [showTrailer, setShowTrailer] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [showListModal, setShowListModal] = useState(false);
-  const [userLists, setUserLists] = useState([]);
-  const [selectedLists, setSelectedLists] = useState(new Set());
-  const [isSaved, setIsSaved] = useState(false);
-  const [listsUnsubscribe, setListsUnsubscribe] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null);
-  const [similarMovies, setSimilarMovies] = useState([]);
-  const [externalIds, setExternalIds] = useState(null);
-  const scrollViewRef = useRef(null);
+  const { movieId } = route.params
+  const { getMovieDetails, getUserLists, addMovieToList, removeItemFromList, isItemInAnyList, isItemInList, addFavorite, removeFavorite, isFavorite, getReviewsForContent } = useMovies()
+  const [movie, setMovie] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [trailerKey, setTrailerKey] = useState(null)
+  const [watchProviders, setWatchProviders] = useState(null)
+  const [showTrailer, setShowTrailer] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [showListModal, setShowListModal] = useState(false)
+  const [userLists, setUserLists] = useState([])
+  const [selectedLists, setSelectedLists] = useState(new Set())
+  const [isSaved, setIsSaved] = useState(false)
+  const [listsUnsubscribe, setListsUnsubscribe] = useState(null)
+  const [reviews, setReviews] = useState([])
+  const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null)
+  const [similarMovies, setSimilarMovies] = useState([])
+  const [externalIds, setExternalIds] = useState(null)
+  const scrollViewRef = useRef(null)
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
-        setLoading(true);
-        const details = await getMovieDetails(movieId);
-        setMovie(details);
+        setLoading(true)
+        const details = await getMovieDetails(movieId)
+        setMovie(details)
 
         // Obtener el trailer
         if (details.videos && details.videos.results) {
-          const trailer = details.videos.results.find(
-            (video) => video.type === "Trailer" && video.site === "YouTube"
-          );
-          if (trailer) setTrailerKey(trailer.key);
+          const trailer = details.videos.results.find((video) => video.type === "Trailer" && video.site === "YouTube")
+          if (trailer) setTrailerKey(trailer.key)
         }
 
         // Obtener proveedores de streaming
         if (details["watch/providers"] && details["watch/providers"].results) {
           // Usar el país del usuario (aquí usamos ES para España como ejemplo)
-          const countryCode = "MX"; //Se puede cambiar esto según la región
-          const providers = details["watch/providers"].results[countryCode];
-          setWatchProviders(providers);
+          const countryCode = "MX" //Se puede cambiar esto según la región
+          const providers = details["watch/providers"].results[countryCode]
+          setWatchProviders(providers)
         }
 
         // Obtener certificación
         try {
-          const releaseResponse = await fetch(
-            `https://api.themoviedb.org/3/movie/${movieId}/release_dates?api_key=${API_KEY}`
-          );
+          const releaseResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/release_dates?api_key=${API_KEY}`);
           if (releaseResponse.ok) {
             const releaseData = await releaseResponse.json();
-            const mxRelease =
-              releaseData.results.find((r) => r.iso_3166_1 === "MX") ||
-              releaseData.results.find((r) => r.iso_3166_1 === "US");
+            const mxRelease = releaseData.results.find(r => r.iso_3166_1 === 'MX') || releaseData.results.find(r => r.iso_3166_1 === 'US');
             if (mxRelease && mxRelease.release_dates.length > 0) {
               const certification = mxRelease.release_dates[0].certification;
-              setMovie((prev) => ({ ...prev, certification }));
+              setMovie(prev => ({ ...prev, certification }));
             }
           }
         } catch (error) {
-          console.warn("Error fetching movie certification:", error);
+          console.warn('Error fetching movie certification:', error);
         }
 
         // Obtener películas similares
         try {
-          const similarResponse = await fetch(
-            `https://api.themoviedb.org/3/movie/${movieId}/similar?api_key=${API_KEY}&language=es-MX&page=1`
-          );
+          const similarResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/similar?api_key=${API_KEY}&language=es-MX&page=1`);
           if (similarResponse.ok) {
             const similarData = await similarResponse.json();
             if (similarData.results) {
@@ -118,56 +99,46 @@ const MovieDetailScreen = ({ route, navigation }) => {
             }
           }
         } catch (error) {
-          console.warn("Error fetching similar movies:", error);
+          console.warn('Error fetching similar movies:', error);
         }
 
         // Obtener IDs externos
         try {
-          const externalResponse = await fetch(
-            `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${API_KEY}`
-          );
+          const externalResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${API_KEY}`);
           if (externalResponse.ok) {
             const externalData = await externalResponse.json();
             setExternalIds(externalData);
           }
         } catch (error) {
-          console.warn("Error fetching external IDs:", error);
+          console.warn('Error fetching external IDs:', error);
         }
 
         // Check if movie is saved
-        const currentUser = auth.currentUser;
+        const currentUser = auth.currentUser
         if (currentUser) {
-          const saved = await isItemInAnyList(
-            currentUser.uid,
-            movieId,
-            "movie"
-          );
-          setIsSaved(saved);
+          const saved = await isItemInAnyList(currentUser.uid, movieId, 'movie')
+          setIsSaved(saved)
 
           // Check if movie is favorited
-          const favorited = await isFavorite(currentUser.uid, movieId, "movie");
-          setIsFavorited(favorited);
+          const favorited = await isFavorite(currentUser.uid, movieId, 'movie')
+          setIsFavorited(favorited)
 
           // Load reviews
-          const reviewsUnsub = getReviewsForContent(
-            movieId,
-            "movie",
-            (movieReviews) => {
-              setReviews(movieReviews);
-            }
-          );
-          setReviewsUnsubscribe(() => reviewsUnsub);
+          const reviewsUnsub = getReviewsForContent(movieId, 'movie', (movieReviews) => {
+            setReviews(movieReviews)
+          })
+          setReviewsUnsubscribe(() => reviewsUnsub)
         }
       } catch (err) {
-        console.error("Error fetching movie details:", err);
-        setError("No se pudieron cargar los detalles de la película");
+        console.error("Error fetching movie details:", err)
+        setError("No se pudieron cargar los detalles de la película")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchMovieDetails();
-  }, [movieId]);
+    fetchMovieDetails()
+  }, [movieId])
 
   // Handle scrolling to reviews section and refreshing reviews when coming back from review screen
   useEffect(() => {
@@ -186,73 +157,62 @@ const MovieDetailScreen = ({ route, navigation }) => {
         // Re-subscribe to get fresh data
         const currentUser = auth.currentUser;
         if (currentUser) {
-          const newReviewsUnsub = getReviewsForContent(
-            movieId,
-            "movie",
-            (movieReviews) => {
-              setReviews(movieReviews);
-            }
-          );
+          const newReviewsUnsub = getReviewsForContent(movieId, 'movie', (movieReviews) => {
+            setReviews(movieReviews);
+          });
           setReviewsUnsubscribe(() => newReviewsUnsub);
         }
       }
 
       // Wait a bit for the content to load, then scroll to reviews section
       setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ y: 800, animated: true }); // Approximate position of reviews section
-      }, 500);
+        scrollViewRef.current?.scrollTo({ y: 800, animated: true }) // Approximate position of reviews section
+      }, 500)
     }
-  }, [route.params]);
+  }, [route.params])
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Echa un vistazo a ${movie.title} (${
-          movie.release_date ? movie.release_date.split("-")[0] : "N/A"
-        }). ¡Te encantará!`,
-      });
+        message: `Echa un vistazo a ${movie.title} (${movie.release_date ? movie.release_date.split("-")[0] : "N/A"}). ¡Te encantará!`,
+      })
     } catch (error) {
-      console.error("Error al compartir:", error);
+      console.error("Error al compartir:", error)
     }
-  };
+  }
 
   const toggleLike = async () => {
-    const currentUser = auth.currentUser;
+    const currentUser = auth.currentUser
     if (currentUser && movie) {
       try {
         if (isFavorited) {
-          await removeFavorite(currentUser.uid, movie.id, "movie");
-          setIsFavorited(false);
+          await removeFavorite(currentUser.uid, movie.id, 'movie')
+          setIsFavorited(false)
         } else {
-          await addFavorite(currentUser.uid, movie);
-          setIsFavorited(true);
+          await addFavorite(currentUser.uid, movie)
+          setIsFavorited(true)
         }
       } catch (error) {
-        console.error("Error toggling favorite:", error);
-        Alert.alert("Error", "No se pudo actualizar el favorito");
+        console.error('Error toggling favorite:', error)
+        Alert.alert('Error', 'No se pudo actualizar el favorito')
       }
     }
-  };
+  }
 
   const toggleSave = async () => {
-    console.log("toggleSave called");
+    console.log('toggleSave called');
     if (showListModal) return; // Prevent opening multiple times
     // Fetch user lists and show modal
     const currentUser = auth.currentUser;
-    console.log("Current user:", currentUser);
+    console.log('Current user:', currentUser);
     if (currentUser) {
       const unsubscribe = getUserLists(currentUser.uid, async (lists) => {
-        console.log("User lists:", lists);
+        console.log('User lists:', lists);
         setUserLists(lists);
         // Initialize selected lists
         const selected = new Set();
         for (const list of lists) {
-          const isIn = await isItemInList(
-            currentUser.uid,
-            list.id,
-            movie.id,
-            "movie"
-          );
+          const isIn = await isItemInList(currentUser.uid, list.id, movie.id, 'movie');
           if (isIn) selected.add(list.id);
         }
         setSelectedLists(selected);
@@ -260,12 +220,12 @@ const MovieDetailScreen = ({ route, navigation }) => {
       setListsUnsubscribe(() => unsubscribe);
       setShowListModal(true);
     } else {
-      console.log("No current user");
+      console.log('No current user');
     }
-  };
+  }
 
   const handleListToggle = (listId) => {
-    setSelectedLists((prev) => {
+    setSelectedLists(prev => {
       const newSet = new Set(prev);
       if (newSet.has(listId)) {
         newSet.delete(listId);
@@ -283,18 +243,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
         const promises = [];
         for (const list of userLists) {
           const isSelected = selectedLists.has(list.id);
-          const isInList = await isItemInList(
-            currentUser.uid,
-            list.id,
-            movie.id,
-            "movie"
-          );
+          const isInList = await isItemInList(currentUser.uid, list.id, movie.id, 'movie');
           if (isSelected && !isInList) {
             promises.push(addMovieToList(currentUser.uid, list.id, movie));
           } else if (!isSelected && isInList) {
-            promises.push(
-              removeItemFromList(currentUser.uid, list.id, movie.id, "movie")
-            );
+            promises.push(removeItemFromList(currentUser.uid, list.id, movie.id, 'movie'));
           }
         }
         await Promise.all(promises);
@@ -304,12 +257,12 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
         setShowListModal(false);
         // Update isSaved
-        const saved = await isItemInAnyList(currentUser.uid, movie.id, "movie");
+        const saved = await isItemInAnyList(currentUser.uid, movie.id, 'movie');
         setIsSaved(saved);
-        console.log("Lists updated successfully");
+        console.log('Lists updated successfully');
       } catch (error) {
-        console.error("Error updating lists:", error);
-        Alert.alert("Error", "No se pudieron actualizar las listas");
+        console.error('Error updating lists:', error);
+        Alert.alert('Error', 'No se pudieron actualizar las listas');
       }
     }
   };
@@ -319,45 +272,36 @@ const MovieDetailScreen = ({ route, navigation }) => {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#ff6b6b" />
       </View>
-    );
+    )
   }
 
   if (error || !movie) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
-          {error || "Ocurrió un error inesperado"}
-        </Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <Text style={styles.errorText}>{error || "Ocurrió un error inesperado"}</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Volver</Text>
         </TouchableOpacity>
       </View>
-    );
+    )
   }
 
   // Calcular el año de lanzamiento y formatear la duración
-  const releaseYear = movie.release_date
-    ? new Date(movie.release_date).getFullYear()
-    : "N/A";
+  const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : "N/A"
   const formatRuntime = (minutes) => {
-    if (!minutes) return "N/A";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
-  };
+    if (!minutes) return "N/A"
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return `${hours}h ${mins}m`
+  }
 
-  const genres = movie.genres || [];
+  const genres = movie.genres || []
 
   // Obtener el director
-  const director = movie.credits?.crew?.find(
-    (person) => person.job === "Director"
-  );
+  const director = movie.credits?.crew?.find((person) => person.job === "Director")
 
   //Obtener el reparto
-  const cast = movie.credits?.cast || [];
+  const cast = movie.credits?.cast || []
 
   const renderReviewItem = ({ item }) => (
     <View style={styles.reviewItem}>
@@ -370,9 +314,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.reviewText}>{item.text}</Text>
       <Text style={styles.reviewDate}>
-        {item.createdAt?.toDate
-          ? item.createdAt.toDate().toLocaleDateString("es-ES")
-          : "Fecha desconocida"}
+        {item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('es-ES') : 'Fecha desconocida'}
       </Text>
     </View>
   );
@@ -383,52 +325,27 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
       {/* Botón de regreso */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButtonHeader}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButtonHeader} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={() => {
-              console.log("Bookmark pressed");
-              toggleSave();
-            }}
-          >
-            <Ionicons
-              name={isSaved ? "bookmark" : "bookmark-outline"}
-              size={24}
-              color={isSaved ? "#ff6b6b" : "#fff"}
-            />
+          <TouchableOpacity style={styles.headerActionButton} onPress={() => { console.log('Bookmark pressed'); toggleSave(); }}>
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={24} color={isSaved ? "#ff6b6b" : "#fff"} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={toggleLike}
-          >
-            <Ionicons
-              name={isFavorited ? "heart" : "heart-outline"}
-              size={24}
-              color={isFavorited ? "#ff6b6b" : "#fff"}
-            />
+          <TouchableOpacity style={styles.headerActionButton} onPress={toggleLike}>
+            <Ionicons name={isFavorited ? "heart" : "heart-outline"} size={24} color={isFavorited ? "#ff6b6b" : "#fff"} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={handleShare}
-          >
+          <TouchableOpacity style={styles.headerActionButton} onPress={handleShare}>
             <Ionicons name="share-social-outline" size={24} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerActionButton}
-            onPress={() =>
-              navigation.navigate("Review", {
-                contentId: movieId,
-                contentTitle: movie?.title,
-                contentType: "movie",
-                posterPath: movie?.poster_path,
-              })
-            }
+            onPress={() => navigation.navigate('Review', {
+              contentId: movieId,
+              contentTitle: movie?.title,
+              contentType: 'movie',
+              posterPath: movie?.poster_path
+            })}
           >
             <Ionicons name="create-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -437,16 +354,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
       {showTrailer && trailerKey ? (
         <View style={styles.trailerContainer}>
-          <TouchableOpacity
-            style={styles.closeTrailerButton}
-            onPress={() => setShowTrailer(false)}
-          >
+          <TouchableOpacity style={styles.closeTrailerButton} onPress={() => setShowTrailer(false)}>
             <Ionicons name="close" size={24} color="#fff" />
           </TouchableOpacity>
           <WebView
-            source={{
-              uri: `https://www.youtube.com/embed/${trailerKey}?rel=0&autoplay=1`,
-            }}
+            source={{ uri: `https://www.youtube.com/embed/${trailerKey}?rel=0&autoplay=1` }}
             style={styles.webview}
             allowsFullscreenVideo
           />
@@ -494,9 +406,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={20} color="#ffd700" />
-                <Text style={styles.rating}>
-                  {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
-                </Text>
+                <Text style={styles.rating}>{movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</Text>
                 <Text style={styles.voteCount}>({movie.vote_count} votos)</Text>
               </View>
 
@@ -512,10 +422,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
           {/* Botón de trailer */}
           {trailerKey && (
-            <TouchableOpacity
-              style={styles.trailerButton}
-              onPress={() => setShowTrailer(true)}
-            >
+            <TouchableOpacity style={styles.trailerButton} onPress={() => setShowTrailer(true)}>
               <Ionicons name="play-circle" size={20} color="#fff" />
               <Text style={styles.trailerButtonText}>Ver Trailer</Text>
             </TouchableOpacity>
@@ -524,10 +431,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
           {/* Sinopsis */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sinopsis</Text>
-            <Text style={styles.overview}>
-              {movie.overview ||
-                "No hay sinopsis disponible para esta película."}
-            </Text>
+            <Text style={styles.overview}>{movie.overview || "No hay sinopsis disponible para esta película."}</Text>
           </View>
 
           {/* Plataformas de streaming */}
@@ -535,31 +439,30 @@ const MovieDetailScreen = ({ route, navigation }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Dónde ver</Text>
 
-              {watchProviders.flatrate &&
-                watchProviders.flatrate.length > 0 && (
-                  <View style={styles.providersSection}>
-                    <Text style={styles.providerTitle}>Streaming</Text>
-                    <FlatList
-                      data={watchProviders.flatrate}
-                      keyExtractor={(item) => item.provider_id.toString()}
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      renderItem={({ item }) => (
-                        <View style={styles.providerItem}>
-                          <Image
-                            source={{
-                              uri: `https://image.tmdb.org/t/p/original${item.logo_path}`,
-                            }}
-                            style={styles.providerLogo}
-                          />
-                          <Text style={styles.providerName} numberOfLines={1}>
-                            {item.provider_name}
-                          </Text>
-                        </View>
-                      )}
-                    />
-                  </View>
-                )}
+              {watchProviders.flatrate && watchProviders.flatrate.length > 0 && (
+                <View style={styles.providersSection}>
+                  <Text style={styles.providerTitle}>Streaming</Text>
+                  <FlatList
+                    data={watchProviders.flatrate}
+                    keyExtractor={(item) => item.provider_id.toString()}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                      <View style={styles.providerItem}>
+                        <Image
+                          source={{
+                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`,
+                          }}
+                          style={styles.providerLogo}
+                        />
+                        <Text style={styles.providerName} numberOfLines={1}>
+                          {item.provider_name}
+                        </Text>
+                      </View>
+                    )}
+                  />
+                </View>
+              )}
 
               {watchProviders.rent && watchProviders.rent.length > 0 && (
                 <View style={styles.providersSection}>
@@ -612,13 +515,8 @@ const MovieDetailScreen = ({ route, navigation }) => {
               )}
 
               {watchProviders.link && (
-                <TouchableOpacity
-                  style={styles.justWatchButton}
-                  onPress={() => Linking.openURL(watchProviders.link)}
-                >
-                  <Text style={styles.justWatchButtonText}>
-                    Ver todas las opciones
-                  </Text>
+                <TouchableOpacity style={styles.justWatchButton} onPress={() => Linking.openURL(watchProviders.link)}>
+                  <Text style={styles.justWatchButtonText}>Ver todas las opciones</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -634,7 +532,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 renderItem={({ item }) => (
-                  <View style={styles.castItem}>
+                  <TouchableOpacity
+                    style={styles.castItem}
+                    onPress={() => navigation.navigate('PersonDetail', { personId: item.id })}
+                  >
                     <Image
                       source={{
                         uri: item.profile_path
@@ -651,13 +552,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     <Text style={styles.castCharacter} numberOfLines={2}>
                       {item.character}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
             ) : (
-              <Text style={styles.noDataText}>
-                No hay información del reparto disponible.
-              </Text>
+              <Text style={styles.noDataText}>No hay información del reparto disponible.</Text>
             )}
           </View>
 
@@ -673,16 +572,14 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.similarItem}
-                    onPress={() =>
-                      navigation.push("MovieDetail", { movieId: item.id })
-                    }
+                    onPress={() => navigation.push('MovieDetail', { movieId: item.id })}
                   >
                     <Image
                       source={{
                         uri: item.poster_path
                           ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
                           : "https://ui-avatars.com/api/?name=" +
-                            encodeURIComponent(item.title || "No Image") +
+                            encodeURIComponent(item.title || 'No Image') +
                             "&size=150&background=1a1a2e&color=fff",
                       }}
                       style={styles.similarImage}
@@ -702,47 +599,35 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Director:</Text>
-              <Text style={styles.detailValue}>
-                {director ? director.name : "N/A"}
-              </Text>
+              <Text style={styles.detailValue}>{director ? director.name : "N/A"}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Fecha de estreno:</Text>
               <Text style={styles.detailValue}>
-                {movie.release_date
-                  ? new Date(movie.release_date).toLocaleDateString()
-                  : "N/A"}
+                {movie.release_date ? new Date(movie.release_date).toLocaleDateString() : "N/A"}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Presupuesto:</Text>
-              <Text style={styles.detailValue}>
-                {movie.budget ? `$${movie.budget.toLocaleString()}` : "N/A"}
-              </Text>
+              <Text style={styles.detailValue}>{movie.budget ? `$${movie.budget.toLocaleString()}` : "N/A"}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Ingresos:</Text>
-              <Text style={styles.detailValue}>
-                {movie.revenue ? `$${movie.revenue.toLocaleString()}` : "N/A"}
-              </Text>
+              <Text style={styles.detailValue}>{movie.revenue ? `$${movie.revenue.toLocaleString()}` : "N/A"}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Certificación:</Text>
-              <Text style={styles.detailValue}>
-                {movie.certification || "N/A"}
-              </Text>
+              <Text style={styles.detailValue}>{movie.certification || "N/A"}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Idioma original:</Text>
               <Text style={styles.detailValue}>
-                {movie.original_language
-                  ? movie.original_language.toUpperCase()
-                  : "N/A"}
+                {movie.original_language ? movie.original_language.toUpperCase() : "N/A"}
               </Text>
             </View>
           </View>
@@ -755,11 +640,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 {externalIds.imdb_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.imdb.com/title/${externalIds.imdb_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.imdb.com/title/${externalIds.imdb_id}`)}
                   >
                     <Image source={imdbLogo} style={styles.externalLinkImage} />
                     <Text style={styles.externalLinkText}>IMDb</Text>
@@ -768,11 +649,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 {externalIds.facebook_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.facebook.com/${externalIds.facebook_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.facebook.com/${externalIds.facebook_id}`)}
                   >
                     <Ionicons name="logo-facebook" size={24} color="#1877f2" />
                     <Text style={styles.externalLinkText}>Facebook</Text>
@@ -781,11 +658,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 {externalIds.instagram_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.instagram.com/${externalIds.instagram_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.instagram.com/${externalIds.instagram_id}`)}
                   >
                     <Ionicons name="logo-instagram" size={24} color="#e4405f" />
                     <Text style={styles.externalLinkText}>Instagram</Text>
@@ -794,16 +667,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 {externalIds.twitter_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://twitter.com/${externalIds.twitter_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://twitter.com/${externalIds.twitter_id}`)}
                   >
-                    <Image
-                      source={twitterLogo}
-                      style={styles.externalLinkImage}
-                    />
+                    <Image source={twitterLogo} style={styles.externalLinkImage} />
                     <Text style={styles.externalLinkText}>Twitter</Text>
                   </TouchableOpacity>
                 )}
@@ -814,19 +680,15 @@ const MovieDetailScreen = ({ route, navigation }) => {
           {/* Reseñas */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                Reseñas ({reviews.length})
-              </Text>
+              <Text style={styles.sectionTitle}>Reseñas ({reviews.length})</Text>
               <TouchableOpacity
                 style={styles.writeReviewButton}
-                onPress={() =>
-                  navigation.navigate("Review", {
-                    contentId: movieId,
-                    contentTitle: movie?.title,
-                    contentType: "movie",
-                    posterPath: movie?.poster_path,
-                  })
-                }
+                onPress={() => navigation.navigate('Review', {
+                  contentId: movieId,
+                  contentTitle: movie?.title,
+                  contentType: 'movie',
+                  posterPath: movie?.poster_path
+                })}
               >
                 <Ionicons name="create-outline" size={16} color="#ff6b6b" />
                 <Text style={styles.writeReviewText}>Escribir reseña</Text>
@@ -845,23 +707,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 {reviews.length > 3 && (
                   <TouchableOpacity
                     style={styles.viewAllReviewsButton}
-                    onPress={() =>
-                      navigation.navigate("AllReviews", {
-                        contentId: movieId,
-                        contentTitle: movie.title,
-                        contentType: "movie",
-                        posterPath: movie.poster_path,
-                      })
-                    }
+                    onPress={() => navigation.navigate('AllReviews', {
+                      contentId: movieId,
+                      contentTitle: movie.title,
+                      contentType: 'movie',
+                      posterPath: movie.poster_path
+                    })}
                   >
                     <Text style={styles.viewAllReviewsText}>
                       Ver todas las reseñas ({reviews.length})
                     </Text>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color="#ff6b6b"
-                    />
+                    <Ionicons name="chevron-forward" size={16} color="#ff6b6b" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -869,9 +725,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
               <View style={styles.noReviewsContainer}>
                 <Ionicons name="chatbubble-outline" size={48} color="#666" />
                 <Text style={styles.noReviewsText}>No hay reseñas aún</Text>
-                <Text style={styles.noReviewsSubtext}>
-                  Sé el primero en compartir tu opinión
-                </Text>
+                <Text style={styles.noReviewsSubtext}>Sé el primero en compartir tu opinión</Text>
               </View>
             )}
           </View>
@@ -899,7 +753,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
               style={styles.createListButton}
               onPress={() => {
                 setShowListModal(false);
-                navigation.navigate("Perfil", { screen: "CreateList" });
+                navigation.navigate('Perfil', { screen: 'CreateList' });
               }}
             >
               <Ionicons name="add-circle-outline" size={20} color="#ff6b6b" />
@@ -915,26 +769,25 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 >
                   <Text style={styles.listName}>{item.name}</Text>
                   <Ionicons
-                    name={
-                      selectedLists.has(item.id)
-                        ? "checkmark-circle"
-                        : "ellipse-outline"
-                    }
+                    name={selectedLists.has(item.id) ? "checkmark-circle" : "ellipse-outline"}
                     size={24}
                     color={selectedLists.has(item.id) ? "#ff6b6b" : "#aaa"}
                   />
                 </TouchableOpacity>
               )}
             />
-            <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
+            <TouchableOpacity
+              style={styles.doneButton}
+              onPress={handleDone}
+            >
               <Text style={styles.doneButtonText}>Listo</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -1253,145 +1106,145 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: "#1a1a2e",
+    backgroundColor: '#1a1a2e',
     borderRadius: 10,
     padding: 20,
-    width: "80%",
-    maxHeight: "60%",
+    width: '80%',
+    maxHeight: '60%',
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   createListButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: 10,
   },
   createListText: {
     fontSize: 16,
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     marginLeft: 10,
   },
   listItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   listName: {
     fontSize: 16,
-    color: "#fff",
+    color: '#fff',
   },
   doneButton: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: '#ff6b6b',
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 20,
   },
   doneButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
   writeReviewButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   writeReviewText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginLeft: 4,
   },
   reviewItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
   },
   reviewHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
   reviewUsername: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
   },
   reviewRating: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   reviewRatingText: {
-    color: "#ffd700",
+    color: '#ffd700',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginLeft: 4,
   },
   reviewText: {
     fontSize: 14,
-    color: "#ccc",
+    color: '#ccc',
     lineHeight: 20,
     marginBottom: 8,
   },
   reviewDate: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
   },
   noReviewsContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 20,
   },
   noReviewsText: {
     fontSize: 16,
-    color: "#666",
+    color: '#666',
     marginTop: 12,
     marginBottom: 4,
   },
   noReviewsSubtext: {
     fontSize: 14,
-    color: "#444",
-    textAlign: "center",
+    color: '#444',
+    textAlign: 'center',
   },
   viewAllReviewsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     marginTop: 12,
   },
   viewAllReviewsText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginRight: 8,
   },
-});
+})
 
-export default MovieDetailScreen;
+export default MovieDetailScreen

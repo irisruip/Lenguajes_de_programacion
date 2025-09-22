@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,39 +13,29 @@ import {
   Linking,
   Modal,
   Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useSeries } from "../context/SeriesContext";
-import { useMovies } from "../context/MovieContext";
-import { StatusBar } from "expo-status-bar";
-import { LinearGradient } from "expo-linear-gradient";
-import { WebView } from "react-native-webview";
-import appFirebase from "../credenciales";
-import { getAuth } from "firebase/auth";
-import { API_KEY } from "@env";
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useSeries } from '../context/SeriesContext';
+import { useMovies } from '../context/MovieContext';
+import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
+import { WebView } from 'react-native-webview';
+import appFirebase from '../credenciales';
+import { getAuth } from 'firebase/auth';
+import { API_KEY } from '@env';
 
 // Import external link images
-const imdbLogo = require("../assets/imdb.webp");
-const twitterLogo = require("../assets/twitter.webp");
+const imdbLogo = require('../assets/imdb.webp');
+const twitterLogo = require('../assets/twitter.webp');
 
 const auth = getAuth(appFirebase);
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 const SeriesDetailScreen = ({ route, navigation }) => {
   const { seriesId } = route.params;
   const { getSeriesDetails } = useSeries();
-  const {
-    getUserLists,
-    addMovieToList,
-    removeItemFromList,
-    isItemInAnyList,
-    isItemInList,
-    addFavorite,
-    removeFavorite,
-    isFavorite,
-    getReviewsForContent,
-  } = useMovies();
+  const { getUserLists, addMovieToList, removeItemFromList, isItemInAnyList, isItemInList, addFavorite, removeFavorite, isFavorite, getReviewsForContent } = useMovies();
   const [series, setSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,16 +67,16 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Obtener el trailer
         if (details.videos && details.videos.results) {
           const trailer = details.videos.results.find(
-            (video) => video.type === "Trailer" && video.site === "YouTube"
+            video => video.type === 'Trailer' && video.site === 'YouTube'
           );
           if (trailer) setTrailerKey(trailer.key);
         }
-
+        
         // Obtener proveedores de streaming
-        if (details["watch/providers"] && details["watch/providers"].results) {
+        if (details['watch/providers'] && details['watch/providers'].results) {
           // Usar el país del usuario (aquí usamos ES para España como ejemplo)
-          const countryCode = "ES"; // Puedes cambiar esto según la región del usuario
-          const providers = details["watch/providers"].results[countryCode];
+          const countryCode = 'ES'; // Puedes cambiar esto según la región del usuario
+          const providers = details['watch/providers'].results[countryCode];
           setWatchProviders(providers);
         }
 
@@ -97,30 +87,21 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
         // Obtener certificación
         try {
-          const ratingsResponse = await fetch(
-            `https://api.themoviedb.org/3/tv/${seriesId}/content_ratings?api_key=${API_KEY}`
-          );
+          const ratingsResponse = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}/content_ratings?api_key=${API_KEY}`);
           if (ratingsResponse.ok) {
             const ratingsData = await ratingsResponse.json();
-            const mxRating =
-              ratingsData.results.find((r) => r.iso_3166_1 === "MX") ||
-              ratingsData.results.find((r) => r.iso_3166_1 === "US");
+            const mxRating = ratingsData.results.find(r => r.iso_3166_1 === 'MX') || ratingsData.results.find(r => r.iso_3166_1 === 'US');
             if (mxRating) {
-              setSeries((prev) => ({
-                ...prev,
-                certification: mxRating.rating,
-              }));
+              setSeries(prev => ({ ...prev, certification: mxRating.rating }));
             }
           }
         } catch (error) {
-          console.warn("Error fetching series certification:", error);
+          console.warn('Error fetching series certification:', error);
         }
 
         // Obtener series similares
         try {
-          const similarResponse = await fetch(
-            `https://api.themoviedb.org/3/tv/${seriesId}/similar?api_key=${API_KEY}&language=es-MX&page=1`
-          );
+          const similarResponse = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}/similar?api_key=${API_KEY}&language=es-MX&page=1`);
           if (similarResponse.ok) {
             const similarData = await similarResponse.json();
             if (similarData.results) {
@@ -128,45 +109,40 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             }
           }
         } catch (error) {
-          console.warn("Error fetching similar series:", error);
+          console.warn('Error fetching similar series:', error);
         }
 
         // Obtener IDs externos
         try {
-          const externalResponse = await fetch(
-            `https://api.themoviedb.org/3/tv/${seriesId}/external_ids?api_key=${API_KEY}`
-          );
+          const externalResponse = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}/external_ids?api_key=${API_KEY}`);
           if (externalResponse.ok) {
             const externalData = await externalResponse.json();
             setExternalIds(externalData);
           }
         } catch (error) {
-          console.warn("Error fetching external IDs:", error);
+          console.warn('Error fetching external IDs:', error);
         }
 
         // Check if series is saved
         const currentUser = auth.currentUser;
         if (currentUser) {
-          const saved = await isItemInAnyList(currentUser.uid, seriesId, "tv");
+          const saved = await isItemInAnyList(currentUser.uid, seriesId, 'tv');
           setIsSaved(saved);
 
           // Check if series is favorited
-          const favorited = await isFavorite(currentUser.uid, seriesId, "tv");
+          const favorited = await isFavorite(currentUser.uid, seriesId, 'tv');
           setIsFavorited(favorited);
 
           // Load reviews
-          const reviewsUnsub = getReviewsForContent(
-            seriesId,
-            "tv",
-            (seriesReviews) => {
-              setReviews(seriesReviews);
-            }
-          );
+          const reviewsUnsub = getReviewsForContent(seriesId, 'tv', (seriesReviews) => {
+            setReviews(seriesReviews);
+          });
           setReviewsUnsubscribe(() => reviewsUnsub);
         }
+
       } catch (err) {
-        console.error("Error fetching series details:", err);
-        setError("No se pudieron cargar los detalles de la serie");
+        console.error('Error fetching series details:', err);
+        setError('No se pudieron cargar los detalles de la serie');
       } finally {
         setLoading(false);
       }
@@ -192,33 +168,27 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Re-subscribe to get fresh data
         const currentUser = auth.currentUser;
         if (currentUser) {
-          const newReviewsUnsub = getReviewsForContent(
-            seriesId,
-            "tv",
-            (seriesReviews) => {
-              setReviews(seriesReviews);
-            }
-          );
+          const newReviewsUnsub = getReviewsForContent(seriesId, 'tv', (seriesReviews) => {
+            setReviews(seriesReviews);
+          });
           setReviewsUnsubscribe(() => newReviewsUnsub);
         }
       }
 
       // Wait a bit for the content to load, then scroll to reviews section
       setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ y: 800, animated: true }); // Approximate position of reviews section
-      }, 500);
+        scrollViewRef.current?.scrollTo({ y: 800, animated: true }) // Approximate position of reviews section
+      }, 500)
     }
   }, [route.params]);
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Echa un vistazo a ${series.name} (${
-          series.first_air_date ? series.first_air_date.split("-")[0] : "N/A"
-        }). ¡Te encantará!`,
+        message: `Echa un vistazo a ${series.name} (${series.first_air_date ? series.first_air_date.split('-')[0] : 'N/A'}). ¡Te encantará!`,
       });
     } catch (error) {
-      console.error("Error al compartir:", error);
+      console.error('Error al compartir:', error);
     }
   };
 
@@ -227,15 +197,15 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     if (currentUser && series) {
       try {
         if (isFavorited) {
-          await removeFavorite(currentUser.uid, series.id, "tv");
+          await removeFavorite(currentUser.uid, series.id, 'tv');
           setIsFavorited(false);
         } else {
           await addFavorite(currentUser.uid, series);
           setIsFavorited(true);
         }
       } catch (error) {
-        console.error("Error toggling favorite:", error);
-        Alert.alert("Error", "No se pudo actualizar el favorito");
+        console.error('Error toggling favorite:', error);
+        Alert.alert('Error', 'No se pudo actualizar el favorito');
       }
     }
   };
@@ -250,12 +220,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Initialize selected lists
         const selected = new Set();
         for (const list of lists) {
-          const isIn = await isItemInList(
-            currentUser.uid,
-            list.id,
-            series.id,
-            "tv"
-          );
+          const isIn = await isItemInList(currentUser.uid, list.id, series.id, 'tv');
           if (isIn) selected.add(list.id);
         }
         setSelectedLists(selected);
@@ -266,7 +231,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
   };
 
   const handleListToggle = (listId) => {
-    setSelectedLists((prev) => {
+    setSelectedLists(prev => {
       const newSet = new Set(prev);
       if (newSet.has(listId)) {
         newSet.delete(listId);
@@ -284,18 +249,11 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         const promises = [];
         for (const list of userLists) {
           const isSelected = selectedLists.has(list.id);
-          const isInList = await isItemInList(
-            currentUser.uid,
-            list.id,
-            series.id,
-            "tv"
-          );
+          const isInList = await isItemInList(currentUser.uid, list.id, series.id, 'tv');
           if (isSelected && !isInList) {
             promises.push(addMovieToList(currentUser.uid, list.id, series));
           } else if (!isSelected && isInList) {
-            promises.push(
-              removeItemFromList(currentUser.uid, list.id, series.id, "tv")
-            );
+            promises.push(removeItemFromList(currentUser.uid, list.id, series.id, 'tv'));
           }
         }
         await Promise.all(promises);
@@ -305,12 +263,12 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         }
         setShowListModal(false);
         // Update isSaved
-        const saved = await isItemInAnyList(currentUser.uid, series.id, "tv");
+        const saved = await isItemInAnyList(currentUser.uid, series.id, 'tv');
         setIsSaved(saved);
-        console.log("Lists updated successfully");
+        console.log('Lists updated successfully');
       } catch (error) {
-        console.error("Error updating lists:", error);
-        Alert.alert("Error", "No se pudieron actualizar las listas");
+        console.error('Error updating lists:', error);
+        Alert.alert('Error', 'No se pudieron actualizar las listas');
       }
     }
   };
@@ -326,9 +284,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
   if (error || !series) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
-          {error || "Ocurrió un error inesperado"}
-        </Text>
+        <Text style={styles.errorText}>{error || 'Ocurrió un error inesperado'}</Text>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -340,11 +296,9 @@ const SeriesDetailScreen = ({ route, navigation }) => {
   }
 
   // Calcular el año de primera emisión y formatear la duración promedio
-  const firstAirYear = series.first_air_date
-    ? new Date(series.first_air_date).getFullYear()
-    : "N/A";
+  const firstAirYear = series.first_air_date ? new Date(series.first_air_date).getFullYear() : 'N/A';
   const formatEpisodeRuntime = (minutes) => {
-    if (!minutes) return "N/A";
+    if (!minutes) return 'N/A';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
@@ -363,9 +317,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.reviewText}>{item.text}</Text>
       <Text style={styles.reviewDate}>
-        {item.createdAt?.toDate
-          ? item.createdAt.toDate().toLocaleDateString("es-ES")
-          : "Fecha desconocida"}
+        {item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('es-ES') : 'Fecha desconocida'}
       </Text>
     </View>
   );
@@ -383,45 +335,23 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={() => {
-              console.log("Bookmark pressed");
-              toggleSave();
-            }}
-          >
-            <Ionicons
-              name={isSaved ? "bookmark" : "bookmark-outline"}
-              size={24}
-              color={isSaved ? "#ff6b6b" : "#fff"}
-            />
+          <TouchableOpacity style={styles.headerActionButton} onPress={() => { console.log('Bookmark pressed'); toggleSave(); }}>
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={24} color={isSaved ? "#ff6b6b" : "#fff"} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={toggleLike}
-          >
-            <Ionicons
-              name={isFavorited ? "heart" : "heart-outline"}
-              size={24}
-              color={isFavorited ? "#ff6b6b" : "#fff"}
-            />
+          <TouchableOpacity style={styles.headerActionButton} onPress={toggleLike}>
+            <Ionicons name={isFavorited ? "heart" : "heart-outline"} size={24} color={isFavorited ? "#ff6b6b" : "#fff"} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerActionButton}
-            onPress={handleShare}
-          >
+          <TouchableOpacity style={styles.headerActionButton} onPress={handleShare}>
             <Ionicons name="share-social-outline" size={24} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerActionButton}
-            onPress={() =>
-              navigation.navigate("Review", {
-                contentId: seriesId,
-                contentTitle: series?.name,
-                contentType: "tv",
-                posterPath: series?.poster_path,
-              })
-            }
+            onPress={() => navigation.navigate('Review', {
+              contentId: seriesId,
+              contentTitle: series?.name,
+              contentType: 'tv',
+              posterPath: series?.poster_path
+            })}
           >
             <Ionicons name="create-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -430,16 +360,14 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
       {showTrailer && trailerKey ? (
         <View style={styles.trailerContainer}>
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.closeTrailerButton}
             onPress={() => setShowTrailer(false)}
           >
             <Ionicons name="close" size={24} color="#fff" />
           </TouchableOpacity>
           <WebView
-            source={{
-              uri: `https://www.youtube.com/embed/${trailerKey}?rel=0&autoplay=1`,
-            }}
+            source={{ uri: `https://www.youtube.com/embed/${trailerKey}?rel=0&autoplay=1` }}
             style={styles.webview}
             allowsFullscreenVideo
           />
@@ -452,14 +380,12 @@ const SeriesDetailScreen = ({ route, navigation }) => {
               source={{
                 uri: series.backdrop_path
                   ? `https://image.tmdb.org/t/p/w1280${series.backdrop_path}`
-                  : "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(series.name || "No Image") +
-                    "&size=500&background=1a1a2e&color=fff",
+                  : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(series.name || 'No Image') + '&size=500&background=1a1a2e&color=fff'
               }}
               style={styles.backdrop}
             />
             <LinearGradient
-              colors={["transparent", "rgba(26, 26, 46, 0.8)", "#1a1a2e"]}
+              colors={['transparent', 'rgba(26, 26, 46, 0.8)', '#1a1a2e']}
               style={styles.gradientOverlay}
             />
           </View>
@@ -471,9 +397,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 source={{
                   uri: series.poster_path
                     ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
-                    : "https://ui-avatars.com/api/?name=" +
-                      encodeURIComponent(series.name || "No Image") +
-                      "&size=150&background=1a1a2e&color=fff",
+                    : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(series.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
                 }}
                 style={styles.poster}
               />
@@ -482,16 +406,13 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             <View style={styles.seriesInfo}>
               <Text style={styles.title}>{series.name}</Text>
               <Text style={styles.year}>
-                {firstAirYear} • {series.number_of_seasons || 0} temporadas •{" "}
-                {formatEpisodeRuntime(
-                  series.episode_run_time && series.episode_run_time[0]
-                )}
+                {firstAirYear} • {series.number_of_seasons || 0} temporadas • {formatEpisodeRuntime(series.episode_run_time && series.episode_run_time[0])}
               </Text>
 
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={20} color="#ffd700" />
                 <Text style={styles.rating}>
-                  {series.vote_average ? series.vote_average.toFixed(1) : "N/A"}
+                  {series.vote_average ? series.vote_average.toFixed(1) : 'N/A'}
                 </Text>
                 <Text style={styles.voteCount}>
                   ({series.vote_count} votos)
@@ -510,7 +431,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
           {/* Botón de trailer */}
           {trailerKey && (
-            <TouchableOpacity
+            <TouchableOpacity 
               style={styles.trailerButton}
               onPress={() => setShowTrailer(true)}
             >
@@ -523,7 +444,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sinopsis</Text>
             <Text style={styles.overview}>
-              {series.overview || "No hay sinopsis disponible para esta serie."}
+              {series.overview || 'No hay sinopsis disponible para esta serie.'}
             </Text>
           </View>
 
@@ -531,33 +452,30 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           {watchProviders && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Dónde ver</Text>
-
-              {watchProviders.flatrate &&
-                watchProviders.flatrate.length > 0 && (
-                  <View style={styles.providersSection}>
-                    <Text style={styles.providerTitle}>Streaming</Text>
-                    <FlatList
-                      data={watchProviders.flatrate}
-                      keyExtractor={(item) => item.provider_id.toString()}
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      renderItem={({ item }) => (
-                        <View style={styles.providerItem}>
-                          <Image
-                            source={{
-                              uri: `https://image.tmdb.org/t/p/original${item.logo_path}`,
-                            }}
-                            style={styles.providerLogo}
-                          />
-                          <Text style={styles.providerName} numberOfLines={1}>
-                            {item.provider_name}
-                          </Text>
-                        </View>
-                      )}
-                    />
-                  </View>
-                )}
-
+              
+              {watchProviders.flatrate && watchProviders.flatrate.length > 0 && (
+                <View style={styles.providersSection}>
+                  <Text style={styles.providerTitle}>Streaming</Text>
+                  <FlatList
+                    data={watchProviders.flatrate}
+                    keyExtractor={(item) => item.provider_id.toString()}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                      <View style={styles.providerItem}>
+                        <Image
+                          source={{
+                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`
+                          }}
+                          style={styles.providerLogo}
+                        />
+                        <Text style={styles.providerName} numberOfLines={1}>{item.provider_name}</Text>
+                      </View>
+                    )}
+                  />
+                </View>
+              )}
+              
               {watchProviders.rent && watchProviders.rent.length > 0 && (
                 <View style={styles.providersSection}>
                   <Text style={styles.providerTitle}>Alquiler</Text>
@@ -570,19 +488,17 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                       <View style={styles.providerItem}>
                         <Image
                           source={{
-                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`,
+                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`
                           }}
                           style={styles.providerLogo}
                         />
-                        <Text style={styles.providerName} numberOfLines={1}>
-                          {item.provider_name}
-                        </Text>
+                        <Text style={styles.providerName} numberOfLines={1}>{item.provider_name}</Text>
                       </View>
                     )}
                   />
                 </View>
               )}
-
+              
               {watchProviders.buy && watchProviders.buy.length > 0 && (
                 <View style={styles.providersSection}>
                   <Text style={styles.providerTitle}>Compra</Text>
@@ -595,27 +511,23 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                       <View style={styles.providerItem}>
                         <Image
                           source={{
-                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`,
+                            uri: `https://image.tmdb.org/t/p/original${item.logo_path}`
                           }}
                           style={styles.providerLogo}
                         />
-                        <Text style={styles.providerName} numberOfLines={1}>
-                          {item.provider_name}
-                        </Text>
+                        <Text style={styles.providerName} numberOfLines={1}>{item.provider_name}</Text>
                       </View>
                     )}
                   />
                 </View>
               )}
-
+              
               {watchProviders.link && (
-                <TouchableOpacity
+                <TouchableOpacity 
                   style={styles.justWatchButton}
                   onPress={() => Linking.openURL(watchProviders.link)}
                 >
-                  <Text style={styles.justWatchButtonText}>
-                    Ver todas las opciones
-                  </Text>
+                  <Text style={styles.justWatchButtonText}>Ver todas las opciones</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -631,24 +543,21 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 renderItem={({ item }) => (
-                  <View style={styles.castItem}>
+                  <TouchableOpacity
+                    style={styles.castItem}
+                    onPress={() => navigation.navigate('PersonDetail', { personId: item.id })}
+                  >
                     <Image
                       source={{
                         uri: item.profile_path
                           ? `https://image.tmdb.org/t/p/w200${item.profile_path}`
-                          : "https://ui-avatars.com/api/?name=" +
-                            encodeURIComponent(item.name) +
-                            "&size=150&background=1a1a2e&color=fff",
+                          : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.name) + '&size=150&background=1a1a2e&color=fff'
                       }}
                       style={styles.castImage}
                     />
-                    <Text style={styles.castName} numberOfLines={2}>
-                      {item.name}
-                    </Text>
-                    <Text style={styles.castCharacter} numberOfLines={2}>
-                      {item.character}
-                    </Text>
-                  </View>
+                    <Text style={styles.castName} numberOfLines={2}>{item.name}</Text>
+                    <Text style={styles.castCharacter} numberOfLines={2}>{item.character}</Text>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -666,17 +575,13 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.similarItem}
-                    onPress={() =>
-                      navigation.push("SeriesDetail", { seriesId: item.id })
-                    }
+                    onPress={() => navigation.push('SeriesDetail', { seriesId: item.id })}
                   >
                     <Image
                       source={{
                         uri: item.poster_path
                           ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
-                          : "https://ui-avatars.com/api/?name=" +
-                            encodeURIComponent(item.name || "No Image") +
-                            "&size=150&background=1a1a2e&color=fff",
+                          : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.name || 'No Image') + '&size=150&background=1a1a2e&color=fff'
                       }}
                       style={styles.similarImage}
                     />
@@ -692,64 +597,52 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           {/* Información adicional */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Información</Text>
-
+            
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Estado:</Text>
               <Text style={styles.detailValue}>
-                {series.status === "Returning Series"
-                  ? "En emisión"
-                  : series.status === "Ended"
-                  ? "Finalizada"
-                  : series.status === "Canceled"
-                  ? "Cancelada"
-                  : series.status}
+                {series.status === 'Returning Series' ? 'En emisión' : 
+                 series.status === 'Ended' ? 'Finalizada' : 
+                 series.status === 'Canceled' ? 'Cancelada' : series.status}
               </Text>
             </View>
-
+            
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Primer episodio:</Text>
               <Text style={styles.detailValue}>
-                {series.first_air_date
-                  ? new Date(series.first_air_date).toLocaleDateString("es-ES")
-                  : "Desconocido"}
+                {series.first_air_date ? new Date(series.first_air_date).toLocaleDateString('es-ES') : 'Desconocido'}
               </Text>
             </View>
-
+            
             {series.last_air_date && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Último episodio:</Text>
                 <Text style={styles.detailValue}>
-                  {new Date(series.last_air_date).toLocaleDateString("es-ES")}
+                  {new Date(series.last_air_date).toLocaleDateString('es-ES')}
                 </Text>
               </View>
             )}
-
+            
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Temporadas:</Text>
-              <Text style={styles.detailValue}>
-                {series.number_of_seasons || 0}
-              </Text>
+              <Text style={styles.detailValue}>{series.number_of_seasons || 0}</Text>
             </View>
-
+            
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Certificación:</Text>
-              <Text style={styles.detailValue}>
-                {series.certification || "N/A"}
-              </Text>
+              <Text style={styles.detailValue}>{series.certification || "N/A"}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Episodios:</Text>
-              <Text style={styles.detailValue}>
-                {series.number_of_episodes || 0}
-              </Text>
+              <Text style={styles.detailValue}>{series.number_of_episodes || 0}</Text>
             </View>
-
+            
             {series.networks && series.networks.length > 0 && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Cadena:</Text>
                 <Text style={styles.detailValue}>
-                  {series.networks.map((network) => network.name).join(", ")}
+                  {series.networks.map(network => network.name).join(', ')}
                 </Text>
               </View>
             )}
@@ -763,11 +656,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 {externalIds.imdb_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.imdb.com/title/${externalIds.imdb_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.imdb.com/title/${externalIds.imdb_id}`)}
                   >
                     <Image source={imdbLogo} style={styles.externalLinkImage} />
                     <Text style={styles.externalLinkText}>IMDb</Text>
@@ -776,11 +665,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 {externalIds.facebook_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.facebook.com/${externalIds.facebook_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.facebook.com/${externalIds.facebook_id}`)}
                   >
                     <Ionicons name="logo-facebook" size={24} color="#1877f2" />
                     <Text style={styles.externalLinkText}>Facebook</Text>
@@ -789,11 +674,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 {externalIds.instagram_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://www.instagram.com/${externalIds.instagram_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://www.instagram.com/${externalIds.instagram_id}`)}
                   >
                     <Ionicons name="logo-instagram" size={24} color="#e4405f" />
                     <Text style={styles.externalLinkText}>Instagram</Text>
@@ -802,16 +683,9 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 {externalIds.twitter_id && (
                   <TouchableOpacity
                     style={styles.externalLink}
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://twitter.com/${externalIds.twitter_id}`
-                      )
-                    }
+                    onPress={() => Linking.openURL(`https://twitter.com/${externalIds.twitter_id}`)}
                   >
-                    <Image
-                      source={twitterLogo}
-                      style={styles.externalLinkImage}
-                    />
+                    <Image source={twitterLogo} style={styles.externalLinkImage} />
                     <Text style={styles.externalLinkText}>Twitter</Text>
                   </TouchableOpacity>
                 )}
@@ -822,19 +696,15 @@ const SeriesDetailScreen = ({ route, navigation }) => {
           {/* Reseñas */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                Reseñas ({reviews.length})
-              </Text>
+              <Text style={styles.sectionTitle}>Reseñas ({reviews.length})</Text>
               <TouchableOpacity
                 style={styles.writeReviewButton}
-                onPress={() =>
-                  navigation.navigate("Review", {
-                    contentId: seriesId,
-                    contentTitle: series?.name,
-                    contentType: "tv",
-                    posterPath: series?.poster_path,
-                  })
-                }
+                onPress={() => navigation.navigate('Review', {
+                  contentId: seriesId,
+                  contentTitle: series?.name,
+                  contentType: 'tv',
+                  posterPath: series?.poster_path
+                })}
               >
                 <Ionicons name="create-outline" size={16} color="#ff6b6b" />
                 <Text style={styles.writeReviewText}>Escribir reseña</Text>
@@ -853,23 +723,17 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 {reviews.length > 3 && (
                   <TouchableOpacity
                     style={styles.viewAllReviewsButton}
-                    onPress={() =>
-                      navigation.navigate("AllReviews", {
-                        contentId: seriesId,
-                        contentTitle: series.name,
-                        contentType: "tv",
-                        posterPath: series.poster_path,
-                      })
-                    }
+                    onPress={() => navigation.navigate('AllReviews', {
+                      contentId: seriesId,
+                      contentTitle: series.name,
+                      contentType: 'tv',
+                      posterPath: series.poster_path
+                    })}
                   >
                     <Text style={styles.viewAllReviewsText}>
                       Ver todas las reseñas ({reviews.length})
                     </Text>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color="#ff6b6b"
-                    />
+                    <Ionicons name="chevron-forward" size={16} color="#ff6b6b" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -877,9 +741,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
               <View style={styles.noReviewsContainer}>
                 <Ionicons name="chatbubble-outline" size={48} color="#666" />
                 <Text style={styles.noReviewsText}>No hay reseñas aún</Text>
-                <Text style={styles.noReviewsSubtext}>
-                  Sé el primero en compartir tu opinión
-                </Text>
+                <Text style={styles.noReviewsSubtext}>Sé el primero en compartir tu opinión</Text>
               </View>
             )}
           </View>
@@ -907,7 +769,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
               style={styles.createListButton}
               onPress={() => {
                 setShowListModal(false);
-                navigation.navigate("Perfil", { screen: "CreateList" });
+                navigation.navigate('Perfil', { screen: 'CreateList' });
               }}
             >
               <Ionicons name="add-circle-outline" size={20} color="#ff6b6b" />
@@ -923,18 +785,17 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 >
                   <Text style={styles.listName}>{item.name}</Text>
                   <Ionicons
-                    name={
-                      selectedLists.has(item.id)
-                        ? "checkmark-circle"
-                        : "ellipse-outline"
-                    }
+                    name={selectedLists.has(item.id) ? "checkmark-circle" : "ellipse-outline"}
                     size={24}
                     color={selectedLists.has(item.id) ? "#ff6b6b" : "#aaa"}
                   />
                 </TouchableOpacity>
               )}
             />
-            <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
+            <TouchableOpacity
+              style={styles.doneButton}
+              onPress={handleDone}
+            >
               <Text style={styles.doneButtonText}>Listo</Text>
             </TouchableOpacity>
           </View>
@@ -947,46 +808,46 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a2e",
+    backgroundColor: '#1a1a2e',
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1a1a2e",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
   },
   errorContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1a1a2e",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
     padding: 20,
   },
   errorText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 16,
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   backButton: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: '#ff6b6b',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
   },
   backButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
   },
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 40,
     left: 0,
     right: 0,
     height: 60,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     zIndex: 10,
   },
@@ -994,33 +855,33 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerActions: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   headerActionButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 8,
   },
   backdropContainer: {
-    position: "relative",
+    position: 'relative',
     height: 250,
   },
   backdrop: {
-    width: "100%",
+    width: '100%',
     height: 250,
-    resizeMode: "cover",
+    resizeMode: 'cover',
   },
   gradientOverlay: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
@@ -1028,13 +889,13 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   mainInfoContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 16,
     marginTop: -60,
     zIndex: 2,
   },
   posterContainer: {
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 5,
@@ -1048,41 +909,41 @@ const styles = StyleSheet.create({
   seriesInfo: {
     flex: 1,
     marginLeft: 16,
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 4,
   },
   year: {
     fontSize: 14,
-    color: "#ccc",
+    color: '#ccc',
     marginBottom: 8,
   },
   ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
   },
   rating: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#ffd700",
+    fontWeight: 'bold',
+    color: '#ffd700',
     marginLeft: 4,
   },
   voteCount: {
     fontSize: 14,
-    color: "#ccc",
+    color: '#ccc',
     marginLeft: 4,
   },
   genreContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   genreTag: {
-    backgroundColor: "rgba(255, 107, 107, 0.2)",
+    backgroundColor: 'rgba(255, 107, 107, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -1090,58 +951,58 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   genreText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 12,
   },
   trailerButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff6b6b",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff6b6b',
     marginHorizontal: 16,
     marginVertical: 16,
     paddingVertical: 12,
     borderRadius: 8,
   },
   trailerButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     marginLeft: 8,
   },
   trailerContainer: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: '#000',
   },
   webview: {
     flex: 1,
   },
   closeTrailerButton: {
-    position: "absolute",
+    position: 'absolute',
     top: 40,
     right: 16,
     zIndex: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   section: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 12,
   },
   overview: {
     fontSize: 14,
     lineHeight: 22,
-    color: "#ccc",
+    color: '#ccc',
   },
   castItem: {
     width: 100,
@@ -1155,19 +1016,19 @@ const styles = StyleSheet.create({
   },
   castName: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   },
   castCharacter: {
     fontSize: 12,
-    color: "#ccc",
-    textAlign: "center",
+    color: '#ccc',
+    textAlign: 'center',
   },
   similarItem: {
     width: 120,
     marginRight: 12,
-    alignItems: "center",
+    alignItems: 'center',
   },
   similarImage: {
     width: 100,
@@ -1177,22 +1038,22 @@ const styles = StyleSheet.create({
   },
   similarTitle: {
     fontSize: 12,
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "500",
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '500',
   },
   providersSection: {
     marginBottom: 16,
   },
   providerTitle: {
     fontSize: 16,
-    color: "#ddd",
+    color: '#ddd',
     marginBottom: 8,
   },
   providerItem: {
     width: 80,
     marginRight: 12,
-    alignItems: "center",
+    alignItems: 'center',
   },
   providerLogo: {
     width: 50,
@@ -1202,192 +1063,192 @@ const styles = StyleSheet.create({
   },
   providerName: {
     fontSize: 12,
-    color: "#ccc",
-    textAlign: "center",
+    color: '#ccc',
+    textAlign: 'center',
   },
   justWatchButton: {
-    backgroundColor: "#4a4a6a",
+    backgroundColor: '#4a4a6a',
     paddingVertical: 10,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 8,
   },
   justWatchButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
   },
   detailRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 8,
   },
   detailLabel: {
     width: 120,
     fontSize: 14,
-    color: "#aaa",
+    color: '#aaa',
   },
   detailValue: {
     flex: 1,
     fontSize: 14,
-    color: "#fff",
+    color: '#fff',
   },
   doneButton: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: '#ff6b6b',
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 20,
   },
   doneButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: "#1a1a2e",
+    backgroundColor: '#1a1a2e',
     borderRadius: 10,
     padding: 20,
-    width: "80%",
-    maxHeight: "60%",
+    width: '80%',
+    maxHeight: '60%',
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   createListButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: 10,
   },
   createListText: {
     fontSize: 16,
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     marginLeft: 10,
   },
   listItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   listName: {
     fontSize: 16,
-    color: "#fff",
+    color: '#fff',
   },
   closeModalButton: {
     marginTop: 20,
     paddingVertical: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   closeModalText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 16,
   },
   sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
   writeReviewButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   writeReviewText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginLeft: 4,
   },
   reviewItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
   },
   reviewHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
   reviewUsername: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
   },
   reviewRating: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   reviewRatingText: {
-    color: "#ffd700",
+    color: '#ffd700',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginLeft: 4,
   },
   reviewText: {
     fontSize: 14,
-    color: "#ccc",
+    color: '#ccc',
     lineHeight: 20,
     marginBottom: 8,
   },
   reviewDate: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
   },
   noReviewsContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 20,
   },
   noReviewsText: {
     fontSize: 16,
-    color: "#666",
+    color: '#666',
     marginTop: 12,
     marginBottom: 4,
   },
   noReviewsSubtext: {
     fontSize: 14,
-    color: "#444",
-    textAlign: "center",
+    color: '#444',
+    textAlign: 'center',
   },
   viewAllReviewsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     marginTop: 12,
   },
   viewAllReviewsText: {
-    color: "#ff6b6b",
+    color: '#ff6b6b',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginRight: 8,
   },
   externalLinksContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   externalLink: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -1395,10 +1256,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   externalLinkText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
     marginLeft: 6,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   externalLinkImage: {
     width: 24,

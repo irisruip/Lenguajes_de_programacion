@@ -455,6 +455,13 @@ const ProfileScreen = () => {
       <View style={styles.settingsSection}>
         <TouchableOpacity
           style={styles.settingsItem}
+          onPress={() => navigation.navigate("CompleteProfile")}
+        >
+          <Ionicons name="person-add-outline" size={24} color="#fff" />
+          <Text style={styles.settingsText}>Completar perfil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.settingsItem}
           onPress={handleEditProfile}
         >
           <Ionicons name="person-outline" size={24} color="#fff" />

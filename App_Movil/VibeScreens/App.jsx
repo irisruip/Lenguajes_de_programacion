@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "react-native";
@@ -8,6 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 // Firebase
 import appFirebase from "./credenciales";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+
+// Context
+import { useAuth } from "./context/AuthContext";
 
 // Screens
 import SignInScreen from "./screens/SignInScreen";
@@ -25,6 +31,7 @@ import FavoritesScreen from "./screens/FavoritesScreen";
 import ReviewScreen from "./screens/ReviewScreen";
 import AllReviewsScreen from "./screens/AllReviewsScreen";
 import UserReviewsScreen from "./screens/UserReviewsScreen";
+import PersonDetailScreen from "./screens/PersonDetailScreen";
 
 // Context
 import { MovieProvider } from "./context/MovieContext";
@@ -37,6 +44,7 @@ const HomeStack = createStackNavigator();
 const ExploreStack = createStackNavigator();
 const NotificationsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+const navigationRef = createNavigationContainerRef();
 
 // Cada tab tiene su propio stack navigator
 function HomeStackScreen() {
@@ -45,6 +53,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="HomeScreen" component={HomeScreen} />
       <HomeStack.Screen name="MovieDetail" component={MovieDetailScreen} />
       <HomeStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
+      <HomeStack.Screen name="PersonDetail" component={PersonDetailScreen} />
       <HomeStack.Screen name="Review" component={ReviewScreen} />
       <HomeStack.Screen name="AllReviews" component={AllReviewsScreen} />
     </HomeStack.Navigator>
@@ -57,6 +66,7 @@ function ExploreStackScreen() {
       <ExploreStack.Screen name="ExploreScreen" component={ExploreScreen} />
       <ExploreStack.Screen name="MovieDetail" component={MovieDetailScreen} />
       <ExploreStack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
+      <ExploreStack.Screen name="PersonDetail" component={PersonDetailScreen} />
       <ExploreStack.Screen name="Review" component={ReviewScreen} />
       <ExploreStack.Screen name="AllReviews" component={AllReviewsScreen} />
     </ExploreStack.Navigator>
@@ -123,6 +133,11 @@ function MainTabs() {
   );
 }
 
+const getInitialRoute = (user) => {
+  if (!user) return "SignIn";
+  return "MainApp";
+};
+
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
@@ -138,6 +153,17 @@ export default function App() {
     return unsubscribe;
   }, [initializing]);
 
+  // Navegar cuando el estado de usuario cambia
+  useEffect(() => {
+    if (navigationRef.isReady() && !initializing) {
+      const route = user ? getInitialRoute(user) : "SignIn";
+      navigationRef.reset({
+        index: 0,
+        routes: [{ name: route }],
+      });
+    }
+  }, [user, initializing]);
+
   if (initializing) {
     return null; // O un componente de carga
   }
@@ -145,23 +171,18 @@ export default function App() {
   return (
     <MovieProvider>
       <SeriesProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
           <Stack.Navigator
-            initialRouteName={user ? "MainApp" : "SignIn"}
+            initialRouteName={getInitialRoute(user)}
             screenOptions={{
               headerShown: false,
               cardStyle: { backgroundColor: "#1a1a2e" },
             }}
           >
-            {user ? (
-              <Stack.Screen name="MainApp" component={MainTabs} />
-            ) : (
-              <>
-                <Stack.Screen name="SignIn" component={SignInScreen} />
-                <Stack.Screen name="SignUp" component={SignUpScreen} />
-              </>
-            )}
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="MainApp" component={MainTabs} />
           </Stack.Navigator>
         </NavigationContainer>
       </SeriesProvider>
