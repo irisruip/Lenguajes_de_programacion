@@ -37,28 +37,45 @@ const MoviePoster = ({ movie, onPress }) => (
 );
 
 // Componente reutilizable para colecciones de películas/series
-const MovieCollection = ({ title, movies = [], onMoviePress }) => {
-  if (!movies || movies.length === 0) {
+const MovieCollection = ({
+  title,
+  movies = [],
+  onMoviePress,
+  loading = false,
+}) => {
+  if (loading || !movies || movies.length === 0) {
     return (
       <View style={styles.collectionContainer}>
         <Text style={styles.collectionTitle}>{title}</Text>
         <View style={styles.emptyCollection}>
-          <Text style={styles.emptyText}>Cargando...</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#ff6b6b" />
+          ) : (
+            <Text style={styles.emptyText}>Cargando...</Text>
+          )}
         </View>
       </View>
     );
   }
+
+  // Crear datos duplicados para efecto carrusel
+  const carouselData = [...movies, ...movies];
+
   return (
     <View style={styles.collectionContainer}>
       <Text style={styles.collectionTitle}>{title}</Text>
       <FlatList
-        data={movies}
-        keyExtractor={(item) => item.id.toString()}
+        data={carouselData}
+        keyExtractor={(item, index) => `${item.id}_${index}`}
         renderItem={({ item }) => (
           <MoviePoster movie={item} onPress={() => onMoviePress(item)} />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
+        initialScrollIndex={0}
+        snapToInterval={140} // poster width + margin
+        decelerationRate="fast"
+        contentContainerStyle={styles.carouselContainer}
       />
     </View>
   );
@@ -173,6 +190,91 @@ const ReviewCollection = ({
 
 const auth = getAuth(appFirebase);
 
+// Componente para colección destacada con diseño inspirado en Criterion
+const FeaturedCollection = ({ collection, loading, onMoviePress }) => {
+  if (loading || !collection) {
+    return (
+      <View style={styles.featuredCollectionContainer}>
+        <View style={styles.featuredCollectionHeader}>
+          <Text style={styles.featuredCollectionTitle}>
+            Colección Destacada
+          </Text>
+          <View style={styles.featuredCollectionDivider} />
+        </View>
+        <View style={styles.featuredCollectionLoading}>
+          <ActivityIndicator size="large" color="#ff6b6b" />
+          <Text style={styles.featuredCollectionLoadingText}>
+            Cargando colección...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  const movies = collection.parts || [];
+
+  return (
+    <View style={styles.featuredCollectionContainer}>
+      <View style={styles.featuredCollectionHeader}>
+        <Text style={styles.featuredCollectionTitle}>{collection.name}</Text>
+        <View style={styles.featuredCollectionDivider} />
+        {collection.overview && (
+          <Text style={styles.featuredCollectionOverview}>
+            {collection.overview}
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.featuredCollectionGrid}>
+        {movies.slice(0, 6).map((movie, index) => (
+          <TouchableOpacity
+            key={movie.id}
+            style={[
+              styles.featuredCollectionMovie,
+              index === 0 && styles.featuredCollectionMovieFirst,
+              index === 5 && styles.featuredCollectionMovieLast,
+            ]}
+            onPress={() => onMoviePress(movie)}
+          >
+            <Image
+              source={{
+                uri: movie.poster_path
+                  ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
+                  : "https://ui-avatars.com/api/?name=" +
+                    encodeURIComponent(movie.title || "No Image") +
+                    "&size=150&background=1a1a2e&color=fff",
+              }}
+              style={styles.featuredCollectionPoster}
+            />
+            <View style={styles.featuredCollectionMovieInfo}>
+              <Text
+                style={styles.featuredCollectionMovieTitle}
+                numberOfLines={2}
+              >
+                {movie.title}
+              </Text>
+              <Text style={styles.featuredCollectionMovieYear}>
+                {movie.release_date
+                  ? new Date(movie.release_date).getFullYear()
+                  : "N/A"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {movies.length > 6 && (
+        <TouchableOpacity style={styles.featuredCollectionViewMore}>
+          <Text style={styles.featuredCollectionViewMoreText}>
+            Ver todas las películas ({movies.length})
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color="#ff6b6b" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const {
@@ -197,22 +299,38 @@ const HomeScreen = () => {
   const [disneyMovies, setDisneyMovies] = useState([]);
   const [netflixSeries, setNetflixSeries] = useState([]);
   const [disneySeries, setDisneySeries] = useState([]);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
 
   // Estado para reseñas destacadas de Firestore
   const [featuredReviews, setFeaturedReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null);
 
+  // Estado para colección destacada
+  const [featuredCollection, setFeaturedCollection] = useState(null);
+  const [collectionLoading, setCollectionLoading] = useState(true);
+
+  // Estados para nuevas secciones de contenido
+  const [trendingDayMovies, setTrendingDayMovies] = useState([]);
+  const [topRatedMovies, setTopRatedMovies] = useState([]);
+  const [popularTVShows, setPopularTVShows] = useState([]);
+  const [topRatedTVShows, setTopRatedTVShows] = useState([]);
+  const [trendingDayMoviesLoading, setTrendingDayMoviesLoading] =
+    useState(true);
+  const [topRatedMoviesLoading, setTopRatedMoviesLoading] = useState(true);
+  const [popularTVShowsLoading, setPopularTVShowsLoading] = useState(true);
+  const [topRatedTVShowsLoading, setTopRatedTVShowsLoading] = useState(true);
+
   // Calculamos "Las mejores películas" ordenando por vote_average descendente
   const bestMovies = trendingMovies
     ? [...trendingMovies]
         .sort((a, b) => b.vote_average - a.vote_average)
-        .slice(0, 5)
+        .slice(0, 10)
     : [];
 
   // Calculamos "Las mejores series" ordenando la lista de series populares
   const bestSeries = series
-    ? [...series].sort((a, b) => b.vote_average - a.vote_average).slice(0, 5)
+    ? [...series].sort((a, b) => b.vote_average - a.vote_average).slice(0, 10)
     : [];
 
   const onRefresh = useCallback(async () => {
@@ -220,6 +338,12 @@ const HomeScreen = () => {
     await refreshMovies();
     await fetchSeries();
     await fetchMonthlySeries();
+    await fetchUpcomingMovies();
+    await fetchFeaturedCollection(); // Actualizar colección destacada
+    await fetchTrendingDayMovies(); // Actualizar películas en tendencia
+    await fetchTopRatedMovies(); // Actualizar películas mejor calificadas
+    await fetchPopularTVShows(); // Actualizar series populares
+    await fetchTopRatedTVShows(); // Actualizar series mejor calificadas
     // Actualizamos contenidos para cada plataforma
     await fetchPlatformMovies(8, setNetflixMovies);
     await fetchPlatformMovies(337, setDisneyMovies);
@@ -328,6 +452,21 @@ const HomeScreen = () => {
     }
   };
 
+  // Obtener películas próximas
+  const fetchUpcomingMovies = async () => {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setUpcomingMovies(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching upcoming movies:", error);
+    }
+  };
+
   // Obtener reseñas de la TMDb API
   const fetchReviews = async (id, type) => {
     try {
@@ -342,6 +481,96 @@ const HomeScreen = () => {
     }
   };
 
+  // Obtener colección destacada (ejemplo: Marvel Cinematic Universe - ID: 86311)
+  const fetchFeaturedCollection = async () => {
+    setCollectionLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/collection/86311?api_key=${API_KEY}&language=es-MX`
+      );
+      const data = await response.json();
+      if (data) {
+        setFeaturedCollection(data);
+      }
+    } catch (error) {
+      console.error("Error fetching featured collection:", error);
+    } finally {
+      setCollectionLoading(false);
+    }
+  };
+
+  // Obtener películas en tendencia del día
+  const fetchTrendingDayMovies = async () => {
+    setTrendingDayMoviesLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setTrendingDayMovies(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching trending day movies:", error);
+    } finally {
+      setTrendingDayMoviesLoading(false);
+    }
+  };
+
+  // Obtener películas mejor calificadas
+  const fetchTopRatedMovies = async () => {
+    setTopRatedMoviesLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setTopRatedMovies(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching top rated movies:", error);
+    } finally {
+      setTopRatedMoviesLoading(false);
+    }
+  };
+
+  // Obtener series populares
+  const fetchPopularTVShows = async () => {
+    setPopularTVShowsLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setPopularTVShows(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching popular TV shows:", error);
+    } finally {
+      setPopularTVShowsLoading(false);
+    }
+  };
+
+  // Obtener series mejor calificadas
+  const fetchTopRatedTVShows = async () => {
+    setTopRatedTVShowsLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/tv/top_rated?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setTopRatedTVShows(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching top rated TV shows:", error);
+    } finally {
+      setTopRatedTVShowsLoading(false);
+    }
+  };
+
   // Obtener usuario actual
   useEffect(() => {
     const user = auth.currentUser;
@@ -352,6 +581,12 @@ const HomeScreen = () => {
   useEffect(() => {
     fetchSeries();
     fetchMonthlySeries();
+    fetchUpcomingMovies();
+    fetchFeaturedCollection(); // Cargar colección destacada
+    fetchTrendingDayMovies(); // Cargar películas en tendencia
+    fetchTopRatedMovies(); // Cargar películas mejor calificadas
+    fetchPopularTVShows(); // Cargar series populares
+    fetchTopRatedTVShows(); // Cargar series mejor calificadas
     // Cargar contenidos para cada plataforma
     fetchPlatformMovies(8, setNetflixMovies);
     fetchPlatformMovies(337, setDisneyMovies);
@@ -421,18 +656,56 @@ const HomeScreen = () => {
       {/* Sección de películas */}
       <MovieCollection
         title="Películas Populares"
-        movies={trendingMovies ? trendingMovies.slice(0, 5) : []}
+        movies={trendingMovies ? trendingMovies.slice(0, 10) : []}
         onMoviePress={handleMoviePress}
       />
       <MovieCollection
         title="Películas del Mes"
-        movies={monthlyMovies ? monthlyMovies.slice(0, 5) : []}
+        movies={monthlyMovies ? monthlyMovies.slice(0, 10) : []}
+        onMoviePress={handleMoviePress}
+      />
+
+      {/* Colección Destacada */}
+      <FeaturedCollection
+        collection={featuredCollection}
+        loading={collectionLoading}
         onMoviePress={handleMoviePress}
       />
       <MovieCollection
         title="Las Mejores Películas"
         movies={bestMovies}
         onMoviePress={handleMoviePress}
+      />
+      <MovieCollection
+        title="Próximas Películas"
+        movies={upcomingMovies ? upcomingMovies.slice(0, 10) : []}
+        onMoviePress={handleMoviePress}
+      />
+
+      {/* Nuevas secciones de contenido */}
+      <MovieCollection
+        title="Tendencias del Día"
+        movies={trendingDayMovies ? trendingDayMovies.slice(0, 10) : []}
+        onMoviePress={handleMoviePress}
+        loading={trendingDayMoviesLoading}
+      />
+      <MovieCollection
+        title="Películas Mejor Calificadas"
+        movies={topRatedMovies ? topRatedMovies.slice(0, 10) : []}
+        onMoviePress={handleMoviePress}
+        loading={topRatedMoviesLoading}
+      />
+      <MovieCollection
+        title="Series Populares"
+        movies={popularTVShows ? popularTVShows.slice(0, 10) : []}
+        onMoviePress={handleSeriesPress}
+        loading={popularTVShowsLoading}
+      />
+      <MovieCollection
+        title="Series Mejor Calificadas"
+        movies={topRatedTVShows ? topRatedTVShows.slice(0, 10) : []}
+        onMoviePress={handleSeriesPress}
+        loading={topRatedTVShowsLoading}
       />
 
       {/* Sección de Reseñas Destacadas */}
@@ -458,12 +731,12 @@ const HomeScreen = () => {
         <>
           <MovieCollection
             title="Series Populares"
-            movies={series ? series.slice(0, 5) : []}
+            movies={series ? series.slice(0, 10) : []}
             onMoviePress={handleSeriesPress}
           />
           <MovieCollection
             title="Series del Mes"
-            movies={monthlySeries ? monthlySeries.slice(0, 5) : []}
+            movies={monthlySeries ? monthlySeries.slice(0, 10) : []}
             onMoviePress={handleSeriesPress}
           />
           <MovieCollection
@@ -477,22 +750,22 @@ const HomeScreen = () => {
       {/* Secciones para Netflix y Disney+ */}
       <MovieCollection
         title="Películas en Netflix"
-        movies={netflixMovies ? netflixMovies.slice(0, 5) : []}
+        movies={netflixMovies ? netflixMovies.slice(0, 10) : []}
         onMoviePress={handleMoviePress}
       />
       <MovieCollection
         title="Series en Netflix"
-        movies={netflixSeries ? netflixSeries.slice(0, 5) : []}
+        movies={netflixSeries ? netflixSeries.slice(0, 10) : []}
         onMoviePress={handleSeriesPress}
       />
       <MovieCollection
         title="Películas en Disney+"
-        movies={disneyMovies ? disneyMovies.slice(0, 5) : []}
+        movies={disneyMovies ? disneyMovies.slice(0, 10) : []}
         onMoviePress={handleMoviePress}
       />
       <MovieCollection
         title="Series en Disney+"
-        movies={disneySeries ? disneySeries.slice(0, 5) : []}
+        movies={disneySeries ? disneySeries.slice(0, 10) : []}
         onMoviePress={handleSeriesPress}
       />
     </ScrollView>
@@ -675,6 +948,113 @@ const styles = StyleSheet.create({
   },
   reviewsContainer: {
     paddingHorizontal: 2,
+  },
+  carouselContainer: {
+    paddingHorizontal: 2,
+  },
+  // Estilos para la colección destacada (inspirado en Criterion)
+  featuredCollectionContainer: {
+    marginTop: 32,
+    marginHorizontal: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 107, 107, 0.1)",
+  },
+  featuredCollectionHeader: {
+    marginBottom: 24,
+  },
+  featuredCollectionTitle: {
+    fontSize: 28,
+    fontWeight: "300",
+    color: "#fff",
+    textAlign: "center",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  featuredCollectionDivider: {
+    height: 1,
+    backgroundColor: "rgba(255, 107, 107, 0.3)",
+    width: 60,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  featuredCollectionOverview: {
+    fontSize: 14,
+    color: "#ccc",
+    textAlign: "center",
+    lineHeight: 20,
+    fontStyle: "italic",
+  },
+  featuredCollectionLoading: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  featuredCollectionLoadingText: {
+    color: "#aaa",
+    fontSize: 14,
+    marginTop: 12,
+  },
+  featuredCollectionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  featuredCollectionMovie: {
+    width: "48%",
+    marginBottom: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  featuredCollectionMovieFirst: {
+    marginRight: "4%",
+  },
+  featuredCollectionMovieLast: {
+    marginLeft: "4%",
+  },
+  featuredCollectionPoster: {
+    width: "100%",
+    height: 200,
+    resizeMode: "cover",
+  },
+  featuredCollectionMovieInfo: {
+    padding: 12,
+  },
+  featuredCollectionMovieTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#fff",
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  featuredCollectionMovieYear: {
+    fontSize: 12,
+    color: "#ff6b6b",
+    fontWeight: "400",
+  },
+  featuredCollectionViewMore: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 8,
+    alignSelf: "center",
+  },
+  featuredCollectionViewMoreText: {
+    color: "#ff6b6b",
+    fontSize: 14,
+    fontWeight: "500",
+    marginRight: 8,
   },
 });
 

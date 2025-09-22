@@ -16,12 +16,17 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSeries } from "../context/SeriesContext";
+import { useMovies } from "../context/MovieContext";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { WebView } from "react-native-webview";
-import { useMovies } from "../context/MovieContext";
 import appFirebase from "../credenciales";
 import { getAuth } from "firebase/auth";
+import { API_KEY } from "@env";
+
+// Import external link images
+const imdbLogo = require("../assets/imdb.webp");
+const twitterLogo = require("../assets/twitter.webp");
 
 const auth = getAuth(appFirebase);
 
@@ -57,6 +62,8 @@ const SeriesDetailScreen = ({ route, navigation }) => {
   const [listsUnsubscribe, setListsUnsubscribe] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [reviewsUnsubscribe, setReviewsUnsubscribe] = useState(null);
+  const [similarSeries, setSimilarSeries] = useState([]);
+  const [externalIds, setExternalIds] = useState(null);
   const scrollViewRef = useRef(null);
 
   useEffect(() => {
@@ -86,6 +93,55 @@ const SeriesDetailScreen = ({ route, navigation }) => {
         // Obtener el reparto
         if (details.credits && details.credits.cast) {
           setCast(details.credits.cast.slice(0, 10)); // Limitamos a 10 actores
+        }
+
+        // Obtener certificación
+        try {
+          const ratingsResponse = await fetch(
+            `https://api.themoviedb.org/3/tv/${seriesId}/content_ratings?api_key=${API_KEY}`
+          );
+          if (ratingsResponse.ok) {
+            const ratingsData = await ratingsResponse.json();
+            const mxRating =
+              ratingsData.results.find((r) => r.iso_3166_1 === "MX") ||
+              ratingsData.results.find((r) => r.iso_3166_1 === "US");
+            if (mxRating) {
+              setSeries((prev) => ({
+                ...prev,
+                certification: mxRating.rating,
+              }));
+            }
+          }
+        } catch (error) {
+          console.warn("Error fetching series certification:", error);
+        }
+
+        // Obtener series similares
+        try {
+          const similarResponse = await fetch(
+            `https://api.themoviedb.org/3/tv/${seriesId}/similar?api_key=${API_KEY}&language=es-MX&page=1`
+          );
+          if (similarResponse.ok) {
+            const similarData = await similarResponse.json();
+            if (similarData.results) {
+              setSimilarSeries(similarData.results.slice(0, 10)); // Limitar a 10 series similares
+            }
+          }
+        } catch (error) {
+          console.warn("Error fetching similar series:", error);
+        }
+
+        // Obtener IDs externos
+        try {
+          const externalResponse = await fetch(
+            `https://api.themoviedb.org/3/tv/${seriesId}/external_ids?api_key=${API_KEY}`
+          );
+          if (externalResponse.ok) {
+            const externalData = await externalResponse.json();
+            setExternalIds(externalData);
+          }
+        } catch (error) {
+          console.warn("Error fetching external IDs:", error);
         }
 
         // Check if series is saved
@@ -598,6 +654,41 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             </View>
           )}
 
+          {/* Series Similares */}
+          {similarSeries.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Series Similares</Text>
+              <FlatList
+                data={similarSeries}
+                keyExtractor={(item) => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.similarItem}
+                    onPress={() =>
+                      navigation.push("SeriesDetail", { seriesId: item.id })
+                    }
+                  >
+                    <Image
+                      source={{
+                        uri: item.poster_path
+                          ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
+                          : "https://ui-avatars.com/api/?name=" +
+                            encodeURIComponent(item.name || "No Image") +
+                            "&size=150&background=1a1a2e&color=fff",
+                      }}
+                      style={styles.similarImage}
+                    />
+                    <Text style={styles.similarTitle} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+
           {/* Información adicional */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Información</Text>
@@ -641,6 +732,13 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             </View>
 
             <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Certificación:</Text>
+              <Text style={styles.detailValue}>
+                {series.certification || "N/A"}
+              </Text>
+            </View>
+
+            <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Episodios:</Text>
               <Text style={styles.detailValue}>
                 {series.number_of_episodes || 0}
@@ -656,6 +754,70 @@ const SeriesDetailScreen = ({ route, navigation }) => {
               </View>
             )}
           </View>
+
+          {/* IDs Externos */}
+          {externalIds && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Enlaces Externos</Text>
+              <View style={styles.externalLinksContainer}>
+                {externalIds.imdb_id && (
+                  <TouchableOpacity
+                    style={styles.externalLink}
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://www.imdb.com/title/${externalIds.imdb_id}`
+                      )
+                    }
+                  >
+                    <Image source={imdbLogo} style={styles.externalLinkImage} />
+                    <Text style={styles.externalLinkText}>IMDb</Text>
+                  </TouchableOpacity>
+                )}
+                {externalIds.facebook_id && (
+                  <TouchableOpacity
+                    style={styles.externalLink}
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://www.facebook.com/${externalIds.facebook_id}`
+                      )
+                    }
+                  >
+                    <Ionicons name="logo-facebook" size={24} color="#1877f2" />
+                    <Text style={styles.externalLinkText}>Facebook</Text>
+                  </TouchableOpacity>
+                )}
+                {externalIds.instagram_id && (
+                  <TouchableOpacity
+                    style={styles.externalLink}
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://www.instagram.com/${externalIds.instagram_id}`
+                      )
+                    }
+                  >
+                    <Ionicons name="logo-instagram" size={24} color="#e4405f" />
+                    <Text style={styles.externalLinkText}>Instagram</Text>
+                  </TouchableOpacity>
+                )}
+                {externalIds.twitter_id && (
+                  <TouchableOpacity
+                    style={styles.externalLink}
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://twitter.com/${externalIds.twitter_id}`
+                      )
+                    }
+                  >
+                    <Image
+                      source={twitterLogo}
+                      style={styles.externalLinkImage}
+                    />
+                    <Text style={styles.externalLinkText}>Twitter</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          )}
 
           {/* Reseñas */}
           <View style={styles.section}>
@@ -1002,6 +1164,23 @@ const styles = StyleSheet.create({
     color: "#ccc",
     textAlign: "center",
   },
+  similarItem: {
+    width: 120,
+    marginRight: 12,
+    alignItems: "center",
+  },
+  similarImage: {
+    width: 100,
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  similarTitle: {
+    fontSize: 12,
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "500",
+  },
   providersSection: {
     marginBottom: 16,
   },
@@ -1200,6 +1379,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginRight: 8,
+  },
+  externalLinksContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  externalLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  externalLinkText: {
+    color: "#fff",
+    fontSize: 14,
+    marginLeft: 6,
+    fontWeight: "500",
+  },
+  externalLinkImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
   },
 });
 
