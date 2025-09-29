@@ -275,6 +275,76 @@ const FeaturedCollection = ({ collection, loading, onMoviePress }) => {
   );
 };
 
+// Componente para mostrar cada actor
+const ActorItem = ({ actor, onPress }) => (
+  <TouchableOpacity style={styles.actorContainer} onPress={onPress}>
+    <Image
+      source={{
+        uri: actor.profile_path
+          ? `https://image.tmdb.org/t/p/w342${actor.profile_path}`
+          : "https://ui-avatars.com/api/?name=" +
+            encodeURIComponent(actor.name) +
+            "&size=150&background=1a1a2e&color=fff",
+      }}
+      style={styles.actorImage}
+      resizeMode="cover"
+    />
+    <View style={styles.actorInfo}>
+      <Text style={styles.actorName} numberOfLines={2}>
+        {actor.name}
+      </Text>
+      <Text style={styles.actorKnownFor} numberOfLines={1}>
+        {actor.known_for_department || "Actor"}
+      </Text>
+    </View>
+  </TouchableOpacity>
+);
+
+// Componente para la colección de actores
+const ActorCollection = ({
+  title,
+  actors = [],
+  onActorPress,
+  loading = false,
+}) => {
+  if (loading || !actors || actors.length === 0) {
+    return (
+      <View style={styles.collectionContainer}>
+        <Text style={styles.collectionTitle}>{title}</Text>
+        <View style={styles.emptyCollection}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#ff6b6b" />
+          ) : (
+            <Text style={styles.emptyText}>Cargando actores...</Text>
+          )}
+        </View>
+      </View>
+    );
+  }
+
+  // Crear datos duplicados para efecto carrusel infinito
+  const carouselData = [...actors, ...actors];
+
+  return (
+    <View style={styles.collectionContainer}>
+      <Text style={styles.collectionTitle}>{title}</Text>
+      <FlatList
+        data={carouselData}
+        keyExtractor={(item, index) => `${item.id}_${index}`}
+        renderItem={({ item }) => (
+          <ActorItem actor={item} onPress={() => onActorPress(item)} />
+        )}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        initialScrollIndex={0}
+        snapToInterval={180} // actor width + margin
+        decelerationRate="fast"
+        contentContainerStyle={styles.carouselContainer}
+      />
+    </View>
+  );
+};
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const {
@@ -311,15 +381,16 @@ const HomeScreen = () => {
   const [collectionLoading, setCollectionLoading] = useState(true);
 
   // Estados para nuevas secciones de contenido
-  const [trendingDayMovies, setTrendingDayMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [popularTVShows, setPopularTVShows] = useState([]);
   const [topRatedTVShows, setTopRatedTVShows] = useState([]);
-  const [trendingDayMoviesLoading, setTrendingDayMoviesLoading] =
-    useState(true);
   const [topRatedMoviesLoading, setTopRatedMoviesLoading] = useState(true);
   const [popularTVShowsLoading, setPopularTVShowsLoading] = useState(true);
   const [topRatedTVShowsLoading, setTopRatedTVShowsLoading] = useState(true);
+
+  // Estado para actores de moda
+  const [trendingActors, setTrendingActors] = useState([]);
+  const [actorsLoading, setActorsLoading] = useState(true);
 
   // Calculamos "Las mejores películas" ordenando por vote_average descendente
   const bestMovies = trendingMovies
@@ -340,7 +411,6 @@ const HomeScreen = () => {
     await fetchMonthlySeries();
     await fetchUpcomingMovies();
     await fetchFeaturedCollection(); // Actualizar colección destacada
-    await fetchTrendingDayMovies(); // Actualizar películas en tendencia
     await fetchTopRatedMovies(); // Actualizar películas mejor calificadas
     await fetchPopularTVShows(); // Actualizar series populares
     await fetchTopRatedTVShows(); // Actualizar series mejor calificadas
@@ -358,6 +428,8 @@ const HomeScreen = () => {
       setReviewsLoading(false);
     });
     setReviewsUnsubscribe(() => newUnsubscribe);
+    // Actualizamos actores
+    await fetchTrendingActors();
     setRefreshing(false);
   }, [refreshMovies, trendingMovies]);
 
@@ -378,6 +450,10 @@ const HomeScreen = () => {
     } else {
       navigation.navigate("SeriesDetail", { seriesId: review.contentId });
     }
+  };
+
+  const handleActorPress = (actor) => {
+    navigation.navigate("PersonDetail", { personId: actor.id });
   };
 
   // Obtener series populares usando la TMDb API
@@ -499,24 +575,6 @@ const HomeScreen = () => {
     }
   };
 
-  // Obtener películas en tendencia del día
-  const fetchTrendingDayMovies = async () => {
-    setTrendingDayMoviesLoading(true);
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}&language=es-MX&page=1`
-      );
-      const data = await response.json();
-      if (data.results) {
-        setTrendingDayMovies(data.results);
-      }
-    } catch (error) {
-      console.error("Error fetching trending day movies:", error);
-    } finally {
-      setTrendingDayMoviesLoading(false);
-    }
-  };
-
   // Obtener películas mejor calificadas
   const fetchTopRatedMovies = async () => {
     setTopRatedMoviesLoading(true);
@@ -571,6 +629,24 @@ const HomeScreen = () => {
     }
   };
 
+  // Obtener actores populares
+  const fetchTrendingActors = async () => {
+    setActorsLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/person/popular?api_key=${API_KEY}&language=es-MX&page=1`
+      );
+      const data = await response.json();
+      if (data.results) {
+        setTrendingActors(data.results);
+      }
+    } catch (error) {
+      console.error("Error fetching trending actors:", error);
+    } finally {
+      setActorsLoading(false);
+    }
+  };
+
   // Obtener usuario actual
   useEffect(() => {
     const user = auth.currentUser;
@@ -583,10 +659,10 @@ const HomeScreen = () => {
     fetchMonthlySeries();
     fetchUpcomingMovies();
     fetchFeaturedCollection(); // Cargar colección destacada
-    fetchTrendingDayMovies(); // Cargar películas en tendencia
     fetchTopRatedMovies(); // Cargar películas mejor calificadas
     fetchPopularTVShows(); // Cargar series populares
     fetchTopRatedTVShows(); // Cargar series mejor calificadas
+    fetchTrendingActors(); // Cargar actores de moda
     // Cargar contenidos para cada plataforma
     fetchPlatformMovies(8, setNetflixMovies);
     fetchPlatformMovies(337, setDisneyMovies);
@@ -684,12 +760,6 @@ const HomeScreen = () => {
 
       {/* Nuevas secciones de contenido */}
       <MovieCollection
-        title="Tendencias del Día"
-        movies={trendingDayMovies ? trendingDayMovies.slice(0, 10) : []}
-        onMoviePress={handleMoviePress}
-        loading={trendingDayMoviesLoading}
-      />
-      <MovieCollection
         title="Películas Mejor Calificadas"
         movies={topRatedMovies ? topRatedMovies.slice(0, 10) : []}
         onMoviePress={handleMoviePress}
@@ -758,6 +828,15 @@ const HomeScreen = () => {
         movies={netflixSeries ? netflixSeries.slice(0, 10) : []}
         onMoviePress={handleSeriesPress}
       />
+
+      {/* Sección de Actores de Moda */}
+      <ActorCollection
+        title="Actores de Moda"
+        actors={trendingActors}
+        loading={actorsLoading}
+        onActorPress={handleActorPress}
+      />
+
       <MovieCollection
         title="Películas en Disney+"
         movies={disneyMovies ? disneyMovies.slice(0, 10) : []}
@@ -1055,6 +1134,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginRight: 8,
+  },
+  actorContainer: {
+    marginRight: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  actorImage: {
+    width: 160,
+    height: 240,
+    borderRadius: 12,
+  },
+  actorInfo: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    padding: 12,
+    alignItems: "center",
+  },
+  actorName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  actorKnownFor: {
+    fontSize: 12,
+    color: "#ff6b6b",
+    textAlign: "center",
   },
 });
 
